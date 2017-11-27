@@ -1,0 +1,16 @@
+image: gcc:latest
+
+before_script:
+  - apt-get update
+  - apt-get install -y doxygen
+
+pages:
+  stage: deploy
+  script:
+  - doxygen
+  - mv docs/html public/
+  artifacts:
+    paths:
+    - public
+  only:
+    - master
