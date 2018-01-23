@@ -6,54 +6,52 @@ namespace optim {
 namespace step {
 
 /**
- * @brief Constant step-size policy, *i.e.*, \f$\gamma(k) = \gamma_{0}\f$.
+ * @brief Constant step-size policy, *i.e.*, \f$\gamma_{k} = \gamma\f$.
  *
  * @tparam float_t Floating-point type, *e.g.*, `float` or `double`.
- * @tparam int_t Integer type, *e.g.*, `int32_t` or `int64_t`.
+ * @tparam uint_t Unsigned integer type, *e.g.*, `uint32_t` or `uint64_t`.
  */
-template <class float_t, class int_t> struct constant {
+template <class float_t, class uint_t> struct constant {
   /**
-   * @brief Default constructor with \f$\gamma_{0} = 0\f$.
+   * @brief Construct with \f$\gamma = 1.0\f$.
    *
    */
   constant() = default;
+  constant(const constant &) = default;
+  constant &operator=(const constant &) = default;
+  constant(constant &&) = default;
+  constant &operator=(constant &&) = default;
   /**
-   * @brief Constructor with a provided step-size.
+   * @brief Construct with the provided step-size, \f$\gamma\f$.
    *
-   * @param[in] step Non-negative initial step-size.
+   * @param[in] gamma Non-negative initial step-size.
    */
-  constant(float_t step) : step{step} {}
+  constant(const float_t gamma) : gamma{gamma} {}
   /**
    * @brief Set step-size.
    *
    * @param[in] step New step-size.
    */
-  void set(float_t step) { this->step = step; }
+  void set(const float_t gamma) { this->gamma = gamma; }
   /**
-   * @brief Get current step-size.
+   * @brief Get current step-size based on the information available.
    *
-   * @return float_t Current step-size.
-   */
-  float_t get() const { return step; }
-  /**
-   * @brief Get current step-size based on the algorithm's state.
-   *
-   * @param[in] k Current iteration count.
-   * @param[in] N Dimension of `x` and `dx`.
+   * @param[in] df Current first-order information.
    * @param[in] x Current decision vector.
-   * @param[in] dx Current first-order information.
+   * @param[in] d Dimension of `df` and `x`.
+   * @param[in] k Current iteration count.
    * @return float_t Current step-size.
    */
-  float_t get(const int_t k, const int_t N, const float_t *x,
-              const float_t *dx) const {
-    return step;
+  float_t get(const float_t *df, const float_t *x, const uint_t d,
+              const uint_t k) const {
+    return gamma;
   }
 
 protected:
   ~constant() = default;
 
 private:
-  float_t step{0};
+  float_t gamma{1};
 };
 
 } // namespace step

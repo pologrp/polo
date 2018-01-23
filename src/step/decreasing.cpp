@@ -1,60 +1,60 @@
 #ifndef DECREASING_CPP_
 #define DECREASING_CPP_
 
+#include <cmath>
+
 namespace kth {
 namespace optim {
 namespace step {
 
 /**
- * @brief Decreasing step-size policy, *i.e.*, \f$\gamma(k) = \gamma_{0}/k\f$.
+ * @brief Decreasing step-size policy, *i.e.*, \f$\gamma_{k} =
+ * \gamma/\sqrt{k}\f$.
  *
  * @tparam float_t Floating-point type, *e.g.*, `float` or `double`.
- * @tparam int_t Integer type, *e.g.*, `int32_t` or `int64_t`.
+ * @tparam uint_t Unsigned integer type, *e.g.*, `uint32_t` or `uint64_t`.
  */
-template <class float_t, class int_t> struct decreasing {
+template <class float_t, class uint_t> struct decreasing {
   /**
-   * @brief Default constructor with \f$\gamma_{0} = 0\f$.
+   * @brief Construct with \f$\gamma_{0} = 1\f$.
    *
    */
   decreasing() = default;
+  decreasing(const decreasing &) = default;
+  decreasing &operator=(const decreasing &) = default;
+  decreasing(decreasing &&) = default;
+  decreasing &operator=(decreasing &&) = default;
   /**
-   * @brief Constructor with a provided step-size.
+   * @brief Construct with the provided step-size, \f$\gamma\f$.
    *
    * @param[in] step Non-negative initial step-size.
    */
-  decreasing(float_t step) : step{step} {}
+  decreasing(const float_t gamma) : gamma{gamma} {}
   /**
    * @brief Set step-size.
    *
    * @param[in] step New step-size.
    */
-  void set(float_t step) { this->step = step; }
+  void set(const float_t gamma) { this->gamma = gamma; }
   /**
-   * @brief Get current step-size.
+   * @brief Get current step-size based on the information available.
    *
-   * @return float_t Current step-size.
-   */
-  float_t get() const { return step; }
-  /**
-   * @brief Get current step-size based on the algorithm's state.
-   *
-   * @param[in] k Current iteration count.
-   * @param[in] N Dimension of `x` and `dx`.
+   * @param[in] df Current first-order information.
    * @param[in] x Current decision vector.
-   * @param[in] dx Current first-order information.
+   * @param[in] d Dimension of `df` and `x`.
+   * @param[in] k Current iteration count.
    * @return float_t Current step-size.
    */
-  float_t get(const int_t k, const int_t N, const float_t *x,
-              const float_t *dx) {
-    step /= k;
-    return step;
+  float_t get(const float_t *df, const float_t *x, const uint_t d,
+              const uint_t k) const {
+    return gamma / std::sqrt<float_t>(k);
   }
 
 protected:
   ~decreasing() = default;
 
 private:
-  float_t step{0};
+  float_t gamma{1};
 };
 
 } // namespace step
