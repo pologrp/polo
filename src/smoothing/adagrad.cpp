@@ -34,8 +34,8 @@ template <class float_t> struct adagrad {
    * @brief Initialize the smoother's internal variables.
    *
    * @tparam InputIt InputIterator.
-   * @param first Beginning of the decision vector.
-   * @param last Past-the-end of the decision vector.
+   * @param first Beginning of the decision variable.
+   * @param last Past-the-end of the decision variable.
    */
   template <class InputIt> void init(InputIt first, InputIt last) {
     rms_g = std::vector<float_t>(std::distance(first, last));
@@ -47,7 +47,8 @@ template <class float_t> struct adagrad {
    * @tparam InputIt1 InputIterator.
    * @tparam InputIt2 InputIterator.
    * @tparam OutputIt OutputIterator.
-   * @param d Beginning of the descent direction.
+   * @param d_first Beginning of the descent direction.
+   * @param d_last Past-the-end of the descent direction.
    * @param x Beginning of the decision variable.
    * @param k Current iteration count.
    * @param g Beginning of the smoothed direction.
@@ -55,16 +56,22 @@ template <class float_t> struct adagrad {
    * direction.
    */
   template <class InputIt1, class InputIt2, class OutputIt>
-  OutputIt smooth(InputIt1 d, InputIt2 x, const std::size_t k, OutputIt g) {
-    // Accumulate squared gradient
-    std::transform(
-        rms_g.cbegin(), rms_g.cend(), d, rms_g.begin(),
-        [](const float_t &lhs, const float_t &rhs) { return lhs + rhs * rhs; });
-    // Scale the gradient
-    return std::transform(rms_g.cbegin(), rms_g.cend(), d, g,
-                          [&](const float_t &lhs, const float_t &rhs) {
-                            return rhs / (std::sqrt(lhs) + epsilon);
-                          });
+  OutputIt smooth(InputIt1 d_first, InputIt1 d_last, InputIt2 x,
+                  const std::size_t k, OutputIt g) {
+    float_t d_val{0};
+    std::size_t idx{0};
+    while (d_first != d_last) {
+      // Read values
+      d_val = *d_first++;
+      // Accumulate squared gradient
+      rms_g[idx] += d_val * d_val;
+      // Scale the gradient
+      *g++ = d_val / (std::sqrt(rms_g[idx]) + epsilon);
+      // Increment index
+      idx++;
+    }
+    // Return the past-the-end iterator
+    return g;
   }
 
 protected:
