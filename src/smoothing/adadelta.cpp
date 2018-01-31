@@ -40,7 +40,7 @@ template <class float_t> struct adadelta {
    * @param last Past-the-end of the decision variable.
    */
   template <class InputIt> void init(InputIt first, InputIt last) {
-    const std::size_t dim{std::distance(first, last)};
+    const std::size_t dim = std::distance(first, last);
     x_prev = std::vector<float_t>(first, last);
     rms_g = std::vector<float_t>(dim);
     rms_x = std::vector<float_t>(dim);
