@@ -2,6 +2,7 @@
 #define DECREASING_CPP_
 
 #include <cmath>
+#include <cstddef>
 
 namespace kth {
 namespace optim {

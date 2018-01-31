@@ -1,6 +1,8 @@
 #ifndef CONSTANT_CPP_
 #define CONSTANT_CPP_
 
+#include <cstddef>
+
 namespace kth {
 namespace optim {
 namespace step {
