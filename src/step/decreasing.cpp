@@ -12,41 +12,42 @@ namespace step {
  * \gamma/\sqrt{k}\f$.
  *
  * @tparam float_t Floating-point type, *e.g.*, `float` or `double`.
- * @tparam uint_t Unsigned integer type, *e.g.*, `uint32_t` or `uint64_t`.
  */
-template <class float_t, class uint_t> struct decreasing {
+template <class float_t> struct decreasing {
   /**
-   * @brief Construct with \f$\gamma_{0} = 1\f$.
+   * @brief Construct with the provided step-size, \f$\gamma\f$.
    *
+   * @param[in] gamma Non-negative initial step-size.
    */
-  decreasing() = default;
+  decreasing(const float_t gamma = 1) : gamma{gamma} {}
+
+  // Usual suspects; needed due to the protected destructor.
   decreasing(const decreasing &) = default;
   decreasing &operator=(const decreasing &) = default;
   decreasing(decreasing &&) = default;
   decreasing &operator=(decreasing &&) = default;
-  /**
-   * @brief Construct with the provided step-size, \f$\gamma\f$.
-   *
-   * @param[in] step Non-negative initial step-size.
-   */
-  decreasing(const float_t gamma) : gamma{gamma} {}
+
   /**
    * @brief Set step-size.
    *
    * @param[in] step New step-size.
    */
   void set(const float_t gamma) { this->gamma = gamma; }
+
   /**
    * @brief Get current step-size based on the information available.
    *
-   * @param[in] df Current first-order information.
-   * @param[in] x Current decision vector.
-   * @param[in] d Dimension of `df` and `x`.
-   * @param[in] k Current iteration count.
+   * @tparam InputIt1 InputIterator.
+   * @tparam InputIt2 InputIterator.
+   * @param d_first Beginning of the descent direction.
+   * @param d_last Past-the-end of the descent direction.
+   * @param x Beginning of the decision variable.
+   * @param k Current iteration count.
    * @return float_t Current step-size.
    */
-  float_t get(const float_t *df, const float_t *x, const uint_t d,
-              const uint_t k) const {
+  template <class InputIt1, class InputIt2>
+  float_t get(InputIt1 d_first, InputIt1 d_last, InputIt2 x,
+              const std::size_t k) const {
     return gamma / std::sqrt<float_t>(k);
   }
 
