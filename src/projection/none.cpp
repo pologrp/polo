@@ -17,6 +17,8 @@ template <class float_t> struct none {
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt project(InputIt1 g_first, InputIt1 g_last, InputIt2 xold,
                    const float_t step, OutputIt xnew) {
+    while (g_first != g_last)
+      *xnew++ = *xold++ - step * *g_first++;
     return xnew;
   }
 

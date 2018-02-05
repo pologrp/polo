@@ -17,6 +17,8 @@ template <class float_t> struct none {
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt smooth(InputIt1 d_first, InputIt1 d_last, InputIt2 x,
                   const std::size_t k, OutputIt g) {
+    while (d_first != d_last)
+      *g++ = *d_first++;
     return g;
   }
 
