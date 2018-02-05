@@ -35,12 +35,15 @@ template <class float_t> struct nesterov {
       // Update values
       nu[idx] = mu * nu_prev - epsilon * g_val;
       // Improve the gradient
-      *d++ = - mu * mu * nu_prev + (1 + mu) * epsilon * g_val;
+      *d++ = -mu * mu * nu_prev + (1 + mu) * epsilon * g_val;
       // Increment index
       idx++;
     }
     return d;
   }
+
+protected:
+  ~nesterov() = default;
 
 private:
   float_t mu{0.95}, epsilon{1E-3};

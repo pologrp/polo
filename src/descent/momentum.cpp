@@ -32,7 +32,7 @@ template <class float_t> struct momentum {
       // Read values
       g_val = *g_first++;
       // Update values
-      nu[idx] = - mu * nu[idx] + epsilon * g_val;
+      nu[idx] = -mu * nu[idx] + epsilon * g_val;
       // Improve the gradient
       *d++ = nu[idx];
       // Increment index
@@ -40,6 +40,9 @@ template <class float_t> struct momentum {
     }
     return d;
   }
+
+protected:
+  ~momentum() = default;
 
 private:
   float_t mu{0.9}, epsilon{1E-3};
