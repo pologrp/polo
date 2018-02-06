@@ -14,6 +14,8 @@ template <class float_t> struct none {
   none(none &&) = default;
   none &operator=(none &&) = default;
 
+  template <class InputIt> void init(InputIt first, InputIt last) {}
+
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt smooth(InputIt1 d_first, InputIt1 d_last, InputIt2 x,
                   const std::size_t k, OutputIt g) {

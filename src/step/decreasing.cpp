@@ -49,7 +49,7 @@ template <class float_t> struct decreasing {
   template <class InputIt1, class InputIt2>
   float_t get(InputIt1 d_first, InputIt1 d_last, InputIt2 x,
               const std::size_t k) const {
-    return gamma / std::sqrt<float_t>(k);
+    return gamma / std::sqrt(k);
   }
 
 protected:
