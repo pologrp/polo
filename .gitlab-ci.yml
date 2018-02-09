@@ -1,14 +1,15 @@
-image: gcc:latest
+image: alpine
 
 before_script:
-  - apt-get update
-  - apt-get install -y doxygen
+  - apk --no-cache add py3-sphinx_rtd_theme make
+  - pip3 install sphinx
 
 pages:
   stage: deploy
   script:
-  - doxygen
-  - mv docs/html public/
+  - cd docs
+  - make html
+  - mv _build/html/ ../public/
   artifacts:
     paths:
     - public
