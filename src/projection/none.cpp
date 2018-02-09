@@ -1,8 +1,7 @@
 #ifndef NOPROJECTION_CPP_
 #define NOPROJECTION_CPP_
 
-namespace kth {
-namespace optim {
+namespace pbopt {
 namespace projection {
 
 template <class float_t> struct none {
@@ -27,7 +26,6 @@ protected:
 };
 
 } // namespace projection
-} // namespace optim
-} // namespace kth
+} // namespace pbopt
 
 #endif

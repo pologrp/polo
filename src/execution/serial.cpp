@@ -1,8 +1,7 @@
 #ifndef SERIAL_CPP_
 #define SERIAL_CPP_
 
-namespace kth {
-namespace optim {
+namespace pbopt {
 namespace execution {
 
 template <class float_t> struct serial {
@@ -19,7 +18,6 @@ protected:
 };
 
 } // namespace execution
-} // namespace optim
-} // namespace kth
+} // namespace pbopt
 
 #endif

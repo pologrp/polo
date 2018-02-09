@@ -5,8 +5,7 @@
 #include <cmath>
 #include <vector>
 
-namespace kth {
-namespace optim {
+namespace pbopt {
 namespace projection {
 
 template <class float_t> struct l2ball {
@@ -49,7 +48,6 @@ private:
 };
 
 } // namespace projection
-} // namespace optim
-} // namespace kth
+} // namespace pbopt
 
 #endif

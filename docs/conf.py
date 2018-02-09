@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# YAPOT documentation build configuration file, created by
+# PBOpt documentation build configuration file, created by
 # sphinx-quickstart on Fri Feb  9 09:51:58 2018.
 #
 # This file is execfile()d with the current directory set to its
@@ -47,7 +47,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'YAPOT'
+project = 'PBOpt'
 copyright = '2018, Arda Aytekin, Martin Biel, Mikael Johansson'
 author = 'Arda Aytekin, Martin Biel, Mikael Johansson'
 
@@ -113,7 +113,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'YAPOTdoc'
+htmlhelp_basename = 'PBOptdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -140,7 +140,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'YAPOT.tex', 'YAPOT Documentation',
+    (master_doc, 'PBOpt.tex', 'PBOpt Documentation',
      'Arda Aytekin, Martin Biel, Mikael Johansson', 'manual'),
 ]
 
@@ -150,7 +150,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'yapot', 'YAPOT Documentation',
+    (master_doc, 'pbopt', 'PBOpt Documentation',
      [author], 1)
 ]
 
@@ -161,10 +161,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'YAPOT', 'YAPOT Documentation',
-     author, 'YAPOT', 'One line description of project.',
+    (master_doc, 'PBOpt', 'PBOpt Documentation',
+     author, 'PBOpt', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-

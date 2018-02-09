@@ -4,8 +4,7 @@
 #include <algorithm>
 #include <vector>
 
-namespace kth {
-namespace optim {
+namespace pbopt {
 namespace projection {
 
 template <class float_t> struct box {
@@ -37,7 +36,6 @@ private:
 };
 
 } // namespace projection
-} // namespace optim
-} // namespace kth
+} // namespace pbopt
 
 #endif

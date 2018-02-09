@@ -3,8 +3,7 @@
 
 #include <cstddef>
 
-namespace kth {
-namespace optim {
+namespace pbopt {
 namespace utility {
 
 struct maxiter {
@@ -21,7 +20,6 @@ private:
 };
 
 } // namespace utility
-} // namespace optim
-} // namespace kth
+} // namespace pbopt
 
 #endif

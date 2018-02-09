@@ -7,8 +7,7 @@
 #include <iterator>
 #include <vector>
 
-namespace kth {
-namespace optim {
+namespace pbopt {
 namespace smoothing {
 
 /**
@@ -87,7 +86,6 @@ private:
 };
 
 } // namespace smoothing
-} // namespace optim
-} // namespace kth
+} // namespace pbopt
 
 #endif

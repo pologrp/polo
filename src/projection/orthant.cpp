@@ -3,8 +3,7 @@
 
 #include <algorithm>
 
-namespace kth {
-namespace optim {
+namespace pbopt {
 namespace projection {
 
 struct _pos_orthant {};
@@ -52,7 +51,6 @@ template <class float_t>
 using negative_orthant = orthant<float_t, _neg_orthant>;
 
 } // namespace projection
-} // namespace optim
-} // namespace kth
+} // namespace pbopt
 
 #endif

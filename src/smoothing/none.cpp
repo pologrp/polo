@@ -1,8 +1,7 @@
 #ifndef NOSMOOTHING_CPP_
 #define NOSMOOTHING_CPP_
 
-namespace kth {
-namespace optim {
+namespace pbopt {
 namespace smoothing {
 
 template <class float_t> struct none {
@@ -29,7 +28,6 @@ protected:
 };
 
 } // namespace smoothing
-} // namespace optim
-} // namespace kth
+} // namespace pbopt
 
 #endif

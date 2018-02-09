@@ -6,8 +6,7 @@
 #include <iterator>
 #include <vector>
 
-namespace kth {
-namespace optim {
+namespace pbopt {
 namespace descent {
 
 template <class float_t> struct nesterov {
@@ -51,7 +50,6 @@ private:
 };
 
 } // namespace descent
-} // namespace optim
-} // namespace kth
+} // namespace pbopt
 
 #endif

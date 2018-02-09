@@ -11,10 +11,9 @@
 #include "smoothing/none.cpp"
 #include "step/constant.cpp"
 
-using namespace kth::optim;
+using namespace pbopt;
 
-namespace kth {
-namespace optim {
+namespace pbopt {
 namespace algorithm {
 
 template <class float_t, template <class> class Descent,
@@ -61,6 +60,8 @@ public:
   template <class ForwardIt> void init(ForwardIt &&x_begin, ForwardIt &&x_end) {
     Descent<float_t>::init(std::forward<ForwardIt>(x_begin),
                            std::forward<ForwardIt>(x_end));
+    Smoothing<float_t>::init(std::forward<ForwardIt>(x_begin),
+                             std::forward<ForwardIt>(x_end));
     vals = algorithm_info(std::forward<ForwardIt>(x_begin),
                           std::forward<ForwardIt>(x_end));
   }
@@ -135,7 +136,6 @@ private:
 };
 
 } // namespace algorithm
-} // namespace optim
-} // namespace kth
+} // namespace pbopt
 
 #endif

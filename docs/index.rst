@@ -1,9 +1,9 @@
-.. YAPOT documentation master file, created by
+.. PBOpt documentation master file, created by
    sphinx-quickstart on Fri Feb  9 09:51:58 2018.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to YAPOT's documentation!
+Welcome to PBOpt's documentation!
 =================================
 
 .. toctree::

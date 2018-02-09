@@ -4,8 +4,7 @@
 #include <cmath>
 #include <cstddef>
 
-namespace kth {
-namespace optim {
+namespace pbopt {
 namespace step {
 
 /**
@@ -60,7 +59,6 @@ private:
 };
 
 } // namespace step
-} // namespace optim
-} // namespace kth
+} // namespace pbopt
 
 #endif
