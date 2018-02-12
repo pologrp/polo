@@ -1,2 +1,0 @@
-Decreasing Step-Size
-====================

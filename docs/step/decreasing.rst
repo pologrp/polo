@@ -1,2 +1,0 @@
-Constant Step-Size
-==================

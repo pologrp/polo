@@ -1,2 +1,0 @@
-Nesterov's Momentum
-===================
