@@ -9,22 +9,29 @@ namespace pbopt {
 namespace projection {
 
 template <class float_t> struct l2ball {
-  l2ball(const float_t r = 1) r{r} {}
+  l2ball(const float_t r = 1) : r{r} {}
 
   l2ball(const l2ball &) = default;
   l2ball &operator=(const l2ball &) = default;
   l2ball(l2ball &&) = default;
   l2ball &operator=(l2ball &&) = default;
 
+  void params(const float_t r, std::vector<float_t> c) {
+    this->r = r;
+    this->c = std::move(c);
+  }
+
+  template <class InputIt> void initialize(InputIt, InputIt) {}
+
   template <class InputIt1, class InputIt2, class OutputIt>
-  OutputIt project(InputIt1 g_begin, InputIt1 g_end, InputIt2 x_begin,
-                   const float_t step, OutputIt xnew) {
+  OutputIt project(const float_t step, InputIt1 xold_begin, InputIt1 xold_end,
+                   InputIt2 gbegin, OutputIt xnew_begin) {
     float_t temp, radius{0}, scaling;
     std::size_t idx{0};
-    OutputIt xtemp{xnew};
+    OutputIt xtemp{xnew_begin};
 
-    while (g_begin != g_end) {
-      temp = *x_begin++ - step * *g_begin++;
+    while (xold_begin != xold_end) {
+      temp = *xold_begin++ - step * *gbegin++;
       *xtemp++ = temp;
       radius += (temp - c[idx]) * (temp - c[idx]);
       idx++;
@@ -34,9 +41,9 @@ template <class float_t> struct l2ball {
     scaling = r / std::max(std::sqrt(radius), r);
 
     for (const auto cval : c)
-      *xnew++ = cval + scaling * (*xnew++ - cval);
+      *xnew_begin++ = cval + scaling * (*xnew_begin++ - cval);
 
-    return xnew;
+    return xnew_begin;
   }
 
 protected:

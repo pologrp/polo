@@ -15,17 +15,24 @@ template <class float_t> struct box {
   box(box &&) = default;
   box &operator=(box &&) = default;
 
+  void params(std::vector<float_t> l, std::vector<float_t> u) {
+    this->l = std::move(l);
+    this->u = std::move(u);
+  }
+
+  template <class InputIt> void initialize(InputIt, InputIt) {}
+
   template <class InputIt1, class InputIt2, class OutputIt>
-  OutputIt poject(InputIt1 gbegin, InputIt1 gend, InputIt2 xbegin,
-                  const float_t step, OutputIt xnew) {
+  OutputIt poject(const float_t step, InputIt1 xold_begin, InputIt1 xold_end,
+                  InputIt2 gbegin, OutputIt xnew_begin) {
     float_t temp;
     std::size_t idx{0};
-    while (gbegin != gend) {
-      temp = *xbegin++ - step * *gbegin++;
-      *xnew++ = std::min(std::max(temp, l[idx]), u[idx]);
+    while (xold_begin != xold_end) {
+      temp = *xold_begin++ - step * *gbegin++;
+      *xnew_begin++ = std::min(std::max(temp, l[idx]), u[idx]);
       idx++;
     }
-    return xnew;
+    return xnew_begin;
   }
 
 protected:

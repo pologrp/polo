@@ -1,5 +1,5 @@
-#ifndef DIAGQP_CPP_
-#define DIAGQP_CPP_
+#ifndef QP_CPP_
+#define QP_CPP_
 
 #include <utility>
 #include <vector>
@@ -7,23 +7,18 @@
 namespace pbopt {
 namespace problem {
 
-template <class float_t> struct diagqp {
-  static float_t wrapper(const float_t *x_first, const float_t *x_last,
-                         float_t *dx, void *instance) {
-    diagqp *ptr = static_cast<diagqp *>(instance);
-    return ptr->operator()(x_first, x_last, dx);
-  }
-
-  diagqp(std::vector<float_t> Q, std::vector<float_t> q)
+template <class float_t> struct qp {
+  qp(std::vector<float_t> Q, std::vector<float_t> q)
       : Q{std::move(Q)}, q{std::move(q)} {}
+
   template <class InputIt, class OutputIt>
-  float_t operator()(InputIt x_first, InputIt x_last, OutputIt dx) {
+  float_t operator()(InputIt xbegin, InputIt xend, OutputIt gbegin) {
     float_t loss{0}, xval;
     std::size_t idx{0};
-    while (x_first != x_last) {
-      xval = *x_first++;
+    while (xbegin != xend) {
+      xval = *xbegin++;
       loss += 0.5 * Q[idx] * xval * xval + q[idx] * xval;
-      *dx++ = Q[idx] * xval + q[idx];
+      *gbegin++ = Q[idx] * xval + q[idx];
       idx++;
     }
     return loss;

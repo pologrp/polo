@@ -7,37 +7,37 @@
 #include <vector>
 
 namespace pbopt {
-namespace descent {
+namespace gradient {
 
 template <class float_t> struct momentum {
   momentum(const float_t mu = 0.95, const float_t epsilon = 1E-3)
       : mu{mu}, epsilon{epsilon} {}
 
-  // Usual suspects; needed due to the protected destructor.
   momentum(const momentum &) = default;
   momentum &operator=(const momentum &) = default;
   momentum(momentum &&) = default;
   momentum &operator=(momentum &&) = default;
 
-  template <class InputIt> void init(InputIt first, InputIt last) {
-    nu = std::vector<float_t>(std::distance(first, last));
+  void params(const float_t mu, const float_t epsilon) {
+    this->mu = mu;
+    this->epsilon = epsilon;
+  }
+
+  template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
+    nu = std::vector<float_t>(std::distance(xbegin, xend));
   }
 
   template <class InputIt, class OutputIt>
-  OutputIt direction(InputIt g_first, InputIt g_last, OutputIt d) {
+  OutputIt grad(InputIt gold_begin, InputIt gold_end, OutputIt gnew_begin) {
     std::size_t idx{0};
     float_t g_val;
-    while (g_first != g_last) {
-      // Read values
-      g_val = *g_first++;
-      // Update values
-      nu[idx] = -mu * nu[idx] + epsilon * g_val;
-      // Improve the gradient
-      *d++ = nu[idx];
-      // Increment index
+    while (gold_begin != gold_end) {
+      g_val = *gold_begin++;
+      nu[idx] = mu * nu[idx] + epsilon * g_val;
+      *gnew_begin++ = nu[idx];
       idx++;
     }
-    return d;
+    return gnew_begin;
   }
 
 protected:
@@ -48,7 +48,7 @@ private:
   std::vector<float_t> nu;
 };
 
-} // namespace descent
+} // namespace gradient
 } // namespace pbopt
 
 #endif
