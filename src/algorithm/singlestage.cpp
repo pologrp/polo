@@ -1,6 +1,7 @@
 #ifndef SINGLESTAGE_CPP_
 #define SINGLESTAGE_CPP_
 
+#include <iterator>
 #include <utility>
 #include <vector>
 
@@ -28,6 +29,10 @@ struct singlestage : private Gradient<float_t>,
   singlestage() = default;
   template <class ForwardIt> singlestage(ForwardIt &&xbegin, ForwardIt &&xend) {
     initialize(std::forward<ForwardIt>(xbegin), std::forward<ForwardIt>(xend));
+  }
+
+  void initialize(const std::vector<float_t> &x) {
+    initialize(std::begin(x), std::end(x));
   }
 
   template <class ForwardIt> void initialize(ForwardIt xbegin, ForwardIt xend) {

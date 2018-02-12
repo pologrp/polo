@@ -1,6 +1,7 @@
 #ifndef QP_CPP_
 #define QP_CPP_
 
+#include <iterator>
 #include <utility>
 #include <vector>
 
@@ -34,6 +35,9 @@ template <class float_t> struct qp {
       idx++;
     }
     return fopt;
+  }
+  float_t optimum(std::vector<float_t> &xopt) {
+    return optimum(std::begin(xopt));
   }
 
 private:
