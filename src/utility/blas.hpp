@@ -1,5 +1,5 @@
-#ifndef BLAS_CPP_
-#define BLAS_CPP_
+#ifndef BLAS_HPP_
+#define BLAS_HPP_
 
 extern "C" {
 // Single-precision, L1

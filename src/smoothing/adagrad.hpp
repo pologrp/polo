@@ -1,5 +1,5 @@
-#ifndef RMSPROP_CPP_
-#define RMSPROP_CPP_
+#ifndef ADAGRAD_HPP_
+#define ADAGRAD_HPP_
 
 #include <algorithm>
 #include <cmath>
@@ -10,19 +10,15 @@
 namespace pbopt {
 namespace smoothing {
 
-template <class float_t> struct rmsprop {
-  rmsprop(const float_t rho = 0.9, const float_t epsilon = 1E-6)
-      : rho{rho}, epsilon{epsilon} {}
+template <class float_t> struct adagrad {
+  adagrad(const float_t epsilon = 1E-6) : epsilon{epsilon} {}
 
-  rmsprop(const rmsprop &) = default;
-  rmsprop &operator=(const rmsprop &) = default;
-  rmsprop(rmsprop &&) = default;
-  rmsprop &operator=(rmsprop &&) = default;
+  adagrad(const adagrad &) = default;
+  adagrad &operator=(const adagrad &) = default;
+  adagrad(adagrad &&) = default;
+  adagrad &operator=(adagrad &&) = default;
 
-  void params(const float_t rho, const float_t epsilon) {
-    this->rho = rho;
-    this->epsilon = epsilon;
-  }
+  void params(const float_t epsilon) { this->epsilon = epsilon; }
 
   template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
     rms_g = std::vector<float_t>(std::distance(xbegin, xend));
@@ -36,7 +32,7 @@ template <class float_t> struct rmsprop {
     while (xbegin != xend) {
       xbegin++;
       g_val = *gold_begin++;
-      rms_g[idx] = rho * rms_g[idx] + (1 - rho) * g_val * g_val;
+      rms_g[idx] += g_val * g_val;
       *gnew_begin++ = g_val / (std::sqrt(rms_g[idx]) + epsilon);
       idx++;
     }
@@ -44,10 +40,10 @@ template <class float_t> struct rmsprop {
   }
 
 protected:
-  ~rmsprop() = default;
+  ~adagrad() = default;
 
 private:
-  float_t rho{0.9}, epsilon{1E-6};
+  float_t epsilon{1E-6};
   std::vector<float_t> rms_g;
 };
 

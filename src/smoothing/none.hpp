@@ -1,5 +1,5 @@
-#ifndef NOSMOOTHING_CPP_
-#define NOSMOOTHING_CPP_
+#ifndef NOSMOOTHING_HPP_
+#define NOSMOOTHING_HPP_
 
 namespace pbopt {
 namespace smoothing {

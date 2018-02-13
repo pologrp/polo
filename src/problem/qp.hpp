@@ -1,5 +1,5 @@
-#ifndef QP_CPP_
-#define QP_CPP_
+#ifndef QP_HPP_
+#define QP_HPP_
 
 #include <iterator>
 #include <utility>

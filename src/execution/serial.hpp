@@ -1,5 +1,5 @@
-#ifndef SERIAL_CPP_
-#define SERIAL_CPP_
+#ifndef SERIAL_HPP_
+#define SERIAL_HPP_
 
 namespace pbopt {
 namespace execution {

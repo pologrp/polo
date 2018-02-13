@@ -1,5 +1,5 @@
-#ifndef MOMENTUM_CPP_
-#define MOMENTUM_CPP_
+#ifndef MOMENTUM_HPP_
+#define MOMENTUM_HPP_
 
 #include <algorithm>
 #include <cstddef>

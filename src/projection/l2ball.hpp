@@ -1,5 +1,5 @@
-#ifndef L2BALL_CPP_
-#define L2BALL_CPP_
+#ifndef L2BALL_HPP_
+#define L2BALL_HPP_
 
 #include <algorithm>
 #include <cmath>

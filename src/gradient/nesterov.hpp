@@ -1,5 +1,5 @@
-#ifndef NESTEROV_CPP_
-#define NESTEROV_CPP_
+#ifndef NESTEROV_HPP_
+#define NESTEROV_HPP_
 
 #include <algorithm>
 #include <cstddef>

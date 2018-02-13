@@ -1,5 +1,5 @@
-#ifndef ADADELTA_CPP_
-#define ADADELTA_CPP_
+#ifndef ADADELTA_HPP_
+#define ADADELTA_HPP_
 
 #include <algorithm>
 #include <cmath>

@@ -1,5 +1,5 @@
-#ifndef ORTHANT_CPP_
-#define ORTHANT_CPP_
+#ifndef ORTHANT_HPP_
+#define ORTHANT_HPP_
 
 #include <algorithm>
 

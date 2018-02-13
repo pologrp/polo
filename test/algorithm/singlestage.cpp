@@ -1,14 +1,14 @@
 #include <iostream>
 #include <iterator>
 
-#include "algorithm.cpp"
-#include "execution.cpp"
-#include "gradient.cpp"
-#include "problem.cpp"
-#include "projection.cpp"
-#include "smoothing.cpp"
-#include "step.cpp"
-#include "utility.cpp"
+#include "algorithm.hpp"
+#include "execution.hpp"
+#include "gradient.hpp"
+#include "problem.hpp"
+#include "projection.hpp"
+#include "smoothing.hpp"
+#include "step.hpp"
+#include "utility.hpp"
 
 using namespace pbopt;
 

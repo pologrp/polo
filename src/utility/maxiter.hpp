@@ -1,5 +1,5 @@
-#ifndef MAXITER_CPP_
-#define MAXITER_CPP_
+#ifndef MAXITER_HPP_
+#define MAXITER_HPP_
 
 #include <cstddef>
 

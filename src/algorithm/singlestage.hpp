@@ -1,15 +1,15 @@
-#ifndef SINGLESTAGE_CPP_
-#define SINGLESTAGE_CPP_
+#ifndef SINGLESTAGE_HPP_
+#define SINGLESTAGE_HPP_
 
 #include <iterator>
 #include <utility>
 #include <vector>
 
-#include "execution/serial.cpp"
-#include "projection/none.cpp"
-#include "smoothing/none.cpp"
-#include "step/constant.cpp"
-#include "utility/maxiter.cpp"
+#include "execution/serial.hpp"
+#include "projection/none.hpp"
+#include "smoothing/none.hpp"
+#include "step/constant.hpp"
+#include "utility/maxiter.hpp"
 
 using namespace pbopt;
 

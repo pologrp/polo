@@ -1,5 +1,5 @@
-#ifndef NOPROJECTION_CPP_
-#define NOPROJECTION_CPP_
+#ifndef NOPROJECTION_HPP_
+#define NOPROJECTION_HPP_
 
 namespace pbopt {
 namespace projection {

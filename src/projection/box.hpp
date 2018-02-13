@@ -1,5 +1,5 @@
-#ifndef BOX_CPP_
-#define BOX_CPP_
+#ifndef BOX_HPP_
+#define BOX_HPP_
 
 #include <algorithm>
 #include <vector>
