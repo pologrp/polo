@@ -5,22 +5,20 @@
 #include <utility>
 #include <vector>
 
-#include "execution/serial.hpp"
-#include "projection/none.hpp"
-#include "smoothing/none.hpp"
-#include "step/constant.hpp"
-#include "utility/maxiter.hpp"
-
-using namespace pbopt;
+#include "pbopt/execution/serial.hpp"
+#include "pbopt/projection/none.hpp"
+#include "pbopt/smoothing/none.hpp"
+#include "pbopt/step/constant.hpp"
+#include "pbopt/utility/maxiter.hpp"
 
 namespace pbopt {
 namespace algorithm {
 
 template <class float_t, template <class> class Gradient,
-          template <class> class StepSize = step::constant,
-          template <class> class Smoothing = smoothing::none,
-          template <class> class Projection = projection::none,
-          template <class> class Execution = execution::serial>
+          template <class> class StepSize = pbopt::step::constant,
+          template <class> class Smoothing = pbopt::smoothing::none,
+          template <class> class Projection = pbopt::projection::none,
+          template <class> class Execution = pbopt::execution::serial>
 struct singlestage : private Gradient<float_t>,
                      private StepSize<float_t>,
                      private Smoothing<float_t>,

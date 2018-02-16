@@ -5,9 +5,9 @@
 #include <iterator>
 #include <vector>
 
-#include "projection/none.hpp"
-#include "utility/blas.hpp"
-#include "utility/lapack.hpp"
+#include "pbopt/projection/none.hpp"
+#include "pbopt/utility/blas.hpp"
+#include "pbopt/utility/lapack.hpp"
 
 namespace pbopt {
 namespace projection {

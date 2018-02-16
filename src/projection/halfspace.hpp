@@ -5,14 +5,11 @@
 #include <iterator>
 #include <vector>
 
-#include "projection/none.hpp"
-#include "utility/blas.hpp"
-
 namespace pbopt {
 namespace projection {
 
-template <class float_t> struct halfspace : private none<float_t> {
-  haflspace() = default;
+template <class float_t> struct halfspace {
+  halfspace() = default;
 
   halfspace(const halfspace &) = default;
   halfspace &operator=(const halfspace &) = default;
@@ -40,15 +37,19 @@ template <class float_t> struct halfspace : private none<float_t> {
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt project(const float_t step, InputIt1 xold_begin, InputIt1 xold_end,
                    InputIt2 gbegin, OutputIt xnew_begin) {
-    none<float_t>::project(step, xold_begin, xold_end, gbegin,
-                           std::begin(temp));
-    float_t atx = pbopt::utility::blas<float_t>::dot(a.size(), a.data(), 1,
-                                                     temp.data(), 1);
+    std::size_t idx{0};
+    float_t atx{0}, xval;
+    while (xold_begin != xold_end) {
+      xval = *xold_begin++ - step * *gbegin++;
+      atx += a[idx] * xval;
+      temp[idx] = xval;
+      idx++;
+    }
     const float_t diff = atx - alpha;
     return std::transform(std::begin(temp), std::end(temp), std::begin(a),
                           xnew_begin, [&](const float_t &x, const float_t &a) {
                             return x - std::max(diff, float_t{0}) / norm * a;
-                          })
+                          });
   }
 
 protected:
