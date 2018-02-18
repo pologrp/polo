@@ -5,5 +5,5 @@ project(PBOPT
         DESCRIPTION "Policy-based optimization toolbox."
         LANGUAGES CXX)
 
-install(DIRECTORY pbopt/
-        DESTINATION include/pbopt)
+install(DIRECTORY include/
+        DESTINATION include)
