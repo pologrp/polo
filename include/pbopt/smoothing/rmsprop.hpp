@@ -19,15 +19,6 @@ template <class float_t> struct rmsprop {
   rmsprop(rmsprop &&) = default;
   rmsprop &operator=(rmsprop &&) = default;
 
-  void params(const float_t rho, const float_t epsilon) {
-    this->rho = rho;
-    this->epsilon = epsilon;
-  }
-
-  template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
-    rms_g = std::vector<float_t>(std::distance(xbegin, xend));
-  }
-
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt smooth(const std::size_t k, InputIt1 xbegin, InputIt1 xend,
                   InputIt2 gold_begin, OutputIt gnew_begin) {
@@ -44,6 +35,15 @@ template <class float_t> struct rmsprop {
   }
 
 protected:
+  void params(const float_t rho, const float_t epsilon) {
+    this->rho = rho;
+    this->epsilon = epsilon;
+  }
+
+  template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
+    rms_g = std::vector<float_t>(std::distance(xbegin, xend));
+  }
+
   ~rmsprop() = default;
 
 private:

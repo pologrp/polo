@@ -18,12 +18,6 @@ template <class float_t> struct adagrad {
   adagrad(adagrad &&) = default;
   adagrad &operator=(adagrad &&) = default;
 
-  void params(const float_t epsilon) { this->epsilon = epsilon; }
-
-  template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
-    rms_g = std::vector<float_t>(std::distance(xbegin, xend));
-  }
-
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt smooth(const std::size_t k, InputIt1 xbegin, InputIt1 xend,
                   InputIt2 gold_begin, OutputIt gnew_begin) {
@@ -40,6 +34,12 @@ template <class float_t> struct adagrad {
   }
 
 protected:
+  void params(const float_t epsilon) { this->epsilon = epsilon; }
+
+  template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
+    rms_g = std::vector<float_t>(std::distance(xbegin, xend));
+  }
+
   ~adagrad() = default;
 
 private:

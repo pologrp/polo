@@ -16,24 +16,6 @@ template <class float_t> struct halfspace {
   halfspace(halfspace &&) = default;
   halfspace &operator=(halfspace &&) = default;
 
-  template <class InputIt>
-  void params(InputIt abegin, InputIt aend, const float_t alpha) {
-    a = std::vector<float_t>(abegin, aend);
-    temp = std::vector<float_t>(a.size());
-    this->alpha = alpha;
-    for (const auto val : a)
-      norm += val * val;
-  }
-  void params(std::vector<float_t> a, const float_t alpha) {
-    this->a = std::move(a);
-    temp = std::vector<float_t>(this->a.size());
-    this->alpha = alpha;
-    for (const auto val : this->a)
-      norm += val * val;
-  }
-
-  template <class InputIt> void initialize(InputIt, InputIt) {}
-
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt project(const float_t step, InputIt1 xold_begin, InputIt1 xold_end,
                    InputIt2 gbegin, OutputIt xnew_begin) {
@@ -53,6 +35,24 @@ template <class float_t> struct halfspace {
   }
 
 protected:
+  template <class InputIt>
+  void params(InputIt abegin, InputIt aend, const float_t alpha) {
+    a = std::vector<float_t>(abegin, aend);
+    temp = std::vector<float_t>(a.size());
+    this->alpha = alpha;
+    for (const auto val : a)
+      norm += val * val;
+  }
+  void params(std::vector<float_t> a, const float_t alpha) {
+    this->a = std::move(a);
+    temp = std::vector<float_t>(this->a.size());
+    this->alpha = alpha;
+    for (const auto val : this->a)
+      norm += val * val;
+  }
+
+  template <class InputIt> void initialize(InputIt, InputIt) {}
+
   ~halfspace() = default;
 
 private:

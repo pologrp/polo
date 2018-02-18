@@ -18,15 +18,6 @@ template <class float_t> struct momentum {
   momentum(momentum &&) = default;
   momentum &operator=(momentum &&) = default;
 
-  void params(const float_t mu, const float_t epsilon) {
-    this->mu = mu;
-    this->epsilon = epsilon;
-  }
-
-  template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
-    nu = std::vector<float_t>(std::distance(xbegin, xend));
-  }
-
   template <class InputIt, class OutputIt>
   OutputIt grad(InputIt gold_begin, InputIt gold_end, OutputIt gnew_begin) {
     std::size_t idx{0};
@@ -41,6 +32,15 @@ template <class float_t> struct momentum {
   }
 
 protected:
+  void params(const float_t mu, const float_t epsilon) {
+    this->mu = mu;
+    this->epsilon = epsilon;
+  }
+
+  template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
+    nu = std::vector<float_t>(std::distance(xbegin, xend));
+  }
+
   ~momentum() = default;
 
 private:

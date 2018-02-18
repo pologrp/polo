@@ -19,19 +19,17 @@ template <class float_t, template <class> class Gradient,
           template <class> class Smoothing = pbopt::smoothing::none,
           template <class> class Projection = pbopt::projection::none,
           template <class> class Execution = pbopt::execution::serial>
-struct singlestage : private Gradient<float_t>,
-                     private StepSize<float_t>,
-                     private Smoothing<float_t>,
-                     private Projection<float_t>,
-                     private Execution<float_t> {
+struct singlestage : public Gradient<float_t>,
+                     public StepSize<float_t>,
+                     public Smoothing<float_t>,
+                     public Projection<float_t>,
+                     public Execution<float_t> {
   singlestage() = default;
   template <class ForwardIt> singlestage(ForwardIt &&xbegin, ForwardIt &&xend) {
     initialize(std::forward<ForwardIt>(xbegin), std::forward<ForwardIt>(xend));
   }
-
-  void initialize(const std::vector<float_t> &x) {
-    initialize(std::begin(x), std::end(x));
-  }
+  singlestage(const std::vector<float_t> &x)
+      : singlestage(std::begin(x), std::end(x)) {}
 
   template <class ForwardIt> void initialize(ForwardIt xbegin, ForwardIt xend) {
     Gradient<float_t>::initialize(xbegin, xend);
@@ -39,8 +37,10 @@ struct singlestage : private Gradient<float_t>,
     Smoothing<float_t>::initialize(xbegin, xend);
     Projection<float_t>::initialize(xbegin, xend);
     Execution<float_t>::initialize(xbegin, xend);
-    x = std::vector<float_t>(xbegin, xend);
-    g = std::vector<float_t>(x.size());
+  }
+
+  void initialize(const std::vector<float_t> &x) {
+    initialize(std::begin(x), std::end(x));
   }
 
   template <class... Ts> void gradient_params(Ts &&... params) {
@@ -59,33 +59,18 @@ struct singlestage : private Gradient<float_t>,
     Execution<float_t>::params(std::forward<Ts>(params)...);
   }
 
+  template <class Func1, class Func2>
+  void solve(Func1 &&loss, Func2 &&terminate) {
+    Execution<float_t>::solve(this, std::forward<Func1>(loss),
+                              std::forward<Func2>(terminate));
+  }
+
   template <class Func> void solve(Func &&loss) {
     solve(std::forward<Func>(loss), utility::maxiter{10000});
   }
 
-  template <class Func1, class Func2>
-  void solve(Func1 &&loss, Func2 &&terminate) {
-    const std::size_t dim = x.size();
-    const float_t *xbegin = x.data();
-    const float_t *xend = x.data() + dim;
-    float_t step;
-    while (!terminate(k, fval, xbegin, xend, g.data())) {
-      fval = loss(xbegin, xend, g.data());
-      Gradient<float_t>::grad(g.data(), g.data() + dim, g.data());
-      Smoothing<float_t>::smooth(k, xbegin, xend, g.data(), g.data());
-      step = StepSize<float_t>::step(k, fval, xbegin, xend, g.data());
-      Projection<float_t>::project(step, xbegin, xend, g.data(), x.data());
-      k++;
-    }
-  }
-
-  float_t getf() const { return fval; }
-  std::vector<float_t> getx() const { return x; }
-
-private:
-  std::size_t k{1};
-  float_t fval{0};
-  std::vector<float_t> x, g;
+  float_t getf() const { return Execution<float_t>::getf(); }
+  std::vector<float_t> getx() const { return Execution<float_t>::getx(); }
 };
 
 } // namespace algorithm

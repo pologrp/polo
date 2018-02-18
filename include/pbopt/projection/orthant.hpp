@@ -17,8 +17,6 @@ template <class float_t, class T> struct orthant {
   orthant(orthant &&) = default;
   orthant &operator=(orthant &&) = default;
 
-  template <class InputIt> void initialize(InputIt, InputIt) {}
-
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt project(const float_t step, InputIt1 xold_begin, InputIt1 xold_end,
                    InputIt2 gbegin, OutputIt xnew_begin) {
@@ -26,6 +24,8 @@ template <class float_t, class T> struct orthant {
   }
 
 protected:
+  template <class InputIt> void initialize(InputIt, InputIt) {}
+
   ~orthant() = default;
 
 private:

@@ -20,20 +20,6 @@ template <class float_t> struct affine : private none<float_t> {
   affine(affine &&) = default;
   affine &operator=(affine &&) = default;
 
-  template <class InputIt1, class InputIt2>
-  void params(InputIt1 abegin, InputIt1 aend, InputIt2 bbegin, InputIt2 bend) {
-    A = std::vector<float_t>(abegin, aend);
-    b = std::vector<float_t>(bbegin, bend);
-    factorize();
-  }
-  void params(std::vector<float_t> A, std::vector<float_t> b) {
-    this->A = std::move(A);
-    this->b = std::move(b);
-    factorize();
-  }
-
-  template <class InputIt> void initialize(InputIt, InputIt) {}
-
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt project(const float_t step, InputIt1 xold_begin, InputIt1 xold_end,
                    InputIt2 gbegin, OutputIt xnew_begin) {
@@ -50,6 +36,20 @@ template <class float_t> struct affine : private none<float_t> {
   }
 
 protected:
+  template <class InputIt1, class InputIt2>
+  void params(InputIt1 abegin, InputIt1 aend, InputIt2 bbegin, InputIt2 bend) {
+    A = std::vector<float_t>(abegin, aend);
+    b = std::vector<float_t>(bbegin, bend);
+    factorize();
+  }
+  void params(std::vector<float_t> A, std::vector<float_t> b) {
+    this->A = std::move(A);
+    this->b = std::move(b);
+    factorize();
+  }
+
+  template <class InputIt> void initialize(InputIt, InputIt) {}
+
   ~affine() = default;
 
 private:

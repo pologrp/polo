@@ -16,13 +16,6 @@ template <class float_t> struct l2ball {
   l2ball(l2ball &&) = default;
   l2ball &operator=(l2ball &&) = default;
 
-  void params(const float_t r, std::vector<float_t> c) {
-    this->r = r;
-    this->c = std::move(c);
-  }
-
-  template <class InputIt> void initialize(InputIt, InputIt) {}
-
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt project(const float_t step, InputIt1 xold_begin, InputIt1 xold_end,
                    InputIt2 gbegin, OutputIt xnew_begin) {
@@ -47,6 +40,13 @@ template <class float_t> struct l2ball {
   }
 
 protected:
+  void params(const float_t r, std::vector<float_t> c) {
+    this->r = r;
+    this->c = std::move(c);
+  }
+
+  template <class InputIt> void initialize(InputIt, InputIt) {}
+
   ~l2ball();
 
 private:

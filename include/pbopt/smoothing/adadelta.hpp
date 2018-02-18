@@ -19,18 +19,6 @@ template <class float_t> struct adadelta {
   adadelta(adadelta &&) = default;
   adadelta &operator=(adadelta &&) = default;
 
-  void params(const float_t rho, const float_t epsilon) {
-    this->rho = rho;
-    this->epsilon = epsilon;
-  }
-
-  template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
-    const std::size_t dim = std::distance(xbegin, xend);
-    x_prev = std::vector<float_t>(xbegin, xend);
-    rms_g = std::vector<float_t>(dim);
-    rms_x = std::vector<float_t>(dim);
-  }
-
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt smooth(const std::size_t k, InputIt1 xbegin, InputIt1 xend,
                   InputIt2 gold_begin, OutputIt gnew_begin) {
@@ -51,6 +39,18 @@ template <class float_t> struct adadelta {
   }
 
 protected:
+  void params(const float_t rho, const float_t epsilon) {
+    this->rho = rho;
+    this->epsilon = epsilon;
+  }
+
+  template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
+    const std::size_t dim = std::distance(xbegin, xend);
+    x_prev = std::vector<float_t>(xbegin, xend);
+    rms_g = std::vector<float_t>(dim);
+    rms_x = std::vector<float_t>(dim);
+  }
+
   ~adadelta() = default;
 
 private:

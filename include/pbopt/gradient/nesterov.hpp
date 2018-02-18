@@ -18,15 +18,6 @@ template <class float_t> struct nesterov {
   nesterov(nesterov &&) = default;
   nesterov &operator=(nesterov &&) = default;
 
-  void params(const float_t mu, const float_t epsilon) {
-    this->mu = mu;
-    this->epsilon = epsilon;
-  }
-
-  template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
-    nu = std::vector<float_t>(std::distance(xbegin, xend));
-  }
-
   template <class InputIt, class OutputIt>
   OutputIt grad(InputIt gold_begin, InputIt gold_end, OutputIt gnew_begin) {
     std::size_t idx{0};
@@ -42,6 +33,15 @@ template <class float_t> struct nesterov {
   }
 
 protected:
+  void params(const float_t mu, const float_t epsilon) {
+    this->mu = mu;
+    this->epsilon = epsilon;
+  }
+
+  template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
+    nu = std::vector<float_t>(std::distance(xbegin, xend));
+  }
+
   ~nesterov() = default;
 
 private:
