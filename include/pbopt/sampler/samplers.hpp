@@ -1,19 +1,19 @@
-#ifndef SAMPLER_CPP_
-#define SAMPLER_CPP_
+#ifndef SAMPLERS_HPP_
+#define SAMPLERS_HPP_
 
 #include <random>
 #include <utility>
 
 namespace pbopt {
-namespace utility {
+namespace sampler {
 
 template <class int_t, template <class> class distribution>
-struct sampler : private distribution<int_t> {
+struct _sampler : private distribution<int_t> {
   using param_type = typename distribution<int_t>::param_type;
   using result_type = typename std::mt19937::result_type;
 
-  sampler() = default;
-  sampler(const result_type seed) { gen.seed(seed); }
+  _sampler() = default;
+  _sampler(const result_type seed) { gen.seed(seed); }
 
   void seed(const result_type seed) { gen.seed(seed); }
 
@@ -35,12 +35,18 @@ private:
 };
 
 template <class int_t>
-using uniform_sampler = sampler<int_t, std::uniform_int_distribution>;
+using uniform = _sampler<int_t, std::uniform_int_distribution>;
 
 template <class int_t>
-using custom_sampler = sampler<int_t, std::discrete_distribution>;
+using custom = _sampler<int_t, std::discrete_distribution>;
 
-} // namespace utility
+struct _coordinate_sampler_t {};
+struct _component_sampler_t {};
+
+constexpr _coordinate_sampler_t coordinate;
+constexpr _component_sampler_t component;
+
+} // namespace sampler
 } // namespace pbopt
 
 #endif

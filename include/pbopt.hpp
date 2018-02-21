@@ -6,6 +6,7 @@
 #include "pbopt/gradient.hpp"
 #include "pbopt/problem.hpp"
 #include "pbopt/projection.hpp"
+#include "pbopt/sampler.hpp"
 #include "pbopt/smoothing.hpp"
 #include "pbopt/step.hpp"
 #include "pbopt/utility.hpp"
