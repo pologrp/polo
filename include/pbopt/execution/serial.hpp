@@ -1,6 +1,7 @@
 #ifndef SERIAL_HPP_
 #define SERIAL_HPP_
 
+#include <iterator>
 #include <vector>
 
 namespace pbopt {
@@ -22,16 +23,20 @@ protected:
 
   template <class T, class Func1, class Func2>
   void solve(T *algptr, Func1 &&loss, Func2 &&terminate) {
-    const std::size_t dim = x.size();
-    const float_t *xbegin = x.data();
-    const float_t *xend = x.data() + dim;
     float_t step;
-    while (!terminate(k, fval, xbegin, xend, g.data())) {
+    const std::size_t dim{x.size()};
+
+    const float_t *xbegin{x.data()};
+    const float_t *xend{xbegin + dim};
+
+    while (!terminate(k, fval, std::begin(x), std::end(x), std::begin(g))) {
       fval = loss(xbegin, xend, g.data());
-      algptr->grad(g.data(), g.data() + dim, g.data());
-      algptr->smooth(k, xbegin, xend, g.data(), g.data());
-      step = algptr->step(k, fval, xbegin, xend, g.data());
-      algptr->project(step, xbegin, xend, g.data(), x.data());
+      algptr->grad(std::begin(g), std::end(g), std::begin(g));
+      algptr->smooth(k, std::begin(x), std::end(x), std::begin(g),
+                     std::begin(g));
+      step = algptr->step(k, fval, std::begin(x), std::end(x), std::begin(g));
+      algptr->project(step, std::begin(x), std::end(x), std::begin(g),
+                      std::begin(x));
       k++;
     }
   }

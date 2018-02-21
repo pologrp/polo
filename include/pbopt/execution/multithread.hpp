@@ -1,7 +1,6 @@
 #ifndef MULTITHREAD_HPP_
 #define MULTITHREAD_HPP_
 
-#include <functional>
 #include <iterator>
 #include <mutex>
 #include <thread>
@@ -36,6 +35,9 @@ protected:
       worker.join();
   }
 
+  float_t getf() const { return fval; }
+  std::vector<float_t> getx() const { return x; }
+
   ~consistent() = default;
 
 private:
@@ -63,13 +65,16 @@ private:
       {
         std::lock_guard<std::mutex> lock(sync);
 
-        if (terminate(k, fval, std::begin(x), std::end(x), g.data()))
+        if (terminate(k, fval, std::begin(x), std::end(x), std::begin(g)))
           break;
 
-        algptr->grad(gbegin, gend, g.data());
-        algptr->smooth(k, xbegin, xend, g.data(), g.data());
-        step = algptr->step(k, fval, xbegin, xend, g.data());
-        algptr->project(step, xbegin, xend, g.data(), x.data());
+        algptr->grad(std::begin(glocal), std::end(glocal), std::begin(g));
+        algptr->smooth(k, std::begin(xlocal), std::end(xlocal), std::begin(g),
+                       std::begin(g));
+        step = algptr->step(k, fval, std::begin(xlocal), std::end(xlocal),
+                            std::begin(g));
+        algptr->project(step, std::begin(xlocal), std::end(xlocal),
+                        std::begin(g), std::begin(x));
         k++;
       }
     }
