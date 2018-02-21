@@ -4,6 +4,7 @@
 #include "projection/affine.hpp"
 #include "projection/box.hpp"
 #include "projection/halfspace.hpp"
+#include "projection/l1norm.hpp"
 #include "projection/l2ball.hpp"
 #include "projection/none.hpp"
 #include "projection/orthant.hpp"
