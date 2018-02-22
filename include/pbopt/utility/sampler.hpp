@@ -1,10 +1,11 @@
-#ifndef SAMPLERS_HPP_
-#define SAMPLERS_HPP_
+#ifndef SAMPLER_HPP_
+#define SAMPLER_HPP_
 
 #include <random>
 #include <utility>
 
 namespace pbopt {
+namespace utility {
 namespace sampler {
 
 template <class int_t, template <class> class distribution>
@@ -47,6 +48,7 @@ constexpr _coordinate_sampler_t coordinate;
 constexpr _component_sampler_t component;
 
 } // namespace sampler
+} // namespace utility
 } // namespace pbopt
 
 #endif

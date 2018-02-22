@@ -26,12 +26,12 @@ template <class float_t> struct affine : private none<float_t> {
     none<float_t>::project(step, xold_begin, xold_end, gbegin,
                            std::begin(temp2));
     std::copy(std::begin(b), std::end(b), std::begin(temp1));
-    pbopt::utility::blas<float_t>::gemv('N', m, d, 1, A.data(), m, temp2.data(),
-                                        1, -1, temp1.data(), 1);
-    pbopt::utility::lapack<float_t>::pptrs('L', m, 1, H.data(), temp1.data(),
-                                           m);
-    pbopt::utility::blas<float_t>::gemv('T', m, d, -1, A.data(), m,
-                                        temp1.data(), 1, 1, temp2.data(), 1);
+    pbopt::utility::matrix::blas<float_t>::gemv(
+        'N', m, d, 1, A.data(), m, temp2.data(), 1, -1, temp1.data(), 1);
+    pbopt::utility::matrix::lapack<float_t>::pptrs('L', m, 1, H.data(),
+                                                   temp1.data(), m);
+    pbopt::utility::matrix::blas<float_t>::gemv(
+        'T', m, d, -1, A.data(), m, temp1.data(), 1, 1, temp2.data(), 1);
     return std::copy(std::begin(temp2), std::end(temp2), xnew_begin);
   }
 
@@ -62,9 +62,10 @@ private:
 
     H = std::vector<float_t>((m * (m + 1)) / 2);
     for (std::size_t idx = 0; idx < d; idx++)
-      pbopt::utility::blas<float_t>::spr('L', m, 1, &A[idx * m], 1, H.data());
+      pbopt::utility::matrix::blas<float_t>::spr('L', m, 1, &A[idx * m], 1,
+                                                 H.data());
 
-    pbopt::utility::lapack<float_t>::pptrf('L', m, H.data());
+    pbopt::utility::matrix::lapack<float_t>::pptrf('L', m, H.data());
   }
   std::size_t m, d;
   std::vector<float_t> A, b, H, temp1, temp2;

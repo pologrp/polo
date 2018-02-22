@@ -155,6 +155,7 @@ void dtrsm_(const char *, const char *, const char *, const char *, const int *,
 
 namespace pbopt {
 namespace utility {
+namespace matrix {
 
 template <class float_t> struct blas;
 
@@ -494,6 +495,7 @@ template <> struct blas<double> {
   }
 };
 
+} // namespace matrix
 } // namespace utility
 } // namespace pbopt
 

@@ -5,6 +5,7 @@
 
 namespace pbopt {
 namespace utility {
+namespace terminator {
 
 struct maxiter {
   maxiter(const std::size_t K) : K{K} {}
@@ -19,6 +20,7 @@ private:
   std::size_t K;
 };
 
+} // namespace terminator
 } // namespace utility
 } // namespace pbopt
 

@@ -20,6 +20,7 @@ void dpptrs_(const char *, const int *, const int *, const double *, double *,
 
 namespace pbopt {
 namespace utility {
+namespace matrix {
 
 template <class float_t> struct lapack;
 
@@ -73,6 +74,7 @@ template <> struct lapack<double> {
   }
 };
 
+} // namespace matrix
 } // namespace utility
 } // namespace pbopt
 
