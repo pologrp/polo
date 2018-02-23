@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "pbopt/execution/serial.hpp"
+#include "pbopt/gradient/none.hpp"
 #include "pbopt/projection/none.hpp"
 #include "pbopt/smoothing/none.hpp"
 #include "pbopt/step/constant.hpp"
@@ -14,7 +15,8 @@
 namespace pbopt {
 namespace algorithm {
 
-template <class float_t, template <class> class Gradient,
+template <class float_t,
+          template <class> class Gradient = pbopt::gradient::none,
           template <class> class StepSize = pbopt::step::constant,
           template <class> class Smoothing = pbopt::smoothing::none,
           template <class> class Projection = pbopt::projection::none,

@@ -3,5 +3,6 @@
 
 #include "gradient/momentum.hpp"
 #include "gradient/nesterov.hpp"
+#include "gradient/none.hpp"
 
 #endif
