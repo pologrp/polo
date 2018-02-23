@@ -51,6 +51,13 @@ is complete, you can either configure your compiler to search for the header
 files under ``$HOME/local/include`` or use the switch ``-I $HOME/local/include``
 whenever you compile your project that uses PBOpt.
 
+What Next
+---------
+
+Having installed the library successfully, you continue reading to understand
+how things work :ref:`under the hood <explanation start>`, or you can jump to
+the :ref:`examples <example start>` section to have a walkthrough.
+
 .. toctree::
    :glob:
    :hidden:

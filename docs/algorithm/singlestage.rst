@@ -1,3 +1,5 @@
+.. _explanation start:
+
 Single-Stage Algorithms
 =======================
 
