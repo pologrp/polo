@@ -50,8 +50,7 @@ private:
     const std::size_t dim{x.size()};
 
     std::vector<float_t> xlocal(dim);
-    const float_t *xbegin{xlocal.data()};
-    const float_t *xend{xbegin + dim};
+    const float_t *xbegin{&xlocal[0]};
 
     std::vector<float_t> glocal(dim);
 
@@ -61,7 +60,7 @@ private:
         std::copy(std::begin(x), std::end(x), std::begin(xlocal));
       }
 
-      flocal = loss(xbegin, xend, glocal.data());
+      flocal = loss(xbegin, &glocal[0]);
 
       {
         std::lock_guard<std::mutex> lock(sync);
@@ -140,15 +139,14 @@ private:
     const std::size_t dim{x.size()};
 
     std::vector<float_t> xlocal(dim);
-    const float_t *xbegin{xlocal.data()};
-    const float_t *xend{xbegin + dim};
+    const float_t *xbegin{&xlocal[0]};
 
     std::vector<float_t> glocal(dim);
 
     while (!terminate(k, fval, std::begin(x), std::end(x), std::begin(g))) {
       std::copy(std::begin(x), std::end(x), std::begin(xlocal));
 
-      flocal = loss(xbegin, xend, glocal.data());
+      flocal = loss(xbegin, &glocal[0]);
 
       algptr->grad(std::begin(glocal), std::end(glocal), std::begin(g));
       algptr->smooth(k, std::begin(xlocal), std::end(xlocal), std::begin(g),

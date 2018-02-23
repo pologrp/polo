@@ -24,13 +24,10 @@ protected:
   template <class T, class Func1, class Func2>
   void solve(T *algptr, Func1 &&loss, Func2 &&terminate) {
     float_t step;
-    const std::size_t dim{x.size()};
-
-    const float_t *xbegin{x.data()};
-    const float_t *xend{xbegin + dim};
+    const float_t *xbegin{&x[0]};
 
     while (!terminate(k, fval, std::begin(x), std::end(x), std::begin(g))) {
-      fval = loss(xbegin, xend, g.data());
+      fval = loss(xbegin, &g[0]);
       algptr->grad(std::begin(g), std::end(g), std::begin(g));
       algptr->smooth(k, std::begin(x), std::end(x), std::begin(g),
                      std::begin(g));

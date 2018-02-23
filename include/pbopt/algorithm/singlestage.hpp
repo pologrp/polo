@@ -68,7 +68,7 @@ struct singlestage : public Gradient<float_t>,
   }
 
   template <class Func> void solve(Func &&loss) {
-    solve(std::forward<Func>(loss), utility::terminator::maxiter{10000});
+    solve(std::forward<Func>(loss), utility::terminator::maxiter{100});
   }
 
   float_t getf() const { return Execution<float_t>::getf(); }
