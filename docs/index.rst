@@ -7,12 +7,12 @@ the form
 
 .. math::
 
-    \begin{align}
-      \begin{aligned}
-        & \operatorname*{minimize}_{x \in \mathbb{R}^{d}}
-        & & \sum_{n=1}^{N} \operatorname{f_{n}}(x) + \operatorname{h}(x) \,.
-      \end{aligned}
-    \end{align}
+  \begin{align}
+    \begin{aligned}
+      & \operatorname*{minimize}_{x \in \mathbb{R}^{d}}
+      & & \sum_{n=1}^{N} \operatorname{f_{n}}(x) + \operatorname{h}(x) \,.
+    \end{aligned}
+  \end{align}
 
 Above, each :math:`\operatorname{f_{n}}(x)` is a differentiable function of
 the decision variable :math:`x` whereas :math:`\operatorname{h}(x)` can be
@@ -38,12 +38,12 @@ terminal:
 
 .. code-block:: shell
 
-    git clone https://github.com/aytekinar/pbopt
-    cd pbopt
-    mkdir build
-    cd build
-    cmake -D CMAKE_INSTALL_PREFIX=$HOME/local ../
-    cmake --build . --target install
+  git clone https://github.com/aytekinar/pbopt
+  cd pbopt
+  mkdir build
+  cd build
+  cmake -D CMAKE_INSTALL_PREFIX=$HOME/local ../
+  cmake --build . --target install
 
 This will install the library into ``$HOME/local/include``, where ``$HOME``
 usually points to ``/home/<username>`` on Linux systems. Once the installation
@@ -59,79 +59,79 @@ how things work :ref:`under the hood <explanation start>`, or you can jump to
 the :ref:`examples <example start>` section to have a walkthrough.
 
 .. toctree::
-   :glob:
-   :hidden:
-   :maxdepth: 2
-   :Caption: Algorithm Abstraction
+  :glob:
+  :hidden:
+  :maxdepth: 2
+  :Caption: Algorithm Abstraction
 
-   algorithm/singlestage
-
-.. toctree::
-   :glob:
-   :hidden:
-   :maxdepth: 2
-   :Caption: Gradient Policy
-
-   gradient/momentum
-   gradient/incremental
+  algorithm/singlestage
 
 .. toctree::
-   :glob:
-   :hidden:
-   :maxdepth: 2
-   :Caption: Smoothing Policy
+  :glob:
+  :hidden:
+  :maxdepth: 2
+  :Caption: Gradient Policy
 
-   smoothing
-
-.. toctree::
-   :glob:
-   :hidden:
-   :maxdepth: 2
-   :Caption: Step-Size Policy
-
-   step
+  gradient/momentum
+  gradient/incremental
 
 .. toctree::
-   :glob:
-   :hidden:
-   :maxdepth: 2
-   :Caption: Projection Policy
+  :glob:
+  :hidden:
+  :maxdepth: 2
+  :Caption: Smoothing Policy
 
-   projection
-
-.. toctree::
-   :glob:
-   :hidden:
-   :maxdepth: 2
-   :Caption: Execution Policy
-
-   execution/serial
-   execution/multithread
+  smoothing
 
 .. toctree::
-   :glob:
-   :hidden:
-   :maxdepth: 2
-   :Caption: Utilities
+  :glob:
+  :hidden:
+  :maxdepth: 2
+  :Caption: Step-Size Policy
 
-   utility/terminator
-   utility/sampler
-   utility/logger
-   utility/matrix
-   utility/problem
+  step
 
 .. toctree::
-   :glob:
-   :hidden:
-   :maxdepth: 2
-   :Caption: Examples
+  :glob:
+  :hidden:
+  :maxdepth: 2
+  :Caption: Projection Policy
 
-   examples/*
+  projection
 
 .. toctree::
-   :glob:
-   :hidden:
-   :maxdepth: 2
-   :Caption: Further Topics
+  :glob:
+  :hidden:
+  :maxdepth: 2
+  :Caption: Execution Policy
 
-   further/*
+  execution/serial
+  execution/multithread
+
+.. toctree::
+  :glob:
+  :hidden:
+  :maxdepth: 2
+  :Caption: Utilities
+
+  utility/terminator
+  utility/sampler
+  utility/logger
+  utility/matrix
+  utility/problem
+
+.. toctree::
+  :glob:
+  :hidden:
+  :maxdepth: 2
+  :Caption: Examples
+
+  examples/*
+
+.. toctree::
+  :glob:
+  :hidden:
+  :maxdepth: 2
+  :Caption: Further Topics
+
+  further/*

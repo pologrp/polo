@@ -8,24 +8,24 @@ attempt to solve the optimization problem
 
 .. math::
 
-    \begin{align}
-      \begin{aligned}
-        & \operatorname*{minimize}_{x \in \mathbb{R}^{d}}
-        & & \sum_{n=1}^{N} \operatorname{f_{n}}(x) + \operatorname{h}(x)
-      \end{aligned}
-    \end{align}
+  \begin{align}
+    \begin{aligned}
+      & \operatorname*{minimize}_{x \in \mathbb{R}^{d}}
+      & & \sum_{n=1}^{N} \operatorname{f_{n}}(x) + \operatorname{h}(x)
+    \end{aligned}
+  \end{align}
 
 by applying the *proximal gradient method*
 
 .. math::
 
-    \begin{align}
-      x_{k+1} = \operatorname{arg}\,\operatorname*{min}_{x}
-        \left\lbrace \operatorname{F}\left(x_{k}\right) +
-        \left\langle g_{k}, x-x_{k}\right\rangle
-        + \frac{1}{2\gamma_{k}}{\Vert x-x_{k} \Vert}_{2}^{2} +
-        \operatorname{h}(x) \right\rbrace
-    \end{align}
+  \begin{align}
+    x_{k+1} = \operatorname{arg}\,\operatorname*{min}_{x}
+      \left\lbrace \operatorname{F}\left(x_{k}\right) +
+      \left\langle g_{k}, x-x_{k}\right\rangle
+      + \frac{1}{2\gamma_{k}}{\Vert x-x_{k} \Vert}_{2}^{2} +
+      \operatorname{h}(x) \right\rbrace
+  \end{align}
 
 at each iteration :math:`k`. Here, :math:`g_{k}` represents some surrogate of
 the gradient of the smooth loss function :math:`\operatorname{F}(x)` at the
