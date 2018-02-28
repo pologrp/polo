@@ -157,7 +157,7 @@ namespace polo {
 namespace utility {
 namespace matrix {
 
-template <class float_t> struct blas;
+template <class value_t> struct blas;
 
 template <> struct blas<float> {
   // Level 1

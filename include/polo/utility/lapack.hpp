@@ -22,7 +22,7 @@ namespace polo {
 namespace utility {
 namespace matrix {
 
-template <class float_t> struct lapack;
+template <class value_t> struct lapack;
 
 template <> struct lapack<float> {
   static int potrf(const char uplo, const int n, float *a, const int lda) {

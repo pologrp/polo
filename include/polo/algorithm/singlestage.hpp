@@ -15,55 +15,55 @@
 namespace polo {
 namespace algorithm {
 
-template <class float_t,
+template <class value_t,
           template <class> class Gradient = polo::gradient::none,
           template <class> class StepSize = polo::step::constant,
           template <class> class Smoothing = polo::smoothing::none,
           template <class> class Projection = polo::projection::none,
           template <class> class Execution = polo::execution::serial>
-struct singlestage : public Gradient<float_t>,
-                     public StepSize<float_t>,
-                     public Smoothing<float_t>,
-                     public Projection<float_t>,
-                     public Execution<float_t> {
+struct singlestage : public Gradient<value_t>,
+                     public StepSize<value_t>,
+                     public Smoothing<value_t>,
+                     public Projection<value_t>,
+                     public Execution<value_t> {
   singlestage() = default;
   template <class ForwardIt> singlestage(ForwardIt &&xbegin, ForwardIt &&xend) {
     initialize(std::forward<ForwardIt>(xbegin), std::forward<ForwardIt>(xend));
   }
-  singlestage(const std::vector<float_t> &x)
+  singlestage(const std::vector<value_t> &x)
       : singlestage(std::begin(x), std::end(x)) {}
 
   template <class ForwardIt> void initialize(ForwardIt xbegin, ForwardIt xend) {
-    Gradient<float_t>::initialize(xbegin, xend);
-    StepSize<float_t>::initialize(xbegin, xend);
-    Smoothing<float_t>::initialize(xbegin, xend);
-    Projection<float_t>::initialize(xbegin, xend);
-    Execution<float_t>::initialize(xbegin, xend);
+    Gradient<value_t>::initialize(xbegin, xend);
+    StepSize<value_t>::initialize(xbegin, xend);
+    Smoothing<value_t>::initialize(xbegin, xend);
+    Projection<value_t>::initialize(xbegin, xend);
+    Execution<value_t>::initialize(xbegin, xend);
   }
 
-  void initialize(const std::vector<float_t> &x) {
+  void initialize(const std::vector<value_t> &x) {
     initialize(std::begin(x), std::end(x));
   }
 
   template <class... Ts> void gradient_params(Ts &&... params) {
-    Gradient<float_t>::params(std::forward<Ts>(params)...);
+    Gradient<value_t>::params(std::forward<Ts>(params)...);
   }
   template <class... Ts> void step_params(Ts &&... params) {
-    StepSize<float_t>::params(std::forward<Ts>(params)...);
+    StepSize<value_t>::params(std::forward<Ts>(params)...);
   }
   template <class... Ts> void smoothing_params(Ts &&... params) {
-    Smoothing<float_t>::params(std::forward<Ts>(params)...);
+    Smoothing<value_t>::params(std::forward<Ts>(params)...);
   }
   template <class... Ts> void projection_params(Ts &&... params) {
-    Projection<float_t>::params(std::forward<Ts>(params)...);
+    Projection<value_t>::params(std::forward<Ts>(params)...);
   }
   template <class... Ts> void execution_params(Ts &&... params) {
-    Execution<float_t>::params(std::forward<Ts>(params)...);
+    Execution<value_t>::params(std::forward<Ts>(params)...);
   }
 
   template <class Func1, class Func2>
   void solve(Func1 &&loss, Func2 &&terminate) {
-    Execution<float_t>::solve(this, std::forward<Func1>(loss),
+    Execution<value_t>::solve(this, std::forward<Func1>(loss),
                               std::forward<Func2>(terminate));
   }
 
@@ -71,8 +71,8 @@ struct singlestage : public Gradient<float_t>,
     solve(std::forward<Func>(loss), utility::terminator::maxiter{100});
   }
 
-  float_t getf() const { return Execution<float_t>::getf(); }
-  std::vector<float_t> getx() const { return Execution<float_t>::getx(); }
+  value_t getf() const { return Execution<value_t>::getf(); }
+  std::vector<value_t> getx() const { return Execution<value_t>::getx(); }
 };
 
 } // namespace algorithm

@@ -8,8 +8,8 @@
 namespace polo {
 namespace projection {
 
-template <class float_t> struct l2ball {
-  l2ball(const float_t r = 1) : r{r} {}
+template <class value_t> struct l2ball {
+  l2ball(const value_t r = 1) : r{r} {}
 
   l2ball(const l2ball &) = default;
   l2ball &operator=(const l2ball &) = default;
@@ -17,9 +17,9 @@ template <class float_t> struct l2ball {
   l2ball &operator=(l2ball &&) = default;
 
   template <class InputIt1, class InputIt2, class OutputIt>
-  OutputIt project(const float_t step, InputIt1 xold_begin, InputIt1 xold_end,
+  OutputIt project(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
                    InputIt2 gbegin, OutputIt xnew_begin) {
-    float_t temp, radius{0}, scaling;
+    value_t temp, radius{0}, scaling;
     std::size_t idx{0};
     OutputIt xtemp{xnew_begin};
 
@@ -40,7 +40,7 @@ template <class float_t> struct l2ball {
   }
 
 protected:
-  void params(const float_t r, std::vector<float_t> c) {
+  void params(const value_t r, std::vector<value_t> c) {
     this->r = r;
     this->c = std::move(c);
   }
@@ -50,8 +50,8 @@ protected:
   ~l2ball();
 
 private:
-  float_t r;
-  std::vector<float_t> c;
+  value_t r;
+  std::vector<value_t> c;
 };
 
 } // namespace projection

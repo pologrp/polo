@@ -9,8 +9,8 @@
 namespace polo {
 namespace gradient {
 
-template <class float_t> struct momentum {
-  momentum(const float_t mu = 0.95, const float_t epsilon = 1E-3)
+template <class value_t> struct momentum {
+  momentum(const value_t mu = 0.95, const value_t epsilon = 1E-3)
       : mu{mu}, epsilon{epsilon} {}
 
   momentum(const momentum &) = default;
@@ -21,7 +21,7 @@ template <class float_t> struct momentum {
   template <class InputIt, class OutputIt>
   OutputIt grad(InputIt gold_begin, InputIt gold_end, OutputIt gnew_begin) {
     std::size_t idx{0};
-    float_t g_val;
+    value_t g_val;
     while (gold_begin != gold_end) {
       g_val = *gold_begin++;
       nu[idx] = mu * nu[idx] + epsilon * g_val;
@@ -32,20 +32,20 @@ template <class float_t> struct momentum {
   }
 
 protected:
-  void params(const float_t mu, const float_t epsilon) {
+  void params(const value_t mu, const value_t epsilon) {
     this->mu = mu;
     this->epsilon = epsilon;
   }
 
   template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
-    nu = std::vector<float_t>(std::distance(xbegin, xend));
+    nu = std::vector<value_t>(std::distance(xbegin, xend));
   }
 
   ~momentum() = default;
 
 private:
-  float_t mu{0.9}, epsilon{1E-3};
-  std::vector<float_t> nu;
+  value_t mu{0.9}, epsilon{1E-3};
+  std::vector<value_t> nu;
 };
 
 } // namespace gradient

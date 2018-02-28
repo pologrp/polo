@@ -10,8 +10,8 @@
 namespace polo {
 namespace smoothing {
 
-template <class float_t> struct adagrad {
-  adagrad(const float_t epsilon = 1E-6) : epsilon{epsilon} {}
+template <class value_t> struct adagrad {
+  adagrad(const value_t epsilon = 1E-6) : epsilon{epsilon} {}
 
   adagrad(const adagrad &) = default;
   adagrad &operator=(const adagrad &) = default;
@@ -21,7 +21,7 @@ template <class float_t> struct adagrad {
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt smooth(const std::size_t k, InputIt1 xbegin, InputIt1 xend,
                   InputIt2 gold_begin, OutputIt gnew_begin) {
-    float_t g_val{0};
+    value_t g_val{0};
     std::size_t idx{0};
     while (xbegin != xend) {
       xbegin++;
@@ -34,17 +34,17 @@ template <class float_t> struct adagrad {
   }
 
 protected:
-  void params(const float_t epsilon) { this->epsilon = epsilon; }
+  void params(const value_t epsilon) { this->epsilon = epsilon; }
 
   template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
-    rms_g = std::vector<float_t>(std::distance(xbegin, xend));
+    rms_g = std::vector<value_t>(std::distance(xbegin, xend));
   }
 
   ~adagrad() = default;
 
 private:
-  float_t epsilon{1E-6};
-  std::vector<float_t> rms_g;
+  value_t epsilon{1E-6};
+  std::vector<value_t> rms_g;
 };
 
 } // namespace smoothing

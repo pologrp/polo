@@ -7,37 +7,37 @@
 namespace polo {
 namespace utility {
 
-template <class float_t, class int_t> struct atomic {
-  using value_type = float_t;
+template <class value_t, class int_t> struct atomic {
+  using value_type = value_t;
   using difference_type = value_type;
 
   atomic() noexcept = default;
-  constexpr atomic(float_t desired) noexcept
+  constexpr atomic(value_t desired) noexcept
       : value(reinterpret_cast<int_t &>(desired)) {}
   atomic(const atomic &) = delete;
 
-  float_t operator=(float_t desired) noexcept {
+  value_t operator=(value_t desired) noexcept {
     const int_t value = (this->value = reinterpret_cast<int_t &>(desired));
-    return reinterpret_cast<const float_t &>(value);
+    return reinterpret_cast<const value_t &>(value);
   }
-  float_t operator=(float_t desired) volatile noexcept {
+  value_t operator=(value_t desired) volatile noexcept {
     const int_t value = (this->value = reinterpret_cast<int_t &>(desired));
-    return reinterpret_cast<const float_t &>(value);
+    return reinterpret_cast<const value_t &>(value);
   }
   atomic &operator=(const atomic &) = delete;
   atomic &operator=(const atomic &) volatile = delete;
 
-  operator float_t() const noexcept {
+  operator value_t() const noexcept {
     const int_t value = this->value;
-    return reinterpret_cast<const float_t &>(value);
+    return reinterpret_cast<const value_t &>(value);
   }
-  operator float_t() const volatile noexcept {
+  operator value_t() const volatile noexcept {
     const int_t value = this->value;
-    return reinterpret_cast<const float_t &>(value);
+    return reinterpret_cast<const value_t &>(value);
   }
 
-  float_t operator+=(float_t rhs) noexcept {
-    float_t old_value, new_value;
+  value_t operator+=(value_t rhs) noexcept {
+    value_t old_value, new_value;
     do {
       old_value = *this;
       new_value = old_value + rhs;
@@ -46,8 +46,8 @@ template <class float_t, class int_t> struct atomic {
                                      reinterpret_cast<int_t &>(new_value)));
     return new_value;
   }
-  float_t operator+=(float_t rhs) volatile noexcept {
-    float_t old_value, new_value;
+  value_t operator+=(value_t rhs) volatile noexcept {
+    value_t old_value, new_value;
     do {
       old_value = *this;
       new_value = old_value + rhs;
@@ -57,8 +57,8 @@ template <class float_t, class int_t> struct atomic {
     return new_value;
   }
 
-  float_t operator-=(float_t rhs) noexcept {
-    float_t old_value, new_value;
+  value_t operator-=(value_t rhs) noexcept {
+    value_t old_value, new_value;
     do {
       old_value = *this;
       new_value = old_value - rhs;
@@ -67,8 +67,8 @@ template <class float_t, class int_t> struct atomic {
                                      reinterpret_cast<int_t &>(new_value)));
     return new_value;
   }
-  float_t operator-=(float_t rhs) volatile noexcept {
-    float_t old_value, new_value;
+  value_t operator-=(value_t rhs) volatile noexcept {
+    value_t old_value, new_value;
     do {
       old_value = *this;
       new_value = old_value - rhs;
@@ -78,8 +78,8 @@ template <class float_t, class int_t> struct atomic {
     return new_value;
   }
 
-  float_t operator*=(float_t rhs) noexcept {
-    float_t old_value, new_value;
+  value_t operator*=(value_t rhs) noexcept {
+    value_t old_value, new_value;
     do {
       old_value = *this;
       new_value = old_value * rhs;
@@ -88,8 +88,8 @@ template <class float_t, class int_t> struct atomic {
                                      reinterpret_cast<int_t &>(new_value)));
     return new_value;
   }
-  float_t operator*=(float_t rhs) volatile noexcept {
-    float_t old_value, new_value;
+  value_t operator*=(value_t rhs) volatile noexcept {
+    value_t old_value, new_value;
     do {
       old_value = *this;
       new_value = old_value * rhs;
@@ -99,8 +99,8 @@ template <class float_t, class int_t> struct atomic {
     return new_value;
   }
 
-  float_t operator/=(float_t rhs) noexcept {
-    float_t old_value, new_value;
+  value_t operator/=(value_t rhs) noexcept {
+    value_t old_value, new_value;
     do {
       old_value = *this;
       new_value = old_value / rhs;
@@ -109,8 +109,8 @@ template <class float_t, class int_t> struct atomic {
                                      reinterpret_cast<int_t &>(new_value)));
     return new_value;
   }
-  float_t operator/=(float_t rhs) volatile noexcept {
-    float_t old_value, new_value;
+  value_t operator/=(value_t rhs) volatile noexcept {
+    value_t old_value, new_value;
     do {
       old_value = *this;
       new_value = old_value / rhs;

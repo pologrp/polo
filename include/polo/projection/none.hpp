@@ -4,7 +4,7 @@
 namespace polo {
 namespace projection {
 
-template <class float_t> struct none {
+template <class value_t> struct none {
   none() = default;
 
   none(const none &) = default;
@@ -13,7 +13,7 @@ template <class float_t> struct none {
   none &operator=(none &&) = default;
 
   template <class InputIt1, class InputIt2, class OutputIt>
-  OutputIt project(const float_t step, InputIt1 xold_begin, InputIt1 xold_end,
+  OutputIt project(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
                    InputIt2 gbegin, OutputIt xnew_begin) {
     while (xold_begin != xold_end)
       *xnew_begin++ = *xold_begin++ - step * *gbegin++;

@@ -6,7 +6,7 @@
 namespace polo {
 namespace gradient {
 
-template <class float_t> struct none {
+template <class value_t> struct none {
   none() = default;
 
   none(const none &) = default;

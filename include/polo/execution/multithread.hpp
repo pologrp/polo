@@ -12,7 +12,7 @@
 namespace polo {
 namespace execution {
 
-template <class float_t> struct consistent {
+template <class value_t> struct consistent {
   consistent() = default;
 
   consistent(const consistent &) = default;
@@ -24,8 +24,8 @@ protected:
   void params(const unsigned int nthreads) { this->nthreads = nthreads; }
 
   template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
-    x = std::vector<float_t>(xbegin, xend);
-    g = std::vector<float_t>(x.size());
+    x = std::vector<value_t>(xbegin, xend);
+    g = std::vector<value_t>(x.size());
   }
 
   template <class T, class Func1, class Func2>
@@ -38,21 +38,21 @@ protected:
       worker.join();
   }
 
-  float_t getf() const { return fval; }
-  std::vector<float_t> getx() const { return x; }
+  value_t getf() const { return fval; }
+  std::vector<value_t> getx() const { return x; }
 
   ~consistent() = default;
 
 private:
   template <class T, class Func1, class Func2>
   void kernel(T *algptr, Func1 &&loss, Func2 &&terminate) {
-    float_t step, flocal;
+    value_t step, flocal;
     const std::size_t dim{x.size()};
 
-    std::vector<float_t> xlocal(dim);
-    const float_t *xbegin{&xlocal[0]};
+    std::vector<value_t> xlocal(dim);
+    const value_t *xbegin{&xlocal[0]};
 
-    std::vector<float_t> glocal(dim);
+    std::vector<value_t> glocal(dim);
 
     while (true) {
       {
@@ -81,13 +81,13 @@ private:
   }
 
   std::size_t k{1};
-  float_t fval{0};
-  std::vector<float_t> x, g;
+  value_t fval{0};
+  std::vector<value_t> x, g;
   unsigned int nthreads{std::thread::hardware_concurrency()};
   std::mutex sync;
 };
 
-template <class float_t> struct _select_atomic;
+template <class value_t> struct _select_atomic;
 
 template <> struct _select_atomic<float> {
   using type = utility::atomic_float;
@@ -97,8 +97,8 @@ template <> struct _select_atomic<double> {
   using type = utility::atomic_double;
 };
 
-template <class float_t> struct inconsistent {
-  using atomic_float_t = typename _select_atomic<float_t>::type;
+template <class value_t> struct inconsistent {
+  using atomic_value_t = typename _select_atomic<value_t>::type;
 
   inconsistent() = default;
 
@@ -111,8 +111,8 @@ protected:
   void params(const unsigned int nthreads) { this->nthreads = nthreads; }
 
   template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
-    x = std::vector<atomic_float_t>(xbegin, xend);
-    g = std::vector<atomic_float_t>(x.size());
+    x = std::vector<atomic_value_t>(xbegin, xend);
+    g = std::vector<atomic_value_t>(x.size());
   }
 
   template <class T, class Func1, class Func2>
@@ -125,9 +125,9 @@ protected:
       worker.join();
   }
 
-  float_t getf() const { return fval; }
-  std::vector<float_t> getx() const {
-    return std::vector<float_t>(std::begin(x), std::end(x));
+  value_t getf() const { return fval; }
+  std::vector<value_t> getx() const {
+    return std::vector<value_t>(std::begin(x), std::end(x));
   }
 
   ~inconsistent() = default;
@@ -135,13 +135,13 @@ protected:
 private:
   template <class T, class Func1, class Func2>
   void kernel(T *algptr, Func1 &&loss, Func2 &&terminate) {
-    float_t step, flocal;
+    value_t step, flocal;
     const std::size_t dim{x.size()};
 
-    std::vector<float_t> xlocal(dim);
-    const float_t *xbegin{&xlocal[0]};
+    std::vector<value_t> xlocal(dim);
+    const value_t *xbegin{&xlocal[0]};
 
-    std::vector<float_t> glocal(dim);
+    std::vector<value_t> glocal(dim);
 
     while (!terminate(k, fval, std::begin(x), std::end(x), std::begin(g))) {
       std::copy(std::begin(x), std::end(x), std::begin(xlocal));
@@ -160,8 +160,8 @@ private:
   }
 
   std::atomic<std::size_t> k;
-  atomic_float_t fval;
-  std::vector<atomic_float_t> x, g;
+  atomic_value_t fval;
+  std::vector<atomic_value_t> x, g;
   unsigned int nthreads{std::thread::hardware_concurrency()};
 };
 
