@@ -1,7 +1,7 @@
-PBOpt: Policy-Based Optimization Toolbox
-========================================
+POLO: POLicy-Based Optimization Framework
+=========================================
 
-Policy-Based Optimization Toolbox (PBOpt) is a C++ header-only library. It is
+POLicy-Based Optimization Framework (POLO) is a C++ header-only library. It is
 intended to help researchers and practitioners solve optimization problems of
 the form
 
@@ -29,7 +29,7 @@ different algorithms in a flexible, yet, efficient way.
 How to Install
 --------------
 
-Because PBOpt is header-only, it is enough to copy the contents of the
+Because POLO is header-only, it is enough to copy the contents of the
 ``include`` directory to one of the search paths of your compiler. If you have
 cmake_ installed on your system, you can issue the following commands on your
 terminal:
@@ -38,8 +38,8 @@ terminal:
 
 .. code-block:: shell
 
-  git clone https://github.com/aytekinar/pbopt
-  cd pbopt
+  git clone https://github.com/aytekinar/polo
+  cd polo
   mkdir build
   cd build
   cmake -D CMAKE_INSTALL_PREFIX=$HOME/local ../
@@ -49,7 +49,7 @@ This will install the library into ``$HOME/local/include``, where ``$HOME``
 usually points to ``/home/<username>`` on Linux systems. Once the installation
 is complete, you can either configure your compiler to search for the header
 files under ``$HOME/local/include`` or use the switch ``-I $HOME/local/include``
-whenever you compile your project that uses PBOpt.
+whenever you compile your project that uses POLO.
 
 What Next
 ---------

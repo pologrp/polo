@@ -17,8 +17,8 @@ double loss(const double *x, double *g) {
   return fval;
 }
 
-#include "pbopt.hpp"
-using namespace pbopt;
+#include "polo.hpp"
+using namespace polo;
 
 int main(int argc, char *argv[]) {
   // Select the algorithm

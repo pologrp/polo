@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
 
-project(PBOPT
+project(POLO
         VERSION 1.0.0
-        DESCRIPTION "Policy-based optimization toolbox."
+        DESCRIPTION "POLO: POLicy-Based Optimization Framework."
         LANGUAGES CXX)
 
 install(DIRECTORY include/

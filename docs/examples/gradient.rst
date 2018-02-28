@@ -31,7 +31,7 @@ function of the form:
   :language: cpp
   :lines: 4-18
 
-In PBOpt, algorithm instances that use the gradient information require that
+In POLO, algorithm instances that use the gradient information require that
 ``loss`` objects are callable with two pointers to the underlying floating-point
 type. The first parameter, ``x``, points to the first element of the current
 decision vector and the second parameter, ``g``, points to the first element
@@ -49,7 +49,7 @@ repository.
 .. literalinclude:: /../examples/gradient.cpp
   :language: cpp
 
-In PBOpt, the ``algorithm::singlestage`` class is an abstraction of a family of
+In POLO, the ``algorithm::singlestage`` class is an abstraction of a family of
 algorithms. With the default settings, it represents the gradient descent
 algorithm with a constant step-size. For convex quadratic minimization problems,
 it is known that the best constant step-size for the gradient descent iterations
@@ -61,7 +61,7 @@ times until the algorithm terminates.
 
 .. note::
 
-  PBOpt manages its own memory for the algorithms to run correctly. In the
+  POLO manages its own memory for the algorithms to run correctly. In the
   example above, ``initialize`` will tell the algorithm to preallocate a memory
   space of 3 double variables for both ``x`` and ``g`` that are supplied to the
   ``loss`` object.

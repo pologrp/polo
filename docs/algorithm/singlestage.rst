@@ -3,7 +3,7 @@
 Single-Stage Algorithms
 =======================
 
-In PBOpt, *single-stage algorithms* represent the family of algorithms that
+In POLO, *single-stage algorithms* represent the family of algorithms that
 attempt to solve the optimization problem
 
 .. math::
@@ -32,7 +32,7 @@ the gradient of the smooth loss function :math:`\operatorname{F}(x)` at the
 decision variable :math:`x_{k}`, and :math:`\gamma_{k}` is the step-size.
 
 Algorithms in this family are composed of the following components, called the
-*policies* [#]_ in PBOpt:
+*policies* [#]_ in POLO:
 
 ``gradient``
   Gradient policy of a given algorithm determines how to use the first-order
