@@ -29,7 +29,7 @@ template <class value_t> struct affine : private none<value_t> {
     polo::utility::matrix::blas<value_t>::gemv(
         'N', m, d, 1, A.data(), m, temp2.data(), 1, -1, temp1.data(), 1);
     polo::utility::matrix::lapack<value_t>::pptrs('L', m, 1, H.data(),
-                                                   temp1.data(), m);
+                                                  temp1.data(), m);
     polo::utility::matrix::blas<value_t>::gemv(
         'T', m, d, -1, A.data(), m, temp1.data(), 1, 1, temp2.data(), 1);
     return std::copy(std::begin(temp2), std::end(temp2), xnew_begin);
@@ -63,7 +63,7 @@ private:
     H = std::vector<value_t>((m * (m + 1)) / 2);
     for (std::size_t idx = 0; idx < d; idx++)
       polo::utility::matrix::blas<value_t>::spr('L', m, 1, &A[idx * m], 1,
-                                                 H.data());
+                                                H.data());
 
     polo::utility::matrix::lapack<value_t>::pptrf('L', m, H.data());
   }

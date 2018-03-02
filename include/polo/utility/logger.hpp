@@ -21,22 +21,18 @@ template <class value_t, bool log_x_v, bool log_g_v> struct logger_t {
     iterations.push_back(k);
     times.push_back(telapsed.count());
     fvalues.push_back(fval);
-    log_x(xbegin, xend, std::integral_constant<bool, log_x_v>{});
-    log_g(gbegin, gend, std::integral_constant<bool, log_g_v>{});
+    log(xvalues, xbegin, xend, std::integral_constant<bool, log_x_v>{});
+    log(gvalues, gbegin, gend, std::integral_constant<bool, log_g_v>{});
     tstart = std::chrono::high_resolution_clock::now();
   }
 
 private:
-  template <class InputIt>
-  void log_x(InputIt xbegin, InputIt xend, std::true_type) {
-    xvalues.emplace_back(xbegin, xend);
+  template <class Container, class InputIt>
+  void log(Container &c, InputIt begin, InputIt end, std::true_type) {
+    c.emplace_back(begin, end);
   }
-  template <class InputIt> void log_x(InputIt, InputIt, std::false_type) {}
-  template <class InputIt>
-  void log_g(InputIt gbegin, InputIt gend, std::true_type) {
-    gvalues.emplace_back(gbegin, gend);
-  }
-  template <class InputIt> void log_g(InputIt, InputIt, std::false_type) {}
+  template <class Container, class InputIt>
+  void log(Container &, InputIt, InputIt, std::false_type) {}
 
   std::vector<std::size_t> iterations;
   std::vector<value_t> times;

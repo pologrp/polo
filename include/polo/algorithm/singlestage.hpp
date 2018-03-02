@@ -15,8 +15,7 @@
 namespace polo {
 namespace algorithm {
 
-template <class value_t,
-          template <class> class Gradient = polo::gradient::none,
+template <class value_t, template <class> class Gradient = polo::gradient::none,
           template <class> class StepSize = polo::step::constant,
           template <class> class Smoothing = polo::smoothing::none,
           template <class> class Projection = polo::projection::none,
