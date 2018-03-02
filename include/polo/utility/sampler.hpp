@@ -32,7 +32,7 @@ struct _sampler : private distribution<int_t> {
 
 private:
   std::random_device rd;
-  std::mt19937 gen;
+  std::mt19937 gen{rd()};
 };
 
 template <class int_t>
