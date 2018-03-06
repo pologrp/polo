@@ -156,7 +156,6 @@ void dtrsm_(const char *, const char *, const char *, const char *, const int *,
 namespace polo {
 namespace utility {
 namespace matrix {
-
 template <class value_t> struct blas;
 
 template <> struct blas<float> {
@@ -494,7 +493,6 @@ template <> struct blas<double> {
     dtrsm_(&side, &uplo, &transa, &diag, &m, &n, &alpha, a, &lda, b, &ldb);
   }
 };
-
 } // namespace matrix
 } // namespace utility
 } // namespace polo

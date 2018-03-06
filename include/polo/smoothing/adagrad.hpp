@@ -9,7 +9,6 @@
 
 namespace polo {
 namespace smoothing {
-
 template <class value_t> struct adagrad {
   adagrad(const value_t epsilon = 1E-6) : epsilon{epsilon} {}
 
@@ -46,7 +45,6 @@ private:
   value_t epsilon{1E-6};
   std::vector<value_t> rms_g;
 };
-
 } // namespace smoothing
 } // namespace polo
 

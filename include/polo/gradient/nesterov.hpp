@@ -8,7 +8,6 @@
 
 namespace polo {
 namespace gradient {
-
 template <class value_t> struct nesterov {
   nesterov(const value_t mu = 0.95, const value_t epsilon = 1E-3)
       : mu{mu}, epsilon{epsilon} {}
@@ -48,7 +47,6 @@ private:
   value_t mu{0.95}, epsilon{1E-3};
   std::vector<value_t> nu;
 };
-
 } // namespace gradient
 } // namespace polo
 

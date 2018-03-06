@@ -3,7 +3,6 @@
 
 namespace polo {
 namespace projection {
-
 template <class value_t> struct none {
   none() = default;
 
@@ -25,7 +24,6 @@ protected:
 
   ~none() = default;
 };
-
 } // namespace projection
 } // namespace polo
 

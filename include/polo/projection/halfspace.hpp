@@ -7,7 +7,6 @@
 
 namespace polo {
 namespace projection {
-
 template <class value_t> struct halfspace {
   halfspace() = default;
 
@@ -59,7 +58,6 @@ private:
   value_t alpha, norm{0};
   std::vector<value_t> a, temp;
 };
-
 } // namespace projection
 } // namespace polo
 

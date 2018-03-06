@@ -7,14 +7,14 @@
 namespace polo {
 namespace utility {
 namespace sampler {
-
+namespace detail {
 template <class int_t, template <class> class distribution>
-struct _sampler : private distribution<int_t> {
+struct sampler : private distribution<int_t> {
   using param_type = typename distribution<int_t>::param_type;
   using result_type = typename std::mt19937::result_type;
 
-  _sampler() = default;
-  _sampler(const result_type seed) { gen.seed(seed); }
+  sampler() = default;
+  sampler(const result_type seed) { gen.seed(seed); }
 
   void seed(const result_type seed) { gen.seed(seed); }
 
@@ -35,18 +35,17 @@ private:
   std::mt19937 gen{rd()};
 };
 
-template <class int_t>
-using uniform = _sampler<int_t, std::uniform_int_distribution>;
+struct coordinate_sampler_t {};
+struct component_sampler_t {};
+} // namespace detail
 
 template <class int_t>
-using custom = _sampler<int_t, std::discrete_distribution>;
+using uniform = detail::sampler<int_t, std::uniform_int_distribution>;
+template <class int_t>
+using custom = detail::sampler<int_t, std::discrete_distribution>;
 
-struct _coordinate_sampler_t {};
-struct _component_sampler_t {};
-
-constexpr _coordinate_sampler_t coordinate;
-constexpr _component_sampler_t component;
-
+constexpr detail::coordinate_sampler_t coordinate;
+constexpr detail::component_sampler_t component;
 } // namespace sampler
 } // namespace utility
 } // namespace polo

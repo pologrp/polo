@@ -9,7 +9,6 @@
 
 namespace polo {
 namespace smoothing {
-
 template <class value_t> struct adadelta {
   adadelta(const value_t rho = 0.95, const value_t epsilon = 1E-6)
       : rho{rho}, epsilon{epsilon} {}
@@ -57,7 +56,6 @@ private:
   value_t rho{0.95}, epsilon{1E-6};
   std::vector<value_t> rms_g, rms_x, x_prev;
 };
-
 } // namespace smoothing
 } // namespace polo
 

@@ -7,7 +7,6 @@
 
 namespace polo {
 namespace problem {
-
 template <class value_t> struct qp {
   qp(std::vector<value_t> Q, std::vector<value_t> q)
       : Q{std::move(Q)}, q{std::move(q)} {}
@@ -43,7 +42,6 @@ template <class value_t> struct qp {
 private:
   std::vector<value_t> Q, q;
 };
-
 } // namespace problem
 } // namespace polo
 

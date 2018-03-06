@@ -6,7 +6,6 @@
 
 namespace polo {
 namespace step {
-
 template <class value_t> struct decreasing {
   decreasing(const value_t gamma = 1) : gamma{gamma} {}
 
@@ -31,7 +30,6 @@ protected:
 private:
   value_t gamma{1};
 };
-
 } // namespace step
 } // namespace polo
 

@@ -7,7 +7,6 @@
 
 namespace polo {
 namespace projection {
-
 template <class value_t> struct l2ball {
   l2ball(const value_t r = 1) : r{r} {}
 
@@ -53,7 +52,6 @@ private:
   value_t r;
   std::vector<value_t> c;
 };
-
 } // namespace projection
 } // namespace polo
 

@@ -9,7 +9,6 @@
 
 namespace polo {
 namespace smoothing {
-
 template <class value_t> struct rmsprop {
   rmsprop(const value_t rho = 0.9, const value_t epsilon = 1E-6)
       : rho{rho}, epsilon{epsilon} {}
@@ -50,7 +49,6 @@ private:
   value_t rho{0.9}, epsilon{1E-6};
   std::vector<value_t> rms_g;
 };
-
 } // namespace smoothing
 } // namespace polo
 

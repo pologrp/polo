@@ -6,7 +6,7 @@
 
 namespace polo {
 namespace projection {
-
+namespace detail {
 template <class value_t, bool is_pos> struct orthant {
   orthant() = default;
 
@@ -43,10 +43,12 @@ private:
     return xnew_begin;
   }
 };
+} // namespace detail
 
-template <class value_t> using positive_orthant = orthant<value_t, true>;
-template <class value_t> using negative_orthant = orthant<value_t, false>;
-
+template <class value_t>
+using positive_orthant = detail::orthant<value_t, true>;
+template <class value_t>
+using negative_orthant = detail::orthant<value_t, false>;
 } // namespace projection
 } // namespace polo
 

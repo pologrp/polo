@@ -11,7 +11,6 @@
 
 namespace polo {
 namespace execution {
-
 template <class value_t> struct consistent {
   consistent() = default;
 
@@ -87,18 +86,17 @@ private:
   std::mutex sync;
 };
 
-template <class value_t> struct _select_atomic;
+namespace detail {
+template <class value_t> struct select_atomic;
 
-template <> struct _select_atomic<float> {
-  using type = utility::atomic_float;
-};
-
-template <> struct _select_atomic<double> {
+template <> struct select_atomic<float> { using type = utility::atomic_float; };
+template <> struct select_atomic<double> {
   using type = utility::atomic_double;
 };
+} // namespace detail
 
 template <class value_t> struct inconsistent {
-  using atomic_value_t = typename _select_atomic<value_t>::type;
+  using atomic_value_t = typename detail::select_atomic<value_t>::type;
 
   inconsistent() = default;
 
@@ -164,7 +162,6 @@ private:
   std::vector<atomic_value_t> x, g;
   unsigned int nthreads{std::thread::hardware_concurrency()};
 };
-
 } // namespace execution
 } // namespace polo
 

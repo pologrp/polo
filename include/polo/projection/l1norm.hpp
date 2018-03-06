@@ -6,7 +6,6 @@
 
 namespace polo {
 namespace projection {
-
 template <class value_t> struct l1norm {
   l1norm(const value_t lambda = 1) : lambda{lambda} {}
 
@@ -37,7 +36,6 @@ protected:
 private:
   value_t lambda{1};
 };
-
 } // namespace projection
 } // namespace polo
 

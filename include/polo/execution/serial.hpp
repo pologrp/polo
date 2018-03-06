@@ -6,7 +6,6 @@
 
 namespace polo {
 namespace execution {
-
 template <class value_t> struct serial {
   serial() = default;
 
@@ -48,7 +47,6 @@ private:
   value_t fval{0};
   std::vector<value_t> x, g;
 };
-
 } // namespace execution
 } // namespace polo
 

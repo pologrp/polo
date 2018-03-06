@@ -9,7 +9,7 @@
 namespace polo {
 namespace utility {
 namespace logger {
-
+namespace detail {
 template <class value_t, bool log_x_v, bool log_g_v> struct logger_t {
   template <class InputIt1, class InputIt2>
   void operator()(const std::size_t k, const value_t fval, InputIt1 xbegin,
@@ -42,12 +42,14 @@ private:
       std::chrono::high_resolution_clock::now()},
       tend;
 };
+} // namespace detail
 
-template <class value_t> using value = logger_t<value_t, false, false>;
-template <class value_t> using decision = logger_t<value_t, true, false>;
-template <class value_t> using gradient = logger_t<value_t, false, true>;
-template <class value_t> using full = logger_t<value_t, true, true>;
-
+template <class value_t> using value = detail::logger_t<value_t, false, false>;
+template <class value_t>
+using decision = detail::logger_t<value_t, true, false>;
+template <class value_t>
+using gradient = detail::logger_t<value_t, false, true>;
+template <class value_t> using full = detail::logger_t<value_t, true, true>;
 } // namespace logger
 } // namespace utility
 } // namespace polo

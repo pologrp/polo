@@ -6,7 +6,6 @@
 
 namespace polo {
 namespace projection {
-
 template <class value_t> struct box {
   box() = default;
 
@@ -41,7 +40,6 @@ protected:
 private:
   std::vector<value_t> l, u;
 };
-
 } // namespace projection
 } // namespace polo
 

@@ -6,7 +6,7 @@
 
 namespace polo {
 namespace utility {
-
+namespace detail {
 template <class value_t, class int_t> struct atomic {
   using value_type = value_t;
   using difference_type = value_type;
@@ -123,10 +123,10 @@ template <class value_t, class int_t> struct atomic {
 private:
   std::atomic<int_t> value;
 };
+} // namespace detail
 
-using atomic_float = atomic<float, std::uint32_t>;
-using atomic_double = atomic<double, std::uint64_t>;
-
+using atomic_float = detail::atomic<float, std::uint32_t>;
+using atomic_double = detail::atomic<double, std::uint64_t>;
 } // namespace utility
 } // namespace polo
 

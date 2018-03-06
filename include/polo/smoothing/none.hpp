@@ -3,7 +3,6 @@
 
 namespace polo {
 namespace smoothing {
-
 template <class value_t> struct none {
   none() = default;
 
@@ -27,7 +26,6 @@ protected:
 
   ~none() = default;
 };
-
 } // namespace smoothing
 } // namespace polo
 

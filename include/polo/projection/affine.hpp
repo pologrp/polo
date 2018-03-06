@@ -11,7 +11,6 @@
 
 namespace polo {
 namespace projection {
-
 template <class value_t> struct affine : private none<value_t> {
   affine() = default;
 
@@ -26,12 +25,11 @@ template <class value_t> struct affine : private none<value_t> {
     none<value_t>::project(step, xold_begin, xold_end, gbegin,
                            std::begin(temp2));
     std::copy(std::begin(b), std::end(b), std::begin(temp1));
-    polo::utility::matrix::blas<value_t>::gemv(
-        'N', m, d, 1, A.data(), m, temp2.data(), 1, -1, temp1.data(), 1);
-    polo::utility::matrix::lapack<value_t>::pptrs('L', m, 1, H.data(),
-                                                  temp1.data(), m);
-    polo::utility::matrix::blas<value_t>::gemv(
-        'T', m, d, -1, A.data(), m, temp1.data(), 1, 1, temp2.data(), 1);
+    utility::matrix::blas<value_t>::gemv('N', m, d, 1, &A[0], m, &temp2[0], 1,
+                                         -1, &temp1[0], 1);
+    utility::matrix::lapack<value_t>::pptrs('L', m, 1, &H[0], &temp1[0], m);
+    utility::matrix::blas<value_t>::gemv('T', m, d, -1, &A[0], m, &temp1[0], 1,
+                                         1, &temp2[0], 1);
     return std::copy(std::begin(temp2), std::end(temp2), xnew_begin);
   }
 
@@ -62,15 +60,13 @@ private:
 
     H = std::vector<value_t>((m * (m + 1)) / 2);
     for (std::size_t idx = 0; idx < d; idx++)
-      polo::utility::matrix::blas<value_t>::spr('L', m, 1, &A[idx * m], 1,
-                                                H.data());
+      utility::matrix::blas<value_t>::spr('L', m, 1, &A[idx * m], 1, &H[0]);
 
-    polo::utility::matrix::lapack<value_t>::pptrf('L', m, H.data());
+    utility::matrix::lapack<value_t>::pptrf('L', m, &H[0]);
   }
   std::size_t m, d;
   std::vector<value_t> A, b, H, temp1, temp2;
 };
-
 } // namespace projection
 } // namespace polo
 

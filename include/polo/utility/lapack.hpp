@@ -21,7 +21,6 @@ void dpptrs_(const char *, const int *, const int *, const double *, double *,
 namespace polo {
 namespace utility {
 namespace matrix {
-
 template <class value_t> struct lapack;
 
 template <> struct lapack<float> {
@@ -73,7 +72,6 @@ template <> struct lapack<double> {
     return info;
   }
 };
-
 } // namespace matrix
 } // namespace utility
 } // namespace polo
