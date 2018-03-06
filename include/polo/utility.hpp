@@ -6,6 +6,7 @@
 #include "utility/lapack.hpp"
 #include "utility/logger.hpp"
 #include "utility/maxiter.hpp"
+#include "utility/null.hpp"
 #include "utility/sampler.hpp"
 
 #endif
