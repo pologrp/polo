@@ -25,21 +25,21 @@ protected:
 
   template <class Algorithm, class Loss, class Terminator, class Logger>
   void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
-             Logger &&log) {
+             Logger &&logger) {
     const value_t *xbegin{&x[0]};
 
     while (!std::forward<Terminator>(terminate)(k, fval, std::begin(x),
                                                 std::end(x), std::begin(g))) {
       fval = std::forward<Loss>(loss)(xbegin, &g[0]);
-      iterate(alg, std::forward<Logger>(log));
+      iterate(alg, std::forward<Logger>(logger));
     }
   }
 
   template <class Algorithm, class Loss, class Terminator, class Logger,
             class Sampler>
-  void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate, Logger &&log,
-             utility::sampler::detail::component_sampler_t, Sampler &&sampler,
-             const std::size_t num_components) {
+  void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
+             Logger &&logger, utility::sampler::detail::component_sampler_t,
+             Sampler &&sampler, const std::size_t num_components) {
     const value_t *xbegin{&x[0]};
     std::vector<std::size_t> components(num_components);
 
@@ -49,15 +49,15 @@ protected:
                                      std::end(components));
       fval = std::forward<Loss>(loss)(xbegin, &g[0], &components[0],
                                       &components[num_components]);
-      iterate(alg, std::forward<Logger>(log));
+      iterate(alg, std::forward<Logger>(logger));
     }
   }
 
   template <class Algorithm, class Loss, class Terminator, class Logger,
             class Sampler>
-  void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate, Logger &&log,
-             utility::sampler::detail::coordinate_sampler_t, Sampler &&sampler,
-             const std::size_t num_coordinates) {
+  void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
+             Logger &&logger, utility::sampler::detail::coordinate_sampler_t,
+             Sampler &&sampler, const std::size_t num_coordinates) {
     const value_t *xbegin{&x[0]};
     std::vector<std::size_t> coordinates(num_coordinates);
     std::vector<value_t> partial(num_coordinates);
@@ -70,15 +70,15 @@ protected:
                                       &coordinates[num_coordinates]);
       for (std::size_t idx = 0; idx < num_coordinates; idx++)
         g[coordinates[idx]] = partial[idx];
-      iterate(alg, std::forward<Logger>(log));
+      iterate(alg, std::forward<Logger>(logger));
     }
   }
 
   template <class Algorithm, class Loss, class Terminator, class Logger,
             class Sampler1, class Sampler2>
-  void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate, Logger &&log,
-             utility::sampler::detail::component_sampler_t, Sampler1 &&sampler1,
-             const std::size_t num_components,
+  void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
+             Logger &&logger, utility::sampler::detail::component_sampler_t,
+             Sampler1 &&sampler1, const std::size_t num_components,
              utility::sampler::detail::coordinate_sampler_t,
              Sampler2 &&sampler2, const std::size_t num_coordinates) {
     const value_t *xbegin{&x[0]};
@@ -97,7 +97,7 @@ protected:
           &coordinates[0], &coordinates[num_coordinates]);
       for (std::size_t idx = 0; idx < num_coordinates; idx++)
         g[coordinates[idx]] = partial[idx];
-      iterate(alg, std::forward<Logger>(log));
+      iterate(alg, std::forward<Logger>(logger));
     }
   }
 
@@ -108,14 +108,14 @@ protected:
 
 private:
   template <class Algorithm, class Logger>
-  void iterate(Algorithm *alg, Logger &&log) {
+  void iterate(Algorithm *alg, Logger &&logger) {
     alg->grad(std::begin(g), std::end(g), std::begin(g));
     alg->smooth(k, std::begin(x), std::end(x), std::begin(g), std::begin(g));
     step_ = alg->step(k, fval, std::begin(x), std::end(x), std::begin(g));
     alg->project(step_, std::begin(x), std::end(x), std::begin(g),
                  std::begin(x));
-    std::forward<Logger>(log)(k, fval, std::begin(x), std::end(x),
-                              std::begin(g), std::end(g));
+    std::forward<Logger>(logger)(k, fval, std::begin(x), std::end(x),
+                                 std::begin(g), std::end(g));
     k++;
   }
 
