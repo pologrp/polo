@@ -13,7 +13,14 @@ struct sampler : private distribution<int_t> {
   using param_type = typename distribution<int_t>::param_type;
   using result_type = typename std::mt19937::result_type;
 
-  sampler() = default;
+  sampler() { gen = std::mt19937{std::random_device{}()}; }
+  sampler(const sampler &s) : distribution<int_t>{s} {
+    gen = std::mt19937{std::random_device{}()};
+  }
+  sampler &operator=(const sampler &) = delete;
+  sampler(sampler &&) = default;
+  sampler &operator=(sampler &&) = default;
+
   sampler(const result_type seed) { gen.seed(seed); }
 
   void seed(const result_type seed) { gen.seed(seed); }
@@ -31,8 +38,7 @@ struct sampler : private distribution<int_t> {
   }
 
 private:
-  std::random_device rd;
-  std::mt19937 gen{rd()};
+  std::mt19937 gen;
 };
 
 struct coordinate_sampler_t {};
