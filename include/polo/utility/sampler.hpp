@@ -25,10 +25,10 @@ struct sampler : private distribution<int_t> {
 
   void seed(const result_type seed) { gen.seed(seed); }
 
-  template <class... Ts> void param(Ts &&... args) {
+  template <class... Ts> void params(Ts &&... args) {
     distribution<int_t>::param(param_type(std::forward<Ts>(args)...));
   }
-  void param(const param_type &params) { distribution<int_t>::param(params); }
+  void params(const param_type &params) { distribution<int_t>::param(params); }
 
   template <class OutputIt>
   OutputIt operator()(OutputIt sbegin, OutputIt send) {
