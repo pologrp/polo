@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iterator>
 #include <vector>
 
 namespace polo {
@@ -39,9 +40,13 @@ template <class value_t> struct l2ball {
   }
 
 protected:
-  void params(const value_t r, std::vector<value_t> c) {
+  template <class InputIt>
+  void params(const value_t r, InputIt cbegin, InputIt cend) {
     this->r = r;
-    this->c = std::move(c);
+    c = std::vector<value_t>(cbegin, cend);
+  }
+  template <class T> void params(const value_t r, const std::vector<T> &c) {
+    params(r, std::begin(c), std::end(c));
   }
 
   template <class InputIt> void initialize(InputIt, InputIt) {}

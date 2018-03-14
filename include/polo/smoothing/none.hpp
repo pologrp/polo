@@ -1,6 +1,8 @@
 #ifndef NOSMOOTHING_HPP_
 #define NOSMOOTHING_HPP_
 
+#include <algorithm>
+
 namespace polo {
 namespace smoothing {
 template <class value_t> struct none {
@@ -14,11 +16,8 @@ template <class value_t> struct none {
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt smooth(const std::size_t k, InputIt1 xbegin, InputIt1 xend,
                   InputIt2 gold_begin, OutputIt gnew_begin) {
-    while (xbegin != xend) {
-      xbegin++;
-      *gnew_begin++ = *gold_begin++;
-    }
-    return gnew_begin;
+    return std::transform(xbegin, xend, gold_begin, gnew_begin,
+                          [](const value_t x, const value_t g) { return g; });
   }
 
 protected:

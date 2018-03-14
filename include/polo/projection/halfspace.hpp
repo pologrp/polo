@@ -28,7 +28,7 @@ template <class value_t> struct halfspace {
     }
     const value_t diff = atx - alpha;
     return std::transform(std::begin(temp), std::end(temp), std::begin(a),
-                          xnew_begin, [&](const value_t &x, const value_t &a) {
+                          xnew_begin, [&](const value_t x, const value_t a) {
                             return x - std::max(diff, value_t{0}) / norm * a;
                           });
   }
@@ -42,12 +42,8 @@ protected:
     for (const auto val : a)
       norm += val * val;
   }
-  void params(std::vector<value_t> a, const value_t alpha) {
-    this->a = std::move(a);
-    temp = std::vector<value_t>(this->a.size());
-    this->alpha = alpha;
-    for (const auto val : this->a)
-      norm += val * val;
+  template <class T> void params(const std::vector<T> &a, const value_t alpha) {
+    params(std::begin(a), std::end(a), alpha);
   }
 
   template <class InputIt> void initialize(InputIt, InputIt) {}

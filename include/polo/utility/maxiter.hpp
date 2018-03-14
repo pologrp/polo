@@ -10,13 +10,13 @@ struct maxiter {
   maxiter(const std::size_t K) : K{K} {}
 
   template <class value_t, class InputIt1, class InputIt2>
-  bool operator()(const std::size_t k, const value_t fval, InputIt1 x_begin,
+  bool operator()(const std::size_t k, const value_t &fval, InputIt1 x_begin,
                   InputIt1 x_end, InputIt2 g_begin) {
     return k > K;
   }
 
 private:
-  std::size_t K;
+  const std::size_t K;
 };
 } // namespace terminator
 } // namespace utility

@@ -5,7 +5,7 @@ namespace polo {
 namespace utility {
 namespace detail {
 struct null {
-  void operator()(...) {}
+  template <class... Args> void operator()(Args &&...) {}
 };
 } // namespace detail
 } // namespace utility

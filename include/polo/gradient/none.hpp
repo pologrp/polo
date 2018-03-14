@@ -15,7 +15,8 @@ template <class value_t> struct none {
 
   template <class InputIt, class OutputIt>
   OutputIt grad(InputIt gold_begin, InputIt gold_end, OutputIt gnew_begin) {
-    return std::copy(gold_begin, gold_end, gnew_begin);
+    return std::transform(gold_begin, gold_end, gnew_begin,
+                          [](const value_t g) { return g; });
   }
 
 protected:

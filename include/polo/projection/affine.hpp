@@ -40,10 +40,9 @@ protected:
     b = std::vector<value_t>(bbegin, bend);
     factorize();
   }
-  void params(std::vector<value_t> A, std::vector<value_t> b) {
-    this->A = std::move(A);
-    this->b = std::move(b);
-    factorize();
+  template <class T1, class T2>
+  void params(const std::vector<T1> &A, const std::vector<T2> &b) {
+    params(std::begin(A), std::end(A), std::begin(b), std::end(b));
   }
 
   template <class InputIt> void initialize(InputIt, InputIt) {}

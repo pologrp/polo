@@ -15,20 +15,22 @@
 namespace polo {
 namespace execution {
 namespace detail {
-template <class value_t> struct select_atomic;
-
-template <> struct select_atomic<float> { using type = utility::atomic_float; };
-template <> struct select_atomic<double> {
+template <class value_t, bool consistent = true> struct select_type {
+  using type = value_t;
+};
+template <class value_t> struct select_type<value_t, false> {
+  using type = std::atomic<value_t>;
+};
+template <> struct select_type<float, false> {
+  using type = utility::atomic_float;
+};
+template <> struct select_type<double, false> {
   using type = utility::atomic_double;
 };
 
 template <class value_t, bool consistent> struct multithread {
-  using internal_value =
-      typename std::conditional<consistent, value_t,
-                                typename select_atomic<value_t>::type>::type;
-  using internal_idx =
-      typename std::conditional<consistent, std::size_t,
-                                std::atomic<std::size_t>>::type;
+  using internal_value = typename select_type<value_t, consistent>::type;
+  using internal_idx = typename select_type<std::size_t, consistent>::type;
 
   multithread() = default;
 
@@ -60,7 +62,7 @@ protected:
   void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
              Logger &&logger, Space s, Sampler &&sampler,
              const std::size_t num) {
-    auto task = [&, alg, sampler]() {
+    auto task = [&, alg, s, sampler, num]() {
       kernel(alg, std::forward<Loss>(loss), std::forward<Terminator>(terminate),
              std::forward<Logger>(logger), s, sampler, num);
     };
@@ -74,7 +76,8 @@ protected:
              Sampler1 &&sampler1, const std::size_t num_components,
              utility::sampler::detail::coordinate_sampler_t s2,
              Sampler2 &&sampler2, const std::size_t num_coordinates) {
-    auto task = [&, alg, sampler1, sampler2]() {
+    auto task = [&, alg, s1, sampler1, num_components, s2, sampler2,
+                 num_coordinates]() {
       kernel(alg, std::forward<Loss>(loss), std::forward<Terminator>(terminate),
              std::forward<Logger>(logger), s1, sampler1, num_components, s2,
              sampler2, num_coordinates);
@@ -110,11 +113,11 @@ private:
     std::vector<value_t> glocal(dim);
 
     for (;;) {
-      read(xlocal, typename std::integral_constant<bool, consistent>::type{});
+      read(xlocal, std::integral_constant<bool, consistent>{});
       flocal = std::forward<Loss>(loss)(xbegin, &glocal[0]);
       if (!update(alg, flocal, glocal, std::forward<Terminator>(terminate),
                   std::forward<Logger>(logger),
-                  typename std::integral_constant<bool, consistent>::type{}))
+                  std::integral_constant<bool, consistent>{}))
         break;
     }
   }
@@ -123,7 +126,7 @@ private:
             class Sampler>
   void kernel(Algorithm *alg, Loss &&loss, Terminator &&terminate,
               Logger &&logger, utility::sampler::detail::component_sampler_t,
-              Sampler &&sampler, const std::size_t num_components) {
+              Sampler sampler, const std::size_t num_components) {
     value_t flocal;
     const std::size_t dim{x.size()};
 
@@ -133,14 +136,13 @@ private:
     const value_t *xbegin{&xlocal[0]};
 
     for (;;) {
-      read(xlocal, typename std::integral_constant<bool, consistent>::type{});
-      std::forward<Sampler>(sampler)(std::begin(components),
-                                     std::end(components));
+      read(xlocal, std::integral_constant<bool, consistent>{});
+      sampler(std::begin(components), std::end(components));
       flocal = std::forward<Loss>(loss)(xbegin, &glocal[0], &components[0],
                                         &components[num_components]);
       if (!update(alg, flocal, glocal, std::forward<Terminator>(terminate),
                   std::forward<Logger>(logger),
-                  typename std::integral_constant<bool, consistent>::type{}))
+                  std::integral_constant<bool, consistent>{}))
         break;
     }
   }
@@ -149,7 +151,7 @@ private:
             class Sampler>
   void kernel(Algorithm *alg, Loss &&loss, Terminator &&terminate,
               Logger &&logger, utility::sampler::detail::coordinate_sampler_t,
-              Sampler &&sampler, const std::size_t num_coordinates) {
+              Sampler sampler, const std::size_t num_coordinates) {
     value_t flocal;
     const std::size_t dim{x.size()};
 
@@ -159,15 +161,14 @@ private:
     const value_t *xbegin{&xlocal[0]};
 
     for (;;) {
-      read(xlocal, typename std::integral_constant<bool, consistent>::type{});
-      std::forward<Sampler>(sampler)(std::begin(coordinates),
-                                     std::end(coordinates));
+      read(xlocal, std::integral_constant<bool, consistent>{});
+      sampler(std::begin(coordinates), std::end(coordinates));
       flocal = std::forward<Loss>(loss)(xbegin, &partial[0], &coordinates[0],
                                         &coordinates[num_coordinates]);
       if (!update(alg, flocal, partial, coordinates,
                   std::forward<Terminator>(terminate),
                   std::forward<Logger>(logger),
-                  typename std::integral_constant<bool, consistent>::type{}))
+                  std::integral_constant<bool, consistent>{}))
         break;
     }
   }
@@ -176,9 +177,9 @@ private:
             class Sampler1, class Sampler2>
   void kernel(Algorithm *alg, Loss &&loss, Terminator &&terminate,
               Logger &&logger, utility::sampler::detail::component_sampler_t,
-              Sampler1 &&sampler1, const std::size_t num_components,
-              utility::sampler::detail::coordinate_sampler_t,
-              Sampler2 &&sampler2, const std::size_t num_coordinates) {
+              Sampler1 sampler1, const std::size_t num_components,
+              utility::sampler::detail::coordinate_sampler_t, Sampler2 sampler2,
+              const std::size_t num_coordinates) {
     value_t flocal;
     const std::size_t dim{x.size()};
 
@@ -189,33 +190,32 @@ private:
     const value_t *xbegin{&xlocal[0]};
 
     for (;;) {
-      read(xlocal, typename std::integral_constant<bool, consistent>::type{});
-      std::forward<Sampler1>(sampler1)(std::begin(components),
-                                       std::end(components));
-      std::forward<Sampler2>(sampler2)(std::begin(coordinates),
-                                       std::end(coordinates));
+      read(xlocal, std::integral_constant<bool, consistent>{});
+      sampler1(std::begin(components), std::end(components));
+      sampler2(std::begin(coordinates), std::end(coordinates));
       flocal = std::forward<Loss>(loss)(
           xbegin, &partial[0], &components[0], &components[num_components],
           &coordinates[0], &coordinates[num_coordinates]);
       if (!update(alg, flocal, partial, coordinates,
                   std::forward<Terminator>(terminate),
                   std::forward<Logger>(logger),
-                  typename std::integral_constant<bool, consistent>::type{}))
+                  std::integral_constant<bool, consistent>{}))
         break;
     }
   }
 
-  template <class Container> void read(Container &xlocal, std::false_type) {
+  void read(std::vector<value_t> &xlocal, std::false_type) {
     std::copy(std::begin(x), std::end(x), std::begin(xlocal));
   }
-  template <class Container> void read(Container &xlocal, std::true_type) {
+  void read(std::vector<value_t> &xlocal, std::true_type) {
     std::lock_guard<std::mutex> lock(sync);
     read(xlocal, std::false_type{});
   }
 
-  template <class Algorithm, class Container, class Terminator, class Logger>
-  bool update(Algorithm *alg, value_t flocal, Container &glocal,
-              Terminator &&terminate, Logger &&logger, std::false_type) {
+  template <class Algorithm, class Terminator, class Logger>
+  bool update(Algorithm *alg, const value_t flocal,
+              const std::vector<value_t> &glocal, Terminator &&terminate,
+              Logger &&logger, std::false_type) {
     fval = flocal;
 
     if (std::forward<Terminator>(terminate)(k, fval, std::begin(x), std::end(x),
@@ -232,19 +232,20 @@ private:
     k++;
     return true;
   }
-  template <class Algorithm, class Container, class Terminator, class Logger>
-  bool update(Algorithm *alg, value_t flocal, Container &glocal,
-              Terminator &&terminate, Logger &&logger, std::true_type) {
+  template <class Algorithm, class Terminator, class Logger>
+  bool update(Algorithm *alg, const value_t flocal,
+              std::vector<value_t> &glocal, Terminator &&terminate,
+              Logger &&logger, std::true_type) {
     std::lock_guard<std::mutex> lock(sync);
     return update(alg, flocal, glocal, std::forward<Terminator>(terminate),
                   std::forward<Logger>(logger), std::false_type{});
   }
 
-  template <class Algorithm, class Container1, class Container2,
-            class Terminator, class Logger>
-  bool update(Algorithm *alg, value_t flocal, Container1 &partial,
-              Container2 &coordinates, Terminator &&terminate, Logger &&logger,
-              std::false_type) {
+  template <class Algorithm, class Terminator, class Logger>
+  bool update(Algorithm *alg, const value_t flocal,
+              const std::vector<value_t> &partial,
+              const std::vector<std::size_t> &coordinates,
+              Terminator &&terminate, Logger &&logger, std::false_type) {
     fval = flocal;
 
     if (std::forward<Terminator>(terminate)(k, fval, std::begin(x), std::end(x),
@@ -264,11 +265,11 @@ private:
     k++;
     return true;
   }
-  template <class Algorithm, class Container1, class Container2,
-            class Terminator, class Logger>
-  bool update(Algorithm *alg, value_t flocal, Container1 &partial,
-              Container2 &coordinates, Terminator &&terminate, Logger &&logger,
-              std::true_type) {
+  template <class Algorithm, class Terminator, class Logger>
+  bool update(Algorithm *alg, const value_t flocal,
+              const std::vector<value_t> &partial,
+              const std::vector<std::size_t> &coordinates,
+              Terminator &&terminate, Logger &&logger, std::true_type) {
     std::lock_guard<std::mutex> lock(sync);
     return update(alg, flocal, partial, coordinates,
                   std::forward<Terminator>(terminate),
