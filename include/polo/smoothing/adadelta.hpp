@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstddef>
 #include <iterator>
+#include <mutex>
 #include <vector>
 
 namespace polo {
@@ -21,6 +22,7 @@ template <class value_t> struct adadelta {
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt smooth(const std::size_t k, InputIt1 xbegin, InputIt1 xend,
                   InputIt2 gold_begin, OutputIt gnew_begin) {
+    std::lock_guard<std::mutex> lock(sync);
     value_t x_val{0}, x_del{0}, g_val{0};
     std::size_t idx{0};
     while (xbegin != xend) {
@@ -55,6 +57,7 @@ protected:
 private:
   value_t rho{0.95}, epsilon{1E-6};
   std::vector<value_t> rms_g, rms_x, x_prev;
+  std::mutex sync;
 };
 } // namespace smoothing
 } // namespace polo

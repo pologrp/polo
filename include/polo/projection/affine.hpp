@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <mutex>
 #include <vector>
 
 #include "polo/projection/none.hpp"
@@ -22,6 +23,7 @@ template <class value_t> struct affine : private none<value_t> {
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt project(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
                    InputIt2 gbegin, OutputIt xnew_begin) {
+    std::lock_guard<std::mutex> lock(sync);
     none<value_t>::project(step, xold_begin, xold_end, gbegin,
                            std::begin(temp2));
     std::copy(std::begin(b), std::end(b), std::begin(temp1));
@@ -63,8 +65,10 @@ private:
 
     utility::matrix::lapack<value_t>::pptrf('L', m, &H[0]);
   }
+
   std::size_t m, d;
   std::vector<value_t> A, b, H, temp1, temp2;
+  std::mutex sync;
 };
 } // namespace projection
 } // namespace polo

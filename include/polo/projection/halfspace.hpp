@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <mutex>
 #include <vector>
 
 namespace polo {
@@ -18,6 +19,7 @@ template <class value_t> struct halfspace {
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt project(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
                    InputIt2 gbegin, OutputIt xnew_begin) {
+    std::lock_guard<std::mutex> lock(sync);
     std::size_t idx{0};
     value_t atx{0}, xval;
     while (xold_begin != xold_end) {
@@ -53,6 +55,7 @@ protected:
 private:
   value_t alpha, norm{0};
   std::vector<value_t> a, temp;
+  std::mutex sync;
 };
 } // namespace projection
 } // namespace polo
