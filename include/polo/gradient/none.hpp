@@ -14,7 +14,8 @@ template <class value_t> struct none {
   none &operator=(none &&) = default;
 
   template <class InputIt, class OutputIt>
-  OutputIt grad(InputIt gold_begin, InputIt gold_end, OutputIt gnew_begin) {
+  OutputIt grad(InputIt gold_begin, InputIt gold_end,
+                OutputIt gnew_begin) const {
     return std::transform(gold_begin, gold_end, gnew_begin,
                           [](const value_t g) { return g; });
   }

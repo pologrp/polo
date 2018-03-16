@@ -13,7 +13,7 @@ template <class value_t> struct none {
 
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt project(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
-                   InputIt2 gbegin, OutputIt xnew_begin) {
+                   InputIt2 gbegin, OutputIt xnew_begin) const {
     while (xold_begin != xold_end)
       *xnew_begin++ = *xold_begin++ - step * *gbegin++;
     return xnew_begin;

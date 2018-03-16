@@ -18,7 +18,7 @@ template <class value_t> struct l2ball {
 
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt project(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
-                   InputIt2 gbegin, OutputIt xnew_begin) {
+                   InputIt2 gbegin, OutputIt xnew_begin) const {
     value_t temp, radius{0}, scaling;
     std::size_t idx{0};
     OutputIt xtemp{xnew_begin};

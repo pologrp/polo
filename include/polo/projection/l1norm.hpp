@@ -16,7 +16,7 @@ template <class value_t> struct l1norm {
 
   template <class InputIt1, class InputIt2, class OutputIt>
   OutputIt project(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
-                   InputIt2 gbegin, OutputIt xnew_begin) {
+                   InputIt2 gbegin, OutputIt xnew_begin) const {
     value_t xval, temp;
     while (xold_begin != xold_end) {
       xval = *xold_begin++ - step * *gbegin++;

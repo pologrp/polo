@@ -11,7 +11,7 @@ struct maxiter {
 
   template <class value_t, class InputIt1, class InputIt2>
   bool operator()(const std::size_t k, const value_t &fval, InputIt1 x_begin,
-                  InputIt1 x_end, InputIt2 g_begin) {
+                  InputIt1 x_end, InputIt2 g_begin) const {
     return k > K;
   }
 
