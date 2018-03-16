@@ -6,7 +6,7 @@
 
 namespace polo {
 namespace step {
-template <class value_t> struct decreasing {
+template <class value_t, class index_t> struct decreasing {
   decreasing(const value_t gamma = 1) : gamma{gamma} {}
 
   decreasing(const decreasing &) = default;
@@ -15,7 +15,7 @@ template <class value_t> struct decreasing {
   decreasing &operator=(decreasing &&) = default;
 
   template <class InputIt1, class InputIt2>
-  value_t step(const std::size_t k, const value_t fval, InputIt1 xbegin,
+  value_t step(const index_t k, const value_t fval, InputIt1 xbegin,
                InputIt1 xend, InputIt2 gbegin) const {
     return gamma / std::sqrt(k);
   }

@@ -2,7 +2,6 @@
 #define LOGGER_HPP_
 
 #include <chrono>
-#include <cstdint>
 #include <mutex>
 #include <type_traits>
 #include <vector>
@@ -11,9 +10,10 @@ namespace polo {
 namespace utility {
 namespace logger {
 namespace detail {
-template <class value_t, bool log_x_v, bool log_g_v> struct logger {
+template <class value_t, class index_t, bool log_x_v, bool log_g_v>
+struct logger {
   template <class InputIt1, class InputIt2>
-  void operator()(const std::size_t k, const value_t fval, InputIt1 xbegin,
+  void operator()(const index_t k, const value_t fval, InputIt1 xbegin,
                   InputIt1 xend, InputIt2 gbegin, InputIt2 gend) {
     std::lock_guard<std::mutex> lock(sync);
     tend = std::chrono::high_resolution_clock::now();
@@ -37,7 +37,7 @@ private:
   void log(Container &, InputIt, InputIt, std::false_type) {}
 
   std::mutex sync;
-  std::vector<std::size_t> iterations;
+  std::vector<index_t> iterations;
   std::vector<value_t> times;
   std::vector<value_t> fvalues;
   std::vector<std::vector<value_t>> xvalues, gvalues;
@@ -47,10 +47,14 @@ private:
 };
 } // namespace detail
 
-template <class value_t> using value = detail::logger<value_t, false, false>;
-template <class value_t> using decision = detail::logger<value_t, true, false>;
-template <class value_t> using gradient = detail::logger<value_t, false, true>;
-template <class value_t> using full = detail::logger<value_t, true, true>;
+template <class value_t = double, class index_t = int>
+using value = detail::logger<value_t, index_t, false, false>;
+template <class value_t = double, class index_t = int>
+using decision = detail::logger<value_t, index_t, true, false>;
+template <class value_t = double, class index_t = int>
+using gradient = detail::logger<value_t, index_t, false, true>;
+template <class value_t = double, class index_t = int>
+using full = detail::logger<value_t, index_t, true, true>;
 } // namespace logger
 } // namespace utility
 } // namespace polo

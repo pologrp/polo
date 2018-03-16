@@ -6,7 +6,7 @@
 
 namespace polo {
 namespace projection {
-template <class value_t> struct l1norm {
+template <class value_t, class index_t> struct l1norm {
   l1norm(const value_t lambda = 1) : lambda{lambda} {}
 
   l1norm(const l1norm &) = default;

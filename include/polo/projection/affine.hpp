@@ -12,7 +12,8 @@
 
 namespace polo {
 namespace projection {
-template <class value_t> struct affine : private none<value_t> {
+template <class value_t, class index_t>
+struct affine : private none<value_t, index_t> {
   affine() = default;
 
   affine(const affine &) = default;
@@ -24,8 +25,8 @@ template <class value_t> struct affine : private none<value_t> {
   OutputIt project(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
                    InputIt2 gbegin, OutputIt xnew_begin) {
     std::lock_guard<std::mutex> lock(sync);
-    none<value_t>::project(step, xold_begin, xold_end, gbegin,
-                           std::begin(temp2));
+    none<value_t, index_t>::project(step, xold_begin, xold_end, gbegin,
+                                    std::begin(temp2));
     std::copy(std::begin(b), std::end(b), std::begin(temp1));
     utility::matrix::blas<value_t>::gemv('N', m, d, 1, &A[0], m, &temp2[0], 1,
                                          -1, &temp1[0], 1);

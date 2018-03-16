@@ -13,7 +13,7 @@ namespace detail {
 class classical {};
 class nesterov {};
 
-template <class value_t, class momentum_t> struct momentum {
+template <class value_t, class index_t, class momentum_t> struct momentum {
   momentum(const value_t mu = 0.9, const value_t epsilon = 1E-3)
       : mu{mu}, epsilon{epsilon} {}
 
@@ -44,7 +44,7 @@ private:
   template <class InputIt, class OutputIt>
   OutputIt grad(InputIt gold_begin, InputIt gold_end, OutputIt gnew_begin,
                 classical) {
-    std::size_t idx{0};
+    index_t idx{0};
     value_t g_val;
     while (gold_begin != gold_end) {
       g_val = *gold_begin++;
@@ -58,7 +58,7 @@ private:
   template <class InputIt, class OutputIt>
   OutputIt grad(InputIt gold_begin, InputIt gold_end, OutputIt gnew_begin,
                 nesterov) {
-    std::size_t idx{0};
+    index_t idx{0};
     value_t nu_prev, g_val;
     while (gold_begin != gold_end) {
       g_val = *gold_begin++;
@@ -76,10 +76,10 @@ private:
 };
 } // namespace detail
 
-template <class value_t>
-using momentum = detail::momentum<value_t, detail::classical>;
-template <class value_t>
-using nesterov = detail::momentum<value_t, detail::nesterov>;
+template <class value_t, class index_t>
+using momentum = detail::momentum<value_t, index_t, detail::classical>;
+template <class value_t, class index_t>
+using nesterov = detail::momentum<value_t, index_t, detail::nesterov>;
 } // namespace gradient
 } // namespace polo
 

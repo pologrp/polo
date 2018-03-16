@@ -9,7 +9,7 @@
 
 namespace polo {
 namespace execution {
-template <class value_t> struct serial {
+template <class value_t, class index_t> struct serial {
   serial() = default;
 
   serial(const serial &) = default;
@@ -39,9 +39,9 @@ protected:
             class Sampler>
   void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
              Logger &&logger, utility::sampler::detail::component_sampler_t,
-             Sampler &&sampler, const std::size_t num_components) {
+             Sampler &&sampler, const index_t num_components) {
     const value_t *xbegin{&x[0]};
-    std::vector<std::size_t> components(num_components);
+    std::vector<index_t> components(num_components);
 
     while (!std::forward<Terminator>(terminate)(k, fval, std::begin(x),
                                                 std::end(x), std::begin(g))) {
@@ -57,9 +57,9 @@ protected:
             class Sampler>
   void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
              Logger &&logger, utility::sampler::detail::coordinate_sampler_t,
-             Sampler &&sampler, const std::size_t num_coordinates) {
+             Sampler &&sampler, const index_t num_coordinates) {
     const value_t *xbegin{&x[0]};
-    std::vector<std::size_t> coordinates(num_coordinates);
+    std::vector<index_t> coordinates(num_coordinates);
     std::vector<value_t> partial(num_coordinates);
 
     while (!std::forward<Terminator>(terminate)(k, fval, std::begin(x),
@@ -78,11 +78,11 @@ protected:
             class Sampler1, class Sampler2>
   void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
              Logger &&logger, utility::sampler::detail::component_sampler_t,
-             Sampler1 &&sampler1, const std::size_t num_components,
+             Sampler1 &&sampler1, const index_t num_components,
              utility::sampler::detail::coordinate_sampler_t,
-             Sampler2 &&sampler2, const std::size_t num_coordinates) {
+             Sampler2 &&sampler2, const index_t num_coordinates) {
     const value_t *xbegin{&x[0]};
-    std::vector<std::size_t> components(num_components),
+    std::vector<index_t> components(num_components),
         coordinates(num_coordinates);
     std::vector<value_t> partial(num_coordinates);
 
@@ -119,7 +119,7 @@ private:
     k++;
   }
 
-  std::size_t k{1};
+  index_t k{1};
   value_t fval{0}, step_{0};
   std::vector<value_t> x, g;
 };

@@ -10,7 +10,7 @@
 
 namespace polo {
 namespace smoothing {
-template <class value_t> struct rmsprop {
+template <class value_t, class index_t> struct rmsprop {
   rmsprop(const value_t rho = 0.9, const value_t epsilon = 1E-6)
       : rho{rho}, epsilon{epsilon} {}
 
@@ -20,11 +20,11 @@ template <class value_t> struct rmsprop {
   rmsprop &operator=(rmsprop &&) = default;
 
   template <class InputIt1, class InputIt2, class OutputIt>
-  OutputIt smooth(const std::size_t k, InputIt1 xbegin, InputIt1 xend,
+  OutputIt smooth(const index_t k, InputIt1 xbegin, InputIt1 xend,
                   InputIt2 gold_begin, OutputIt gnew_begin) {
     std::lock_guard<std::mutex> lock(sync);
     value_t g_val{0};
-    std::size_t idx{0};
+    index_t idx{0};
     while (xbegin != xend) {
       xbegin++;
       g_val = *gold_begin++;

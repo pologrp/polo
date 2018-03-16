@@ -7,7 +7,7 @@
 
 namespace polo {
 namespace projection {
-template <class value_t> struct box {
+template <class value_t, class index_t> struct box {
   box() = default;
 
   box(const box &) = default;
@@ -19,7 +19,7 @@ template <class value_t> struct box {
   OutputIt poject(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
                   InputIt2 gbegin, OutputIt xnew_begin) const {
     value_t temp;
-    std::size_t idx{0};
+    index_t idx{0};
     while (xold_begin != xold_end) {
       temp = *xold_begin++ - step * *gbegin++;
       *xnew_begin++ = std::min(std::max(temp, l[idx]), u[idx]);

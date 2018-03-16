@@ -8,7 +8,7 @@
 
 namespace polo {
 namespace projection {
-template <class value_t> struct halfspace {
+template <class value_t, class index_t> struct halfspace {
   halfspace() = default;
 
   halfspace(const halfspace &) = default;
@@ -20,7 +20,7 @@ template <class value_t> struct halfspace {
   OutputIt project(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
                    InputIt2 gbegin, OutputIt xnew_begin) {
     std::lock_guard<std::mutex> lock(sync);
-    std::size_t idx{0};
+    index_t idx{0};
     value_t atx{0}, xval;
     while (xold_begin != xold_end) {
       xval = *xold_begin++ - step * *gbegin++;

@@ -28,9 +28,9 @@ template <> struct select_type<double, false> {
   using type = utility::atomic_double;
 };
 
-template <class value_t, bool consistent> struct multithread {
+template <class value_t, class index_t, bool consistent> struct multithread {
   using internal_value = typename select_type<value_t, consistent>::type;
-  using internal_idx = typename select_type<std::size_t, consistent>::type;
+  using internal_idx = typename select_type<index_t, consistent>::type;
 
   multithread() = default;
 
@@ -60,8 +60,7 @@ protected:
   template <class Algorithm, class Loss, class Terminator, class Logger,
             class Space, class Sampler>
   void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
-             Logger &&logger, Space s, Sampler &&sampler,
-             const std::size_t num) {
+             Logger &&logger, Space s, Sampler &&sampler, const index_t num) {
     auto task = [&, alg, s, sampler, num]() {
       kernel(alg, std::forward<Loss>(loss), std::forward<Terminator>(terminate),
              std::forward<Logger>(logger), s, sampler, num);
@@ -73,9 +72,9 @@ protected:
             class Sampler1, class Sampler2>
   void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
              Logger &&logger, utility::sampler::detail::component_sampler_t s1,
-             Sampler1 &&sampler1, const std::size_t num_components,
+             Sampler1 &&sampler1, const index_t num_components,
              utility::sampler::detail::coordinate_sampler_t s2,
-             Sampler2 &&sampler2, const std::size_t num_coordinates) {
+             Sampler2 &&sampler2, const index_t num_coordinates) {
     auto task = [&, alg, s1, sampler1, num_components, s2, sampler2,
                  num_coordinates]() {
       kernel(alg, std::forward<Loss>(loss), std::forward<Terminator>(terminate),
@@ -126,12 +125,12 @@ private:
             class Sampler>
   void kernel(Algorithm *alg, Loss &&loss, Terminator &&terminate,
               Logger &&logger, utility::sampler::detail::component_sampler_t,
-              Sampler sampler, const std::size_t num_components) {
+              Sampler sampler, const index_t num_components) {
     value_t flocal;
     const std::size_t dim{x.size()};
 
     std::vector<value_t> xlocal(dim), glocal(dim);
-    std::vector<std::size_t> components(num_components);
+    std::vector<index_t> components(num_components);
 
     const value_t *xbegin{&xlocal[0]};
 
@@ -151,12 +150,12 @@ private:
             class Sampler>
   void kernel(Algorithm *alg, Loss &&loss, Terminator &&terminate,
               Logger &&logger, utility::sampler::detail::coordinate_sampler_t,
-              Sampler sampler, const std::size_t num_coordinates) {
+              Sampler sampler, const index_t num_coordinates) {
     value_t flocal;
     const std::size_t dim{x.size()};
 
     std::vector<value_t> xlocal(dim), partial(num_coordinates);
-    std::vector<std::size_t> coordinates(num_coordinates);
+    std::vector<index_t> coordinates(num_coordinates);
 
     const value_t *xbegin{&xlocal[0]};
 
@@ -177,14 +176,14 @@ private:
             class Sampler1, class Sampler2>
   void kernel(Algorithm *alg, Loss &&loss, Terminator &&terminate,
               Logger &&logger, utility::sampler::detail::component_sampler_t,
-              Sampler1 sampler1, const std::size_t num_components,
+              Sampler1 sampler1, const index_t num_components,
               utility::sampler::detail::coordinate_sampler_t, Sampler2 sampler2,
-              const std::size_t num_coordinates) {
+              const index_t num_coordinates) {
     value_t flocal;
     const std::size_t dim{x.size()};
 
     std::vector<value_t> xlocal(dim), partial(num_coordinates);
-    std::vector<std::size_t> components(num_components),
+    std::vector<index_t> components(num_components),
         coordinates(num_coordinates);
 
     const value_t *xbegin{&xlocal[0]};
@@ -244,8 +243,8 @@ private:
   template <class Algorithm, class Terminator, class Logger>
   bool update(Algorithm *alg, const value_t flocal,
               const std::vector<value_t> &partial,
-              const std::vector<std::size_t> &coordinates,
-              Terminator &&terminate, Logger &&logger, std::false_type) {
+              const std::vector<index_t> &coordinates, Terminator &&terminate,
+              Logger &&logger, std::false_type) {
     fval = flocal;
 
     if (std::forward<Terminator>(terminate)(k, fval, std::begin(x), std::end(x),
@@ -268,8 +267,8 @@ private:
   template <class Algorithm, class Terminator, class Logger>
   bool update(Algorithm *alg, const value_t flocal,
               const std::vector<value_t> &partial,
-              const std::vector<std::size_t> &coordinates,
-              Terminator &&terminate, Logger &&logger, std::true_type) {
+              const std::vector<index_t> &coordinates, Terminator &&terminate,
+              Logger &&logger, std::true_type) {
     std::lock_guard<std::mutex> lock(sync);
     return update(alg, flocal, partial, coordinates,
                   std::forward<Terminator>(terminate),
@@ -284,9 +283,10 @@ private:
 };
 } // namespace detail
 
-template <class value_t> using consistent = detail::multithread<value_t, true>;
-template <class value_t>
-using inconsistent = detail::multithread<value_t, false>;
+template <class value_t, class index_t>
+using consistent = detail::multithread<value_t, index_t, true>;
+template <class value_t, class index_t>
+using inconsistent = detail::multithread<value_t, index_t, false>;
 } // namespace execution
 } // namespace polo
 
