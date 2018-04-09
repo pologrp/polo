@@ -8,7 +8,6 @@
 #include <exception>
 #include <iterator>
 #include <memory>
-#include <ostream>
 #include <tuple>
 #include <vector>
 
@@ -69,6 +68,12 @@ struct socket {
   void unbind(const char *) const;
   void disconnect(const char *) const;
 
+  int send(message, bool = true) const;
+  template <class T> int send(std::size_t, const T *, int) const;
+
+  message receive(bool = true) const;
+  template <class T> int receive(std::size_t, T *, int) const;
+
   explicit operator void *() const noexcept;
 
 private:
@@ -81,19 +86,19 @@ private:
     /* Constructors */
     part() noexcept;
     explicit part(std::size_t);
-    template <class T> part(const T);
+    template <class T> part(const T &);
     template <class T> part(std::size_t, const T *);
     template <class T> part(std::size_t, T *, zmq_free_fn *, void * = nullptr);
     template <class Iter> part(Iter, Iter);
 
     /* Copying and moving */
-    part(const part &);
-    part &operator=(const part &);
-    part(part &&);
-    part &operator=(part &&);
+    part(const part &) noexcept;
+    part &operator=(const part &) noexcept;
+    part(part &&) noexcept;
+    part &operator=(part &&) noexcept;
 
     /* Destruction */
-    ~part() noexcept(false);
+    ~part();
 
     /* Convenience */
     std::size_t size() const noexcept;
@@ -103,8 +108,8 @@ private:
 
     int send(const socket &, int);
     int receive(const socket &, int);
-    template <class OutputIt> OutputIt read(OutputIt, OutputIt);
-    void clear();
+    template <class OutputIt> OutputIt read(OutputIt, OutputIt) noexcept;
+    void clear() noexcept;
 
   private:
     zmq_msg_t msg_;
@@ -117,22 +122,26 @@ public:
 
   std::size_t addpart();
   std::size_t addpart(std::size_t);
-  template <class T> std::size_t addpart(const T);
+  template <class T> std::size_t addpart(const T &);
   template <class T> std::size_t addpart(std::size_t, const T *);
   template <class T>
   std::size_t addpart(std::size_t, T *, zmq_free_fn *, void * = nullptr);
   template <class Iter> std::size_t addpart(Iter, Iter);
 
-  void *data(std::size_t);
+  void *data(std::size_t) noexcept;
 
   std::size_t numparts() const noexcept;
-  std::size_t size() const;
-  std::size_t size(std::size_t) const;
+  std::size_t size() const noexcept;
+  std::size_t size(std::size_t) const noexcept;
+
+  part &operator[](std::size_t);
+  const part &operator[](std::size_t) const;
 
   int send(const socket &, bool = true);
   int receive(const socket &, bool = true);
-  template <class OutputIt> OutputIt read(std::size_t, OutputIt, OutputIt);
-  void clear();
+  template <class OutputIt>
+  OutputIt read(std::size_t, OutputIt, OutputIt) noexcept;
+  void clear() noexcept;
 };
 
 /* Implementations */
@@ -173,10 +182,9 @@ enum struct context_opt : int {
 };
 
 context::context()
-    : ptr_{zmq_ctx_new(), [](void *ptr) {
-             int rc = zmq_ctx_term(ptr);
-             if (rc != 0)
-               throw error();
+    : ptr_{zmq_ctx_new(), [](void *ptr) noexcept {
+             if (ptr != nullptr)
+               zmq_ctx_term(ptr);
            }} {
   if (!ptr_)
     throw error();
@@ -499,11 +507,7 @@ enum struct socket_opt : int {
 
 socket::socket(const context &ctx, socket_type type)
     : ptr_{zmq_socket(static_cast<void *>(ctx), static_cast<int>(type)),
-           [](void *ptr) {
-             int rc = zmq_close(ptr);
-             if (rc != 0)
-               throw error();
-           }} {
+           [](void *ptr) noexcept { zmq_close(ptr); }} {
   if (!ptr_)
     throw error();
 }
@@ -542,6 +546,33 @@ void socket::disconnect(const char *endpoint) const {
     throw error();
 }
 
+int socket::send(message msg, bool wait) const {
+  int bytes = msg.send(*this, wait);
+  return bytes;
+}
+template <class T>
+int socket::send(std::size_t len, const T *data, int flags) const {
+  int bytes =
+      zmq_send_const(static_cast<void *>(*this), data, len * sizeof(T), flags);
+  if (bytes < 0)
+    throw error();
+  return bytes;
+}
+
+message socket::receive(bool wait) const {
+  message msg;
+  msg.receive(*this, wait);
+  return msg;
+}
+template <class T>
+int socket::receive(std::size_t len, T *data, int flags) const {
+  int bytes =
+      zmq_recv(static_cast<void *>(*this), data, len * sizeof(T), flags);
+  if (bytes < 0)
+    throw error();
+  return bytes;
+}
+
 socket::operator void *() const noexcept { return ptr_.get(); }
 
 message::part::part() noexcept { zmq_msg_init(&msg_); }
@@ -550,7 +581,7 @@ message::part::part(std::size_t size) {
   if (rc != 0)
     throw error();
 }
-template <class T> message::part::part(const T value) : part(sizeof(T)) {
+template <class T> message::part::part(const T &value) : part(sizeof(T)) {
   std::memcpy(zmq_msg_data(&msg_), &value, sizeof(T));
 }
 template <class T>
@@ -574,36 +605,24 @@ template <class Iter> message::part::part(Iter begin, Iter end) {
   std::copy(begin, end, dest);
 }
 
-message::part::part(const part &rhs) : part() {
-  int rc = zmq_msg_copy(&msg_, const_cast<zmq_msg_t *>(&rhs.msg_));
-  if (rc != 0)
-    throw error();
+message::part::part(const part &rhs) noexcept : part() {
+  zmq_msg_copy(&msg_, const_cast<zmq_msg_t *>(&rhs.msg_));
 }
-message::part &message::part::operator=(const part &rhs) {
+message::part &message::part::operator=(const part &rhs) noexcept {
   clear();
-  int rc = zmq_msg_copy(&msg_, const_cast<zmq_msg_t *>(&rhs.msg_));
-  if (rc != 0)
-    throw error();
+  zmq_msg_copy(&msg_, const_cast<zmq_msg_t *>(&rhs.msg_));
   return *this;
 }
-message::part::part(part &&rhs) : part() {
-  int rc = zmq_msg_move(&msg_, &rhs.msg_);
-  if (rc != 0)
-    throw error();
+message::part::part(part &&rhs) noexcept : part() {
+  zmq_msg_move(&msg_, &rhs.msg_);
 }
-message::part &message::part::operator=(part &&rhs) {
+message::part &message::part::operator=(part &&rhs) noexcept {
   clear();
-  int rc = zmq_msg_move(&msg_, &rhs.msg_);
-  if (rc != 0)
-    throw error();
+  zmq_msg_move(&msg_, &rhs.msg_);
   return *this;
 }
 
-message::part::~part() noexcept(false) {
-  int rc = zmq_msg_close(&msg_);
-  if (rc != 0)
-    throw error();
-}
+message::part::~part() { zmq_msg_close(&msg_); }
 
 std::size_t message::part::size() const noexcept { return zmq_msg_size(&msg_); }
 message::part::operator void *() noexcept { return zmq_msg_data(&msg_); }
@@ -618,23 +637,21 @@ int message::part::send(const socket &s, int flags) {
 }
 int message::part::receive(const socket &s, int flags) {
   clear();
-  int rc = zmq_msg_recv(&msg_, static_cast<void *>(s), flags);
-  if (rc < 0)
+  int bytes = zmq_msg_recv(&msg_, static_cast<void *>(s), flags);
+  if (bytes < 0)
     throw error();
-  return rc;
+  return bytes;
 }
 template <class OutputIt>
-OutputIt message::part::read(OutputIt begin, OutputIt end) {
+OutputIt message::part::read(OutputIt begin, OutputIt end) noexcept {
   using value_type = typename std::iterator_traits<OutputIt>::value_type;
   const std::size_t iterlen = std::distance(begin, end);
   const std::size_t datalen = size() / sizeof(value_type);
   value_type *source = static_cast<value_type *>(static_cast<void *>(*this));
   return std::copy(source, source + std::min(iterlen, datalen), begin);
 }
-void message::part::clear() {
-  int rc = zmq_msg_close(&msg_);
-  if (rc != 0)
-    throw error();
+void message::part::clear() noexcept {
+  zmq_msg_close(&msg_);
   zmq_msg_init(&msg_);
 }
 
@@ -645,11 +662,12 @@ std::size_t message::addpart() {
   return parts_.back().size();
 }
 std::size_t message::addpart(std::size_t size) {
-  parts_.emplace_back(size);
+  parts_.push_back(part(size));
   return parts_.back().size();
 }
-template <class T> std::size_t message::addpart(const T value) {
-  parts_.emplace_back(value);
+template <class T> std::size_t message::addpart(const T &value) {
+  part msg = value;
+  parts_.push_back(std::move(msg));
   return parts_.back().size();
 }
 template <class T>
@@ -668,65 +686,57 @@ template <class Iter> std::size_t message::addpart(Iter begin, Iter end) {
   return parts_.back().size();
 }
 
-void *message::data(std::size_t pid) {
-  return static_cast<void *>(parts_[pid]);
+void *message::data(std::size_t pid) noexcept {
+  return pid < numparts() ? static_cast<void *>(parts_[pid]) : nullptr;
 }
 
 std::size_t message::numparts() const noexcept { return parts_.size(); }
-std::size_t message::size() const {
+std::size_t message::size() const noexcept {
   std::size_t size_ = 0;
   for (const auto &part : parts_)
     size_ += part.size();
   return size_;
 }
-std::size_t message::size(std::size_t pid) const { return parts_[pid].size(); }
+std::size_t message::size(std::size_t pid) const noexcept {
+  return pid < numparts() ? parts_[pid].size() : 0;
+}
+
+message::part &message::operator[](std::size_t pid) { return parts_[pid]; }
+const message::part &message::operator[](std::size_t pid) const {
+  return parts_[pid];
+}
 
 int message::send(const socket &s, bool wait) {
   int flags = wait ? 0 : ZMQ_DONTWAIT;
-  int rc, total{0};
+  int bytes, total{0};
   const std::size_t len = parts_.size();
   for (std::size_t idx = 0; idx < len; idx++) {
-    rc = parts_[idx].send(s, (idx < len - 1) ? flags | ZMQ_SNDMORE : flags);
-    if (rc < 0) {
-      error err;
-      if (err == EAGAIN)
-        return 0;
-      else
-        throw err;
-    }
-    total += rc;
+    bytes = parts_[idx].send(s, (idx < len - 1) ? flags | ZMQ_SNDMORE : flags);
+    total += bytes;
   }
   return total;
 }
 int message::receive(const socket &s, bool wait) {
   clear();
   int flags = wait ? 0 : ZMQ_DONTWAIT;
-
+  int bytes, total{0};
   part msgpart;
-  int rc = msgpart.receive(s, flags);
-  int total = rc;
-  if (rc < 0) {
-    error err;
-    if (err == EAGAIN)
-      return 0;
-    else
-      throw err;
-  }
+
+  bytes = msgpart.receive(s, flags);
+  total = bytes;
   while (msgpart.more()) {
     parts_.push_back(std::move(msgpart));
-    rc = msgpart.receive(s, flags);
-    if (rc < 0)
-      throw error();
-    total += rc;
+    bytes = msgpart.receive(s, flags);
+    total += bytes;
   }
   parts_.push_back(std::move(msgpart));
   return total;
 }
 template <class OutputIt>
-OutputIt message::read(std::size_t pid, OutputIt begin, OutputIt end) {
-  return parts_[pid].read(begin, end);
+OutputIt message::read(std::size_t pid, OutputIt begin, OutputIt end) noexcept {
+  return pid < numparts() ? parts_[pid].read(begin, end) : begin;
 }
-void message::clear() { parts_.clear(); }
+void message::clear() noexcept { parts_.clear(); }
 } // namespace zmq
 } // namespace communicator
 } // namespace polo
