@@ -39,10 +39,12 @@ private:
 struct context;
 struct socket;
 struct message;
+struct poller;
 
 enum struct context_opt : int;
 enum struct socket_type : int;
 enum struct socket_opt : int;
+enum struct poll_event : short;
 
 struct context {
   context();
@@ -141,6 +143,34 @@ public:
   int receive(const socket &, bool = true);
   template <class OutputIt>
   OutputIt read(std::size_t, OutputIt, OutputIt) noexcept;
+  void clear() noexcept;
+};
+
+struct poller {
+private:
+  struct item {
+    explicit item(const zmq_pollitem_t) noexcept;
+
+    bool belongsto(const socket &) const noexcept;
+    bool isready() const noexcept;
+
+  private:
+    const zmq_pollitem_t item_;
+  };
+
+  std::vector<zmq_pollitem_t> items_;
+
+public:
+  poller() noexcept(noexcept(std::vector<zmq_pollitem_t>()));
+
+  void additem(const socket &, poll_event);
+  void additem(const socket &, short);
+
+  std::size_t size() const noexcept;
+  item operator[](std::size_t) const;
+
+  int poll(long);
+
   void clear() noexcept;
 };
 
@@ -737,6 +767,58 @@ OutputIt message::read(std::size_t pid, OutputIt begin, OutputIt end) noexcept {
   return pid < numparts() ? parts_[pid].read(begin, end) : begin;
 }
 void message::clear() noexcept { parts_.clear(); }
+
+enum struct poll_event : short {
+#ifdef ZMQ_POLLIN
+  pollin = ZMQ_POLLIN,
+#endif
+#ifdef ZMQ_POLLOUT
+  pollout = ZMQ_POLLOUT,
+#endif
+#ifdef ZMQ_POLLERR
+  poller = ZMQ_POLLERR,
+#endif
+#ifdef ZMQ_POLLPRI
+  pollpri = ZMQ_POLLPRI,
+#endif
+};
+
+poller::item::item(const zmq_pollitem_t item) noexcept : item_{item} {}
+
+bool poller::item::belongsto(const socket &s) const noexcept {
+  return item_.socket == static_cast<void *>(s);
+}
+bool poller::item::isready() const noexcept {
+  return item_.events & item_.revents;
+}
+
+poller::poller() noexcept(noexcept(std::vector<zmq_pollitem_t>())) = default;
+
+void poller::additem(const socket &s, poll_event pe) {
+  additem(s, static_cast<short>(pe));
+}
+void poller::additem(const socket &s, short events) {
+  zmq_pollitem_t item;
+  item.socket = static_cast<void *>(s);
+  item.fd = 0;
+  item.events = events;
+  item.revents = 0;
+  items_.push_back(item);
+}
+
+std::size_t poller::size() const noexcept { return items_.size(); }
+poller::item poller::operator[](std::size_t idx) const {
+  return item{items_[idx]};
+}
+
+int poller::poll(long timeout) {
+  int rc = zmq_poll(&items_[0], items_.size(), timeout);
+  if (rc < 0)
+    throw error();
+  return rc;
+}
+
+void poller::clear() noexcept { items_.clear(); }
 } // namespace zmq
 } // namespace communicator
 } // namespace polo
