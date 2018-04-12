@@ -44,6 +44,7 @@ struct poller;
 enum struct context_opt : int;
 enum struct socket_type : int;
 enum struct socket_opt : int;
+enum struct monitor_event : int;
 enum struct poll_event : short;
 
 struct context {
@@ -75,6 +76,9 @@ struct socket {
 
   message receive(bool = true) const;
   template <class T> int receive(std::size_t, T *, int) const;
+
+  socket monitor(const context &, const char *, monitor_event) const;
+  socket monitor(const context &, const char *, int) const;
 
   explicit operator void *() const noexcept;
 
@@ -173,6 +177,23 @@ public:
 
   void clear() noexcept;
 };
+
+/* Proxy functionality */
+void proxy(const socket *frontend, const socket *backend,
+           const socket *capture = nullptr) {
+  void *f = static_cast<void *>(*frontend);
+  void *b = static_cast<void *>(*backend);
+  void *c = (capture == nullptr) ? nullptr : static_cast<void *>(*capture);
+  zmq_proxy(f, b, c);
+}
+void proxy(const socket *frontend, const socket *backend, const socket *capture,
+           const socket *control) {
+  void *f = static_cast<void *>(*frontend);
+  void *b = static_cast<void *>(*backend);
+  void *cap = (capture == nullptr) ? nullptr : static_cast<void *>(*capture);
+  void *con = static_cast<void *>(*control);
+  zmq_proxy_steerable(f, b, cap, con);
+}
 
 /* Implementations */
 enum struct context_opt : int {
@@ -535,6 +556,45 @@ enum struct socket_opt : int {
 #endif
 };
 
+enum struct monitor_event : int {
+#ifdef ZMQ_EVENT_CONNECTED
+  event_connected = ZMQ_EVENT_CONNECTED,
+#endif
+#ifdef ZMQ_EVENT_CONNECT_DELAYED
+  event_connect_delayed = ZMQ_EVENT_CONNECT_DELAYED,
+#endif
+#ifdef ZMQ_EVENT_CONNECT_RETRIED
+  event_connect_retried = ZMQ_EVENT_CONNECT_RETRIED,
+#endif
+#ifdef ZMQ_EVENT_LISTENING
+  event_listening = ZMQ_EVENT_LISTENING,
+#endif
+#ifdef ZMQ_EVENT_BIND_FAILED
+  event_bind_failed = ZMQ_EVENT_BIND_FAILED,
+#endif
+#ifdef ZMQ_EVENT_ACCEPTED
+  event_accepted = ZMQ_EVENT_ACCEPTED,
+#endif
+#ifdef ZMQ_EVENT_ACCEPT_FAILED
+  event_accept_failed = ZMQ_EVENT_ACCEPT_FAILED,
+#endif
+#ifdef ZMQ_EVENT_CLOSED
+  event_closed = ZMQ_EVENT_CLOSED,
+#endif
+#ifdef ZMQ_EVENT_CLOSE_FAILED
+  event_close_failed = ZMQ_EVENT_CLOSE_FAILED,
+#endif
+#ifdef ZMQ_EVENT_DISCONNECTED
+  event_disconnected = ZMQ_EVENT_DISCONNECTED,
+#endif
+#ifdef ZMQ_EVENT_MONITOR_STOPPED
+  event_monitor_stopped = ZMQ_EVENT_MONITOR_STOPPED,
+#endif
+#ifdef ZMQ_EVENT_ALL
+  event_all = ZMQ_EVENT_ALL,
+#endif
+};
+
 socket::socket(const context &ctx, socket_type type)
     : ptr_{zmq_socket(static_cast<void *>(ctx), static_cast<int>(type)),
            [](void *ptr) noexcept { zmq_close(ptr); }} {
@@ -601,6 +661,20 @@ int socket::receive(std::size_t len, T *data, int flags) const {
   if (bytes < 0)
     throw error();
   return bytes;
+}
+
+socket socket::monitor(const context &ctx, const char *endpoint,
+                       monitor_event event) const {
+  return monitor(ctx, endpoint, static_cast<int>(event));
+}
+socket socket::monitor(const context &ctx, const char *endpoint,
+                       int events) const {
+  int rc = zmq_socket_monitor(static_cast<void *>(*this), endpoint, events);
+  if (rc < 0)
+    throw error();
+  socket listener(ctx, socket_type::pair);
+  listener.connect(endpoint);
+  return listener;
 }
 
 socket::operator void *() const noexcept { return ptr_.get(); }
