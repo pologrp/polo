@@ -771,7 +771,7 @@ void message::part::clear() noexcept {
 }
 
 message::message() noexcept(noexcept(std::vector<part>())) = default;
-message::message(std::vector<part> parts) noexcept : parts_{std::move(parts)} {}
+message::message(std::vector<part> parts) noexcept : parts_(std::move(parts)) {}
 
 std::size_t message::addpart() {
   parts_.push_back(part());
