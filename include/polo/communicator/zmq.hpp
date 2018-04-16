@@ -9,6 +9,7 @@
 #include <iterator>
 #include <memory>
 #include <tuple>
+#include <type_traits>
 #include <vector>
 
 namespace polo {
@@ -92,7 +93,10 @@ private:
     /* Constructors */
     part() noexcept;
     explicit part(std::size_t);
-    template <class T> part(const T &);
+    template <class T>
+    part(const T &,
+         typename std::enable_if<std::is_arithmetic<T>::value>::type * =
+             nullptr);
     template <class T> part(std::size_t, const T *);
     template <class T> part(std::size_t, T *, zmq_free_fn *, void * = nullptr);
     template <class Iter> part(Iter, Iter);
@@ -688,7 +692,11 @@ message::part::part(std::size_t size) {
   if (rc != 0)
     throw error();
 }
-template <class T> message::part::part(const T &value) : part(sizeof(T)) {
+template <class T>
+message::part::part(
+    const T &value,
+    typename std::enable_if<std::is_arithmetic<T>::value>::type *)
+    : part(sizeof(T)) {
   std::memcpy(zmq_msg_data(&msg_), &value, sizeof(T));
 }
 template <class T>
