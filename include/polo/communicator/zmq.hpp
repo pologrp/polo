@@ -62,6 +62,7 @@ private:
 };
 
 struct socket {
+  socket() noexcept;
   socket(const context &, socket_type);
 
   template <class T> void set(socket_opt, const T &) const;
@@ -602,6 +603,7 @@ enum struct monitor_event : int {
 #endif
 };
 
+socket::socket() noexcept : ptr_{nullptr, [](void *ptr) noexcept {}} {}
 socket::socket(const context &ctx, socket_type type)
     : ptr_{zmq_socket(static_cast<void *>(ctx), static_cast<int>(type)),
            [](void *ptr) noexcept { zmq_close(ptr); }} {
