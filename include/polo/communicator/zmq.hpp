@@ -74,10 +74,17 @@ struct socket {
   void disconnect(const char *) const;
 
   int send(message, bool = true) const;
-  template <class T> int send(std::size_t, const T *, int) const;
+  template <class T>
+  int send(std::size_t, const T *, int,
+           typename std::enable_if<std::is_trivially_copyable<T>::value>::type
+               * = nullptr) const;
 
   message receive(bool = true) const;
-  template <class T> int receive(std::size_t, T *, int) const;
+  template <class T>
+  int receive(
+      std::size_t, T *, int,
+      typename std::enable_if<std::is_trivially_copyable<T>::value>::type * =
+          nullptr) const;
 
   socket monitor(const context &, const char *, monitor_event) const;
   socket monitor(const context &, const char *, int) const;
@@ -96,11 +103,24 @@ private:
     explicit part(std::size_t);
     template <class T>
     part(const T &,
-         typename std::enable_if<std::is_arithmetic<T>::value ||
-                                 std::is_array<T>::value>::type * = nullptr);
-    template <class T> part(std::size_t, const T *);
-    template <class T> part(std::size_t, T *, zmq_free_fn *, void * = nullptr);
-    template <class Iter> part(Iter, Iter);
+         typename std::enable_if<std::is_trivially_copyable<T>::value>::type * =
+             nullptr);
+    template <class T, std::size_t N>
+    part(const T (&)[N],
+         typename std::enable_if<std::is_trivially_copyable<T>::value>::type * =
+             nullptr);
+    template <class T>
+    part(std::size_t, const T *,
+         typename std::enable_if<std::is_trivially_copyable<T>::value>::type * =
+             nullptr);
+    template <class T>
+    part(std::size_t, T *, zmq_free_fn *, void * = nullptr,
+         typename std::enable_if<std::is_trivially_copyable<T>::value>::type * =
+             nullptr);
+    template <class Iter>
+    part(Iter, Iter,
+         typename std::enable_if<std::is_trivially_copyable<
+             typename Iter::value_type>::value>::type * = nullptr);
 
     /* Copying and moving */
     part(const part &) noexcept;
@@ -134,7 +154,9 @@ public:
 
   std::size_t addpart();
   std::size_t addpart(std::size_t);
+  std::size_t addpart(part);
   template <class T> std::size_t addpart(const T &);
+  template <class T, std::size_t N> std::size_t addpart(const T (&)[N]);
   template <class T> std::size_t addpart(std::size_t, const T *);
   template <class T>
   std::size_t addpart(std::size_t, T *, zmq_free_fn *, void * = nullptr);
@@ -650,7 +672,10 @@ int socket::send(message msg, bool wait) const {
   return bytes;
 }
 template <class T>
-int socket::send(std::size_t len, const T *data, int flags) const {
+int socket::send(
+    std::size_t len, const T *data, int flags,
+    typename std::enable_if<std::is_trivially_copyable<T>::value>::type *)
+    const {
   int bytes =
       zmq_send_const(static_cast<void *>(*this), data, len * sizeof(T), flags);
   if (bytes < 0)
@@ -664,7 +689,10 @@ message socket::receive(bool wait) const {
   return msg;
 }
 template <class T>
-int socket::receive(std::size_t len, T *data, int flags) const {
+int socket::receive(
+    std::size_t len, T *data, int flags,
+    typename std::enable_if<std::is_trivially_copyable<T>::value>::type *)
+    const {
   int bytes =
       zmq_recv(static_cast<void *>(*this), data, len * sizeof(T), flags);
   if (bytes < 0)
@@ -695,23 +723,39 @@ message::part::part(std::size_t size) {
     throw error();
 }
 template <class T>
-message::part::part(const T &value,
-                    typename std::enable_if<std::is_arithmetic<T>::value ||
-                                            std::is_array<T>::value>::type *)
+message::part::part(
+    const T &value,
+    typename std::enable_if<std::is_trivially_copyable<T>::value>::type *)
     : part(sizeof(T)) {
   std::memcpy(zmq_msg_data(&msg_), &value, sizeof(T));
 }
+template <class T, std::size_t N>
+message::part::part(
+    const T (&buffer)[N],
+    typename std::enable_if<std::is_trivially_copyable<T>::value>::type *)
+    : part(N * sizeof(T)) {
+  std::memcpy(zmq_msg_data(&msg_), &buffer, N * sizeof(T));
+}
 template <class T>
-message::part::part(std::size_t len, const T *data) : part(len * sizeof(T)) {
+message::part::part(
+    std::size_t len, const T *data,
+    typename std::enable_if<std::is_trivially_copyable<T>::value>::type *)
+    : part(len * sizeof(T)) {
   std::memcpy(zmq_msg_data(&msg_), data, len * sizeof(T));
 }
 template <class T>
-message::part::part(std::size_t len, T *data, zmq_free_fn *ffn, void *hint) {
+message::part::part(
+    std::size_t len, T *data, zmq_free_fn *ffn, void *hint,
+    typename std::enable_if<std::is_trivially_copyable<T>::value>::type *) {
   int rc = zmq_msg_init_data(&msg_, data, len * sizeof(T), ffn, hint);
   if (rc != 0)
     throw error();
 }
-template <class Iter> message::part::part(Iter begin, Iter end) {
+template <class Iter>
+message::part::part(
+    Iter begin, Iter end,
+    typename std::enable_if<
+        std::is_trivially_copyable<typename Iter::value_type>::value>::type *) {
   using size_type = typename std::iterator_traits<Iter>::difference_type;
   using value_type = typename std::iterator_traits<Iter>::value_type;
   size_type sz = std::distance(begin, end) * sizeof(value_type);
@@ -783,9 +827,18 @@ std::size_t message::addpart(std::size_t size) {
   parts_.push_back(part(size));
   return parts_.back().size();
 }
+std::size_t message::addpart(part p) {
+  parts_.push_back(std::move(p));
+  return parts_.back().size();
+}
 template <class T> std::size_t message::addpart(const T &value) {
   part msg = value;
   parts_.push_back(std::move(msg));
+  return parts_.back().size();
+}
+template <class T, std::size_t N>
+std::size_t message::addpart(const T (&buffer)[N]) {
+  parts_.emplace_back(buffer);
   return parts_.back().size();
 }
 template <class T>
