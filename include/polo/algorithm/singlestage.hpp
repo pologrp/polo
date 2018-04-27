@@ -36,11 +36,12 @@ struct singlestage : public Gradient<value_t, index_t>,
       : singlestage(std::begin(x), std::end(x)) {}
 
   template <class ForwardIt> void initialize(ForwardIt xbegin, ForwardIt xend) {
-    Gradient<value_t, index_t>::initialize(xbegin, xend);
-    StepSize<value_t, index_t>::initialize(xbegin, xend);
-    Smoothing<value_t, index_t>::initialize(xbegin, xend);
-    Projection<value_t, index_t>::initialize(xbegin, xend);
-    Execution<value_t, index_t>::initialize(xbegin, xend);
+    std::vector<value_t> x =
+        Execution<value_t, index_t>::initialize(xbegin, xend);
+    Gradient<value_t, index_t>::initialize(std::begin(x), std::end(x));
+    StepSize<value_t, index_t>::initialize(std::begin(x), std::end(x));
+    Smoothing<value_t, index_t>::initialize(std::begin(x), std::end(x));
+    Projection<value_t, index_t>::initialize(std::begin(x), std::end(x));
   }
   template <class T> void initialize(const std::vector<T> &x) {
     initialize(std::begin(x), std::end(x));

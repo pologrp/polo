@@ -42,9 +42,11 @@ template <class value_t, class index_t, bool consistent> struct multithread {
 protected:
   void params(const unsigned int nthreads) { this->nthreads = nthreads; }
 
-  template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
+  template <class InputIt>
+  std::vector<value_t> initialize(InputIt xbegin, InputIt xend) {
     x = std::vector<internal_value>(xbegin, xend);
     g = std::vector<internal_value>(x.size());
+    return std::vector<value_t>(std::begin(x), std::end(x));
   }
 
   template <class Algorithm, class Loss, class Terminator, class Logger>

@@ -18,9 +18,11 @@ template <class value_t, class index_t> struct serial {
   serial &operator=(serial &&) = default;
 
 protected:
-  template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
+  template <class InputIt>
+  std::vector<value_t> initialize(InputIt xbegin, InputIt xend) {
     x = std::vector<value_t>(xbegin, xend);
     g = std::vector<value_t>(x.size());
+    return x;
   }
 
   template <class Algorithm, class Loss, class Terminator, class Logger>
