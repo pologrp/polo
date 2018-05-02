@@ -8,6 +8,7 @@
 #include <exception>
 #include <iterator>
 #include <memory>
+#include <string>
 #include <tuple>
 #include <type_traits>
 #include <vector>
@@ -74,17 +75,10 @@ struct socket {
   void disconnect(const char *) const;
 
   int send(message, bool = true) const;
-  template <class T>
-  int send(std::size_t, const T *, int,
-           typename std::enable_if<std::is_trivially_copyable<T>::value>::type
-               * = nullptr) const;
+  template <class T> int send(std::size_t, const T *, int) const;
 
   message receive(bool = true) const;
-  template <class T>
-  int receive(
-      std::size_t, T *, int,
-      typename std::enable_if<std::is_trivially_copyable<T>::value>::type * =
-          nullptr) const;
+  template <class T> int receive(std::size_t, T *, int) const;
 
   socket monitor(const context &, const char *, monitor_event) const;
   socket monitor(const context &, const char *, int) const;
@@ -101,26 +95,11 @@ private:
     /* Constructors */
     part() noexcept;
     explicit part(std::size_t);
-    template <class T>
-    part(const T &,
-         typename std::enable_if<std::is_trivially_copyable<T>::value>::type * =
-             nullptr);
-    template <class T, std::size_t N>
-    part(const T (&)[N],
-         typename std::enable_if<std::is_trivially_copyable<T>::value>::type * =
-             nullptr);
-    template <class T>
-    part(std::size_t, const T *,
-         typename std::enable_if<std::is_trivially_copyable<T>::value>::type * =
-             nullptr);
-    template <class T>
-    part(std::size_t, T *, zmq_free_fn *, void * = nullptr,
-         typename std::enable_if<std::is_trivially_copyable<T>::value>::type * =
-             nullptr);
-    template <class Iter>
-    part(Iter, Iter,
-         typename std::enable_if<std::is_trivially_copyable<
-             typename Iter::value_type>::value>::type * = nullptr);
+    template <class T> part(const T &);
+    template <class T, std::size_t N> part(const T (&)[N]);
+    template <class T> part(std::size_t, const T *);
+    template <class T> part(std::size_t, T *, zmq_free_fn *, void * = nullptr);
+    template <class Iter> part(Iter, Iter);
 
     /* Copying and moving */
     part(const part &) noexcept;
@@ -139,6 +118,8 @@ private:
 
     int send(const socket &, int);
     int receive(const socket &, int);
+    template <class T> T read() noexcept;
+    std::string read() noexcept;
     template <class OutputIt> OutputIt read(OutputIt, OutputIt) noexcept;
     void clear() noexcept;
 
@@ -171,10 +152,14 @@ public:
   part &operator[](std::size_t);
   const part &operator[](std::size_t) const;
 
+  message header() const noexcept;
+
   void pop_back();
 
   int send(const socket &, bool = true);
   int receive(const socket &, bool = true);
+  template <class T> T read(std::size_t) noexcept;
+  std::string read(std::size_t) noexcept;
   template <class OutputIt>
   OutputIt read(std::size_t, OutputIt, OutputIt) noexcept;
   void clear() noexcept;
@@ -672,10 +657,9 @@ int socket::send(message msg, bool wait) const {
   return bytes;
 }
 template <class T>
-int socket::send(
-    std::size_t len, const T *data, int flags,
-    typename std::enable_if<std::is_trivially_copyable<T>::value>::type *)
-    const {
+int socket::send(std::size_t len, const T *data, int flags) const {
+  static_assert(std::is_trivially_copyable<T>::value,
+                "socket::send requires a trivially copyable type");
   int bytes =
       zmq_send_const(static_cast<void *>(*this), data, len * sizeof(T), flags);
   if (bytes < 0)
@@ -689,10 +673,9 @@ message socket::receive(bool wait) const {
   return msg;
 }
 template <class T>
-int socket::receive(
-    std::size_t len, T *data, int flags,
-    typename std::enable_if<std::is_trivially_copyable<T>::value>::type *)
-    const {
+int socket::receive(std::size_t len, T *data, int flags) const {
+  static_assert(std::is_trivially_copyable<T>::value,
+                "socket::receive requires a trivially copyable type");
   int bytes =
       zmq_recv(static_cast<void *>(*this), data, len * sizeof(T), flags);
   if (bytes < 0)
@@ -722,40 +705,34 @@ message::part::part(std::size_t size) {
   if (rc != 0)
     throw error();
 }
-template <class T>
-message::part::part(
-    const T &value,
-    typename std::enable_if<std::is_trivially_copyable<T>::value>::type *)
-    : part(sizeof(T)) {
+template <class T> message::part::part(const T &value) : part(sizeof(T)) {
+  static_assert(std::is_trivially_copyable<T>::value,
+                "message::part requires a trivially copyable type");
   std::memcpy(zmq_msg_data(&msg_), &value, sizeof(T));
 }
 template <class T, std::size_t N>
-message::part::part(
-    const T (&buffer)[N],
-    typename std::enable_if<std::is_trivially_copyable<T>::value>::type *)
-    : part(N * sizeof(T)) {
+message::part::part(const T (&buffer)[N]) : part(N * sizeof(T)) {
+  static_assert(std::is_trivially_copyable<T>::value,
+                "message::part requires a trivially copyable type");
   std::memcpy(zmq_msg_data(&msg_), &buffer, N * sizeof(T));
 }
 template <class T>
-message::part::part(
-    std::size_t len, const T *data,
-    typename std::enable_if<std::is_trivially_copyable<T>::value>::type *)
-    : part(len * sizeof(T)) {
+message::part::part(std::size_t len, const T *data) : part(len * sizeof(T)) {
+  static_assert(std::is_trivially_copyable<T>::value,
+                "message::part requires a trivially copyable type");
   std::memcpy(zmq_msg_data(&msg_), data, len * sizeof(T));
 }
 template <class T>
-message::part::part(
-    std::size_t len, T *data, zmq_free_fn *ffn, void *hint,
-    typename std::enable_if<std::is_trivially_copyable<T>::value>::type *) {
+message::part::part(std::size_t len, T *data, zmq_free_fn *ffn, void *hint) {
+  static_assert(std::is_trivially_copyable<T>::value,
+                "message::part requires a trivially copyable type");
   int rc = zmq_msg_init_data(&msg_, data, len * sizeof(T), ffn, hint);
   if (rc != 0)
     throw error();
 }
-template <class Iter>
-message::part::part(
-    Iter begin, Iter end,
-    typename std::enable_if<
-        std::is_trivially_copyable<typename Iter::value_type>::value>::type *) {
+template <class Iter> message::part::part(Iter begin, Iter end) {
+  static_assert(std::is_trivially_copyable<typename Iter::value_type>::value,
+                "message::part requires a trivially copyable type");
   using size_type = typename std::iterator_traits<Iter>::difference_type;
   using value_type = typename std::iterator_traits<Iter>::value_type;
   size_type sz = std::distance(begin, end) * sizeof(value_type);
@@ -803,8 +780,19 @@ int message::part::receive(const socket &s, int flags) {
     throw error();
   return bytes;
 }
+template <class T> T message::part::read() noexcept {
+  static_assert(std::is_trivially_copyable<T>::value,
+                "message::part::read requires a trivially copyable type");
+  return *static_cast<T *>(data());
+}
+std::string message::part::read() noexcept {
+  return std::string(static_cast<char *>(data()), size());
+}
 template <class OutputIt>
 OutputIt message::part::read(OutputIt begin, OutputIt end) noexcept {
+  static_assert(
+      std::is_trivially_copyable<typename OutputIt::value_type>::value,
+      "message::part::read requires a trivially copyable type");
   using value_type = typename std::iterator_traits<OutputIt>::value_type;
   const std::size_t iterlen = std::distance(begin, end);
   const std::size_t datalen = size() / sizeof(value_type);
@@ -877,6 +865,16 @@ const message::part &message::operator[](std::size_t pid) const {
   return parts_[pid];
 }
 
+message message::header() const noexcept {
+  message msg;
+  std::size_t pid{0};
+  while (pid < numparts() && size(pid) != 0)
+    msg.addpart(operator[](pid++));
+  if (pid < numparts())
+    msg.addpart(operator[](pid));
+  return msg;
+}
+
 void message::pop_back() { parts_.pop_back(); }
 
 int message::send(const socket &s, bool wait) {
@@ -904,6 +902,12 @@ int message::receive(const socket &s, bool wait) {
   }
   parts_.push_back(std::move(msgpart));
   return total;
+}
+template <class T> T message::read(std::size_t pid) noexcept {
+  return pid < numparts() ? parts_[pid].read<T>() : T{};
+}
+std::string message::read(std::size_t pid) noexcept {
+  return pid < numparts() ? parts_[pid].read() : std::string{};
 }
 template <class OutputIt>
 OutputIt message::read(std::size_t pid, OutputIt begin, OutputIt end) noexcept {
