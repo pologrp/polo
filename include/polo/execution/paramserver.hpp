@@ -327,148 +327,60 @@ protected:
   }
 
   template <class Algorithm, class Loss, class Terminator, class Logger>
-  void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
-             Logger &&logger) {
+  void solve(Algorithm *, Loss &&loss, Terminator &&, Logger &&) {
     const value_t *xbegin{&x[0]};
 
-    askfor('x');
+    auto f = [&, xbegin]() { fval = std::forward<Loss>(loss)(xbegin, &g[0]); };
 
-    while (poll.poll(timeout) > 0) {
-      if (poll[0].isready()) {
-        msg.receive(subscription);
-        if (msg.size() == 1 && msg.read<char>(0) == 'T')
-          break;
-      }
-
-      if (poll[1].isready()) {
-        msg.receive(request);
-        const char tag = msg.read<char>(0);
-
-        if (msg.size() == 0 || tag == 'u') {
-          askfor('x');
-        } else if (tag == 'x') {
-          try {
-            receive_x();
-            fval = std::forward<Loss>(loss)(xbegin, &g[0]);
-            askfor('g');
-          } catch (...) {
-            ping();
-          }
-        } else if (tag == 'g') {
-          try {
-            send_g();
-            ack();
-          } catch (...) {
-            ping();
-          }
-        }
-      }
-    }
+    kernel(f);
   }
 
   template <class Algorithm, class Loss, class Terminator, class Logger,
             class Sampler>
-  void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
-             Logger &&logger, utility::sampler::detail::component_sampler_t,
-             Sampler &&sampler, const index_t num_components) {
+  void solve(Algorithm *, Loss &&loss, Terminator &&, Logger &&,
+             utility::sampler::detail::component_sampler_t, Sampler &&sampler,
+             const index_t num_components) {
     const value_t *xbegin{&x[0]};
     std::vector<index_t> components(num_components);
 
-    askfor('x');
+    auto f = [&, xbegin, num_components]() {
+      std::forward<Sampler>(sampler)(std::begin(components),
+                                     std::end(components));
+      std::sort(std::begin(components), std::end(components));
+      fval = std::forward<Loss>(loss)(xbegin, &g[0], &components[0],
+                                      &components[num_components]);
+    };
 
-    while (poll.poll(timeout) > 0) {
-      if (poll[0].isready()) {
-        msg.receive(subscription);
-        if (msg.size() == 1 && msg.read<char>(0) == 'T')
-          break;
-      }
-
-      if (poll[1].isready()) {
-        msg.receive(request);
-        const char tag = msg.read<char>(0);
-
-        if (msg.size() == 0 || tag == 'u') {
-          askfor('x');
-        } else if (tag == 'x') {
-          try {
-            receive_x();
-            std::forward<Sampler>(sampler)(std::begin(components),
-                                           std::end(components));
-            std::sort(std::begin(components), std::end(components));
-            fval = std::forward<Loss>(loss)(xbegin, &g[0], &components[0],
-                                            &components[num_components]);
-            askfor('g');
-          } catch (...) {
-            ping();
-          }
-        } else if (tag == 'g') {
-          try {
-            send_g();
-            ack();
-          } catch (...) {
-            ping();
-          }
-        }
-      }
-    }
+    kernel(f);
   }
 
   template <class Algorithm, class Loss, class Terminator, class Logger,
             class Sampler>
-  void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
-             Logger &&logger, utility::sampler::detail::coordinate_sampler_t,
-             Sampler &&sampler, const index_t num_coordinates) {
+  void solve(Algorithm *, Loss &&loss, Terminator &&, Logger &&,
+             utility::sampler::detail::coordinate_sampler_t, Sampler &&sampler,
+             const index_t num_coordinates) {
     const value_t *xbegin{&x[0]};
     std::vector<index_t> coordinates(num_coordinates);
     std::vector<value_t> partial(num_coordinates);
 
-    askfor('x');
+    auto f = [&, xbegin, num_coordinates]() {
+      std::forward<Sampler>(sampler)(std::begin(coordinates),
+                                     std::end(coordinates));
+      std::sort(std::begin(coordinates), std::end(coordinates));
+      fval = std::forward<Loss>(loss)(xbegin, &partial[0], &coordinates[0],
+                                      &coordinates[num_coordinates]);
+      for (std::size_t idx = 0; idx < num_coordinates; idx++)
+        g[coordinates[idx]] = partial[idx];
+    };
 
-    while (poll.poll(timeout) > 0) {
-      if (poll[0].isready()) {
-        msg.receive(subscription);
-        if (msg.size() == 1 && msg.read<char>(0) == 'T')
-          break;
-      }
-
-      if (poll[1].isready()) {
-        msg.receive(request);
-        const char tag = msg.read<char>(0);
-
-        if (msg.size() == 0 || tag == 'u') {
-          askfor('x');
-        } else if (tag == 'x') {
-          try {
-            receive_x();
-            std::forward<Sampler>(sampler)(std::begin(coordinates),
-                                           std::end(coordinates));
-            std::sort(std::begin(coordinates), std::end(coordinates));
-            fval =
-                std::forward<Loss>(loss)(xbegin, &partial[0], &coordinates[0],
-                                         &coordinates[num_coordinates]);
-            for (std::size_t idx = 0; idx < num_coordinates; idx++)
-              g[coordinates[idx]] = partial[idx];
-            askfor('g', &coordinates);
-          } catch (...) {
-            ping();
-          }
-        } else if (tag == 'g') {
-          try {
-            send_g(&coordinates);
-            ack();
-          } catch (...) {
-            ping();
-          }
-        }
-      }
-    }
+    kernel(f, &coordinates);
   }
 
   template <class Algorithm, class Loss, class Terminator, class Logger,
             class Sampler1, class Sampler2>
-  void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
-             Logger &&logger, utility::sampler::detail::component_sampler_t,
-             Sampler1 &&sampler1, const index_t num_components,
+  void solve(Algorithm *, Loss &&loss, Terminator &&, Logger &&,
+             utility::sampler::detail::component_sampler_t, Sampler1 &&sampler1,
+             const index_t num_components,
              utility::sampler::detail::coordinate_sampler_t,
              Sampler2 &&sampler2, const index_t num_coordinates) {
     const value_t *xbegin{&x[0]};
@@ -476,50 +388,21 @@ protected:
         coordinates(num_coordinates);
     std::vector<value_t> partial(num_coordinates);
 
-    askfor('x');
+    auto f = [&, xbegin, num_components, num_coordinates]() {
+      std::forward<Sampler1>(sampler1)(std::begin(components),
+                                       std::end(components));
+      std::sort(std::begin(components), std::end(components));
+      std::forward<Sampler2>(sampler2)(std::begin(coordinates),
+                                       std::end(coordinates));
+      std::sort(std::begin(coordinates), std::end(coordinates));
+      fval = std::forward<Loss>(loss)(
+          xbegin, &partial[0], &components[0], &components[num_components],
+          &coordinates[0], &coordinates[num_coordinates]);
+      for (std::size_t idx = 0; idx < num_coordinates; idx++)
+        g[coordinates[idx]] = partial[idx];
+    };
 
-    while (poll.poll(timeout) > 0) {
-      if (poll[0].isready()) {
-        msg.receive(subscription);
-        if (msg.size() == 1 && msg.read<char>(0) == 'T')
-          break;
-      }
-
-      if (poll[1].isready()) {
-        msg.receive(request);
-        const char tag = msg.read<char>(0);
-
-        if (msg.size() == 0 || tag == 'u') {
-          askfor('x');
-        } else if (tag == 'x') {
-          try {
-            receive_x();
-            std::forward<Sampler1>(sampler1)(std::begin(components),
-                                             std::end(components));
-            std::sort(std::begin(components), std::end(components));
-            std::forward<Sampler2>(sampler2)(std::begin(coordinates),
-                                             std::end(coordinates));
-            std::sort(std::begin(coordinates), std::end(coordinates));
-            fval = std::forward<Loss>(loss)(xbegin, &partial[0], &components[0],
-                                            &components[num_components],
-                                            &coordinates[0],
-                                            &coordinates[num_coordinates]);
-            for (std::size_t idx = 0; idx < num_coordinates; idx++)
-              g[coordinates[idx]] = partial[idx];
-            askfor('g', &coordinates);
-          } catch (...) {
-            ping();
-          }
-        } else if (tag == 'g') {
-          try {
-            send_g(&coordinates);
-            ack();
-          } catch (...) {
-            ping();
-          }
-        }
-      }
-    }
+    kernel(f, &coordinates);
   }
 
   ~worker() = default;
@@ -714,6 +597,43 @@ private:
 
     for (auto &future : futures)
       future.get();
+  }
+
+  template <class Function>
+  void kernel(Function &&f, const std::vector<index_t> *indices = nullptr) {
+    askfor('x');
+
+    while (poll.poll(timeout) > 0) {
+      if (poll[0].isready()) {
+        msg.receive(subscription);
+        if (msg.size() == 1 && msg.read<char>(0) == 'T')
+          break;
+      }
+
+      if (poll[1].isready()) {
+        msg.receive(request);
+        const char tag = msg.read<char>(0);
+
+        if (msg.size() == 0 || tag == 'u') {
+          askfor('x');
+        } else if (tag == 'x') {
+          try {
+            receive_x();
+            std::forward<Function>(f)();
+            askfor('g', indices);
+          } catch (...) {
+            ping();
+          }
+        } else if (tag == 'g') {
+          try {
+            send_g(indices);
+            ack();
+          } catch (...) {
+            ping();
+          }
+        }
+      }
+    }
   }
 
   int linger;
