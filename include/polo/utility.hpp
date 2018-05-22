@@ -7,6 +7,7 @@
 #include "polo/utility/logger.hpp"
 #include "polo/utility/maxiter.hpp"
 #include "polo/utility/null.hpp"
+#include "polo/utility/reader.hpp"
 #include "polo/utility/sampler.hpp"
 
 #endif
