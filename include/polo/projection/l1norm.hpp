@@ -20,7 +20,7 @@ template <class value_t, class index_t> struct l1norm {
     value_t xval, temp;
     while (xold_begin != xold_end) {
       xval = *xold_begin++ - step * *gbegin++;
-      temp = std::max(std::fabs(xval - lambda * step), value_t{0});
+      temp = std::max(std::fabs(xval) - lambda * step, value_t{0});
       *xnew_begin++ = xval < value_t{0} ? -temp : temp;
     }
     return xnew_begin;
