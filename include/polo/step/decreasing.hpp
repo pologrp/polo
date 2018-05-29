@@ -1,8 +1,7 @@
-#ifndef DECREASING_HPP_
-#define DECREASING_HPP_
+#ifndef POLO_STEP_DECREASING_HPP_
+#define POLO_STEP_DECREASING_HPP_
 
 #include <cmath>
-#include <cstddef>
 
 namespace polo {
 namespace step {
@@ -21,7 +20,7 @@ template <class value_t, class index_t> struct decreasing {
   }
 
 protected:
-  void params(const value_t gamma) { this->gamma = gamma; }
+  void parameters(const value_t gamma) { this->gamma = gamma; }
 
   template <class InputIt> void initialize(InputIt, InputIt) {}
 

@@ -1,5 +1,5 @@
-#ifndef BLAS_HPP_
-#define BLAS_HPP_
+#ifndef POLO_UTILITY_BLAS_HPP_
+#define POLO_UTILITY_BLAS_HPP_
 
 extern "C" {
 // Single-precision, L1

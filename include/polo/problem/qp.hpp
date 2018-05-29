@@ -1,5 +1,5 @@
-#ifndef QP_HPP_
-#define QP_HPP_
+#ifndef POLO_PROBLEM_QP_HPP_
+#define POLO_PROBLEM_QP_HPP_
 
 #include <iterator>
 #include <utility>

@@ -1,5 +1,5 @@
-#ifndef DATA_HPP_
-#define DATA_HPP_
+#ifndef POLO_LOSS_DATA_HPP_
+#define POLO_LOSS_DATA_HPP_
 
 #include <algorithm>
 #include <exception>

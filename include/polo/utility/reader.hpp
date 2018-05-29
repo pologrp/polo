@@ -1,5 +1,5 @@
-#ifndef READER_HPP_
-#define READER_HPP_
+#ifndef POLO_UTILITY_READER_HPP_
+#define POLO_UTILITY_READER_HPP_
 
 #include <fstream>
 #include <memory>

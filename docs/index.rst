@@ -64,16 +64,16 @@ the :ref:`examples <example start>` section to have a walkthrough.
   :maxdepth: 2
   :Caption: Algorithm Abstraction
 
-  algorithm/singlestage
+  algorithm/proxgradient
 
 .. toctree::
   :glob:
   :hidden:
   :maxdepth: 2
-  :Caption: Gradient Policy
+  :Caption: Boosting Policy
 
-  gradient/momentum
-  gradient/incremental
+  boosting/momentum
+  boosting/incremental
 
 .. toctree::
   :glob:
@@ -87,7 +87,7 @@ the :ref:`examples <example start>` section to have a walkthrough.
   :glob:
   :hidden:
   :maxdepth: 2
-  :Caption: Step-Size Policy
+  :Caption: Step Size Policy
 
   step
 
@@ -95,9 +95,10 @@ the :ref:`examples <example start>` section to have a walkthrough.
   :glob:
   :hidden:
   :maxdepth: 2
-  :Caption: Projection Policy
+  :Caption: Prox Policy
 
-  projection
+  prox/set
+  prox/prox
 
 .. toctree::
   :glob:
@@ -107,6 +108,7 @@ the :ref:`examples <example start>` section to have a walkthrough.
 
   execution/serial
   execution/multithread
+  execution/paramserver
 
 .. toctree::
   :glob:
@@ -128,10 +130,11 @@ the :ref:`examples <example start>` section to have a walkthrough.
 
   examples/*
 
-.. toctree::
-  :glob:
-  :hidden:
-  :maxdepth: 2
-  :Caption: Further Topics
+..
+  .. toctree::
+    :glob:
+    :hidden:
+    :maxdepth: 2
+    :Caption: Further Topics
 
-  further/*
+    further/*

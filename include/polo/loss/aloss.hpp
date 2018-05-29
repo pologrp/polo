@@ -1,5 +1,5 @@
-#ifndef ALOSS_HPP_
-#define ALOSS_HPP_
+#ifndef POLO_LOSS_ALOSS_HPP_
+#define POLO_LOSS_ALOSS_HPP_
 
 #include "polo/loss/data.hpp"
 

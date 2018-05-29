@@ -1,5 +1,5 @@
-#ifndef ZMQ_HPP_
-#define ZMQ_HPP_
+#ifndef POLO_COMMUNICATOR_ZMQ_HPP_
+#define POLO_COMMUNICATOR_ZMQ_HPP_
 
 #include <algorithm>
 #include <cstring>

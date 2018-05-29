@@ -1,8 +1,8 @@
-#ifndef NOPROJECTION_HPP_
-#define NOPROJECTION_HPP_
+#ifndef POLO_PROX_NONE_HPP_
+#define POLO_PROX_NONE_HPP_
 
 namespace polo {
-namespace projection {
+namespace prox {
 template <class value_t, class index_t> struct none {
   none() = default;
 
@@ -12,8 +12,8 @@ template <class value_t, class index_t> struct none {
   none &operator=(none &&) = default;
 
   template <class InputIt1, class InputIt2, class OutputIt>
-  OutputIt project(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
-                   InputIt2 gbegin, OutputIt xnew_begin) const {
+  OutputIt prox(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
+                InputIt2 gbegin, OutputIt xnew_begin) const {
     while (xold_begin != xold_end)
       *xnew_begin++ = *xold_begin++ - step * *gbegin++;
     return xnew_begin;
@@ -24,7 +24,7 @@ protected:
 
   ~none() = default;
 };
-} // namespace projection
+} // namespace prox
 } // namespace polo
 
 #endif

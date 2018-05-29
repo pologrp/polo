@@ -1,5 +1,5 @@
-#ifndef SMOOTHING_HPP_
-#define SMOOTHING_HPP_
+#ifndef POLO_SMOOTHING_HPP_
+#define POLO_SMOOTHING_HPP_
 
 #include "polo/smoothing/adadelta.hpp"
 #include "polo/smoothing/adagrad.hpp"

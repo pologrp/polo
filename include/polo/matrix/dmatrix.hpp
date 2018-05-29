@@ -1,5 +1,5 @@
-#ifndef DMATRIX_HPP_
-#define DMATRIX_HPP_
+#ifndef POLO_MATRIX_DMATRIX_HPP_
+#define POLO_MATRIX_DMATRIX_HPP_
 
 #include <exception>
 #include <limits>

@@ -1,5 +1,5 @@
-#ifndef HALFSPACE_HPP_
-#define HALFSPACE_HPP_
+#ifndef POLO_PROX_HALFSPACE_HPP_
+#define POLO_PROX_HALFSPACE_HPP_
 
 #include <algorithm>
 #include <iterator>
@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace polo {
-namespace projection {
+namespace prox {
 template <class value_t, class index_t> struct halfspace {
   halfspace() = default;
 
@@ -17,8 +17,8 @@ template <class value_t, class index_t> struct halfspace {
   halfspace &operator=(halfspace &&) = default;
 
   template <class InputIt1, class InputIt2, class OutputIt>
-  OutputIt project(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
-                   InputIt2 gbegin, OutputIt xnew_begin) {
+  OutputIt prox(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
+                InputIt2 gbegin, OutputIt xnew_begin) {
     std::lock_guard<std::mutex> lock(sync);
     index_t idx{0};
     value_t atx{0}, xval;
@@ -37,15 +37,16 @@ template <class value_t, class index_t> struct halfspace {
 
 protected:
   template <class InputIt>
-  void params(InputIt abegin, InputIt aend, const value_t alpha) {
+  void parameters(InputIt abegin, InputIt aend, const value_t alpha) {
     a = std::vector<value_t>(abegin, aend);
     temp = std::vector<value_t>(a.size());
     this->alpha = alpha;
     for (const auto val : a)
       norm += val * val;
   }
-  template <class T> void params(const std::vector<T> &a, const value_t alpha) {
-    params(std::begin(a), std::end(a), alpha);
+  template <class T>
+  void parameters(const std::vector<T> &a, const value_t alpha) {
+    parameters(std::begin(a), std::end(a), alpha);
   }
 
   template <class InputIt> void initialize(InputIt, InputIt) {}
@@ -57,7 +58,7 @@ private:
   std::vector<value_t> a, temp;
   std::mutex sync;
 };
-} // namespace projection
+} // namespace prox
 } // namespace polo
 
 #endif

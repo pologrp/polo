@@ -1,7 +1,5 @@
-#ifndef CONSTANT_HPP_
-#define CONSTANT_HPP_
-
-#include <cstddef>
+#ifndef POLO_STEP_CONSTANT_HPP_
+#define POLO_STEP_CONSTANT_HPP_
 
 namespace polo {
 namespace step {
@@ -20,7 +18,7 @@ template <class value_t, class index_t> struct constant {
   }
 
 protected:
-  void params(const value_t gamma) { this->gamma = gamma; }
+  void parameters(const value_t gamma) { this->gamma = gamma; }
 
   template <class InputIt> void initialize(InputIt, InputIt) {}
 

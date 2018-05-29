@@ -1,5 +1,5 @@
-#ifndef PARAMSERVER_HPP_
-#define PARAMSERVER_HPP_
+#ifndef POLO_EXECUTION_PARAMSERVER_HPP_
+#define POLO_EXECUTION_PARAMSERVER_HPP_
 
 #include <algorithm>
 #include <cstdint>
@@ -106,7 +106,7 @@ template <class value_t, class index_t> struct master {
   master &operator=(master &&) = default;
 
 protected:
-  void params(options opts) {
+  void parameters(options opts) {
     linger = opts.linger();
     timeout = opts.master_timeout();
     auto scheduler = opts.scheduler();
@@ -231,13 +231,13 @@ protected:
             for (const auto ind : indices)
               g[ind - startind] = values[valind++];
           }
-          alg->grad(std::begin(g), std::end(g), std::begin(g));
+          alg->boost(std::begin(g), std::end(g), std::begin(g));
           alg->smooth(k, std::begin(x), std::end(x), std::begin(g),
                       std::begin(g));
           auto step =
               alg->step(k, fval, std::begin(x), std::end(x), std::begin(g));
-          alg->project(step, std::begin(x), std::end(x), std::begin(g),
-                       std::begin(x));
+          alg->prox(step, std::begin(x), std::end(x), std::begin(g),
+                    std::begin(x));
           std::forward<Logger>(logger)(k, fval, std::begin(x), std::end(x),
                                        std::begin(g), std::end(g));
           msg.pop_back();
@@ -293,7 +293,7 @@ template <class value_t, class index_t> struct worker {
   worker &operator=(worker &&) = default;
 
 protected:
-  void params(options opts) {
+  void parameters(options opts) {
     linger = opts.linger();
     timeout = opts.worker_timeout();
     auto scheduler = opts.scheduler();
@@ -659,7 +659,7 @@ template <class value_t, class index_t> struct scheduler {
   scheduler &operator=(scheduler &&) = default;
 
 protected:
-  void params(options opts) {
+  void parameters(options opts) {
     linger = opts.linger();
     timeout = opts.scheduler_timeout();
     nmasters = opts.num_masters();

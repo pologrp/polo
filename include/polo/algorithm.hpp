@@ -1,6 +1,6 @@
-#ifndef ALGORITHM_HPP_
-#define ALGORITHM_HPP_
+#ifndef POLO_ALGORITHM_HPP_
+#define POLL_ALGORITHM_HPP_
 
-#include "polo/algorithm/singlestage.hpp"
+#include "polo/algorithm/proxgradient.hpp"
 
 #endif

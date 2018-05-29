@@ -1,5 +1,5 @@
-Multi-Threaded Execution
-========================
+Multi-Threaded Executor
+=======================
 
 Consistent Read/Write
 ---------------------

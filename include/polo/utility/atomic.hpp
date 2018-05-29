@@ -1,5 +1,5 @@
-#ifndef ATOMIC_HPP_
-#define ATOMIC_HPP_
+#ifndef POLO_UTILITY_ATOMIC_HPP_
+#define POLO_UTILITY_ATOMIC_HPP_
 
 #include <atomic>
 #include <cstdint>

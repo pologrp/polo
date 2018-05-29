@@ -1,5 +1,5 @@
-#ifndef ADAGRAD_HPP_
-#define ADAGRAD_HPP_
+#ifndef POLO_SMOOTHING_ADAGRAD_HPP_
+#define POLO_SMOOTHING_ADAGRAD_HPP_
 
 #include <algorithm>
 #include <cmath>
@@ -35,7 +35,7 @@ template <class value_t, class index_t> struct adagrad {
   }
 
 protected:
-  void params(const value_t epsilon) { this->epsilon = epsilon; }
+  void parameters(const value_t epsilon) { this->epsilon = epsilon; }
 
   template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
     rms_g = std::vector<value_t>(std::distance(xbegin, xend));

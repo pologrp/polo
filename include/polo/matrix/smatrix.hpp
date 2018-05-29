@@ -1,5 +1,5 @@
-#ifndef SMATRIX_HPP_
-#define SMATRIX_HPP_
+#ifndef POLO_MATRIX_SMATRIX_HPP_
+#define POLO_MATRIX_SMATRIX_HPP_
 
 #include <algorithm>
 #include <exception>

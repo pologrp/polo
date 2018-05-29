@@ -1,7 +1,7 @@
-#ifndef EXECUTION_HPP_
-#define EXECUTION_HPP_
+#ifndef POLO_EXECUTION_HPP_
+#define POLO_EXECUTION_HPP_
 
-#include "polo/algorithm/singlestage.hpp"
+#include "polo/execution/multithread.hpp"
 #include "polo/execution/paramserver.hpp"
 #include "polo/execution/serial.hpp"
 

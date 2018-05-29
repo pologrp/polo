@@ -1,5 +1,5 @@
-#ifndef ADADELTA_HPP_
-#define ADADELTA_HPP_
+#ifndef POLO_SMOOTHING_ADADELTA_HPP_
+#define POLO_SMOOTHING_ADADELTA_HPP_
 
 #include <algorithm>
 #include <cmath>
@@ -40,7 +40,7 @@ template <class value_t, class index_t> struct adadelta {
   }
 
 protected:
-  void params(const value_t rho, const value_t epsilon) {
+  void parameters(const value_t rho, const value_t epsilon) {
     this->rho = rho;
     this->epsilon = epsilon;
   }

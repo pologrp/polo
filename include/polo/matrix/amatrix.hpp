@@ -1,5 +1,5 @@
-#ifndef AMATRIX_HPP_
-#define AMATRIX_HPP_
+#ifndef POLO_MATRIX_AMATRIX_HPP_
+#define POLO_MATRIX_AMATRIX_HPP_
 
 namespace polo {
 namespace matrix {

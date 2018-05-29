@@ -1,5 +1,5 @@
-#ifndef NOSMOOTHING_HPP_
-#define NOSMOOTHING_HPP_
+#ifndef POLO_SMOOTHING_NONE_HPP_
+#define POLO_SMOOTHING_NONE_HPP_
 
 #include <algorithm>
 

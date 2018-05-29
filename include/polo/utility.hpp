@@ -1,5 +1,5 @@
-#ifndef UTILITY_HPP_
-#define UTILITY_HPP_
+#ifndef POLO_UTILITY_HPP_
+#define POLO_UTILITY_HPP_
 
 #include "polo/utility/atomic.hpp"
 #include "polo/utility/blas.hpp"

@@ -1,5 +1,5 @@
-#ifndef STEP_HPP_
-#define STEP_HPP_
+#ifndef POLO_STEP_HPP_
+#define POLO_STEP_HPP_
 
 #include "polo/step/constant.hpp"
 #include "polo/step/decreasing.hpp"

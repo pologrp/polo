@@ -1,5 +1,5 @@
-#ifndef LOSS_HPP_
-#define LOSS_HPP_
+#ifndef POLO_LOSS_HPP_
+#define POLO_LOSS_HPP_
 
 #include "polo/loss/leastsquares.hpp"
 

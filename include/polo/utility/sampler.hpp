@@ -1,5 +1,5 @@
-#ifndef SAMPLER_HPP_
-#define SAMPLER_HPP_
+#ifndef POLO_UTILITY_SAMPLER_HPP_
+#define POLO_UTILITY_SAMPLER_HPP_
 
 #include <random>
 #include <utility>
@@ -25,10 +25,10 @@ struct sampler : private distribution<index_t> {
 
   void seed(const result_type seed) { gen.seed(seed); }
 
-  template <class... Ts> void params(Ts &&... args) {
+  template <class... Ts> void parameters(Ts &&... args) {
     distribution<index_t>::param(param_type(std::forward<Ts>(args)...));
   }
-  void params(const param_type &params) {
+  void parameters(const param_type &params) {
     distribution<index_t>::param(params);
   }
 

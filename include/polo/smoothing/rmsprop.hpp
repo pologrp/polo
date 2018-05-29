@@ -1,5 +1,5 @@
-#ifndef RMSPROP_HPP_
-#define RMSPROP_HPP_
+#ifndef POLO_SMOOTHING_RMSPROP_HPP_
+#define POLO_SMOOTHING_RMSPROP_HPP_
 
 #include <algorithm>
 #include <cmath>
@@ -36,7 +36,7 @@ template <class value_t, class index_t> struct rmsprop {
   }
 
 protected:
-  void params(const value_t rho, const value_t epsilon) {
+  void parameters(const value_t rho, const value_t epsilon) {
     this->rho = rho;
     this->epsilon = epsilon;
   }

@@ -1,5 +1,5 @@
-#ifndef LOGGER_HPP_
-#define LOGGER_HPP_
+#ifndef POLO_UTILITY_LOGGER_HPP_
+#define POLO_UTILITY_LOGGER_HPP_
 
 #include <chrono>
 #include <cstddef>

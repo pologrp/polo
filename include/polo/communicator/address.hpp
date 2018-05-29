@@ -1,5 +1,5 @@
-#ifndef ADDRESS_HPP_
-#define ADDRESS_HPP_
+#ifndef POLO_COMMUNICATOR_ADDRESS_HPP_
+#define POLO_COMMUNICATOR_ADDRESS_HPP_
 
 #include <cstdint>
 #include <exception>
@@ -58,15 +58,15 @@ private:
 
 struct address {
   address() = default;
-  address(communicator::ip ip, uint16_t port)
+  address(communicator::ip ip, std::uint16_t port)
       : ip_{std::move(ip)}, port_{port} {}
 
   std::string ip() const { return ip_.get(); }
-  uint16_t port() const noexcept { return port_; }
+  std::uint16_t port() const noexcept { return port_; }
 
 private:
   communicator::ip ip_;
-  uint16_t port_;
+  std::uint16_t port_;
 };
 } // namespace communicator
 } // namespace polo

@@ -1,5 +1,5 @@
-#ifndef LEASTSQUARES_HPP_
-#define LEASTSQUARES_HPP_
+#ifndef POLO_LOSS_LEASTSQUARES_HPP_
+#define POLO_LOSS_LEASTSQUARES_HPP_
 
 #include <iterator>
 

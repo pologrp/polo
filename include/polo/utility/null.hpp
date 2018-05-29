@@ -1,5 +1,5 @@
-#ifndef NULL_HPP_
-#define NULL_HPP_
+#ifndef POLO_UTILITY_NULL_HPP_
+#define POLO_UTILITY_NULL_HPP_
 
 namespace polo {
 namespace utility {

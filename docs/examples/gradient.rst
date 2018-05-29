@@ -49,15 +49,15 @@ repository.
 .. literalinclude:: /../examples/gradient.cpp
   :language: cpp
 
-In POLO, the ``algorithm::singlestage`` class is an abstraction of a family of
+In POLO, the ``algorithm::proxgradient`` class is an abstraction of a family of
 algorithms. With the default settings, it represents the gradient descent
-algorithm with a constant step-size. For convex quadratic minimization problems,
-it is known that the best constant step-size for the gradient descent iterations
+algorithm with a constant step size. For convex quadratic minimization problems,
+it is known that the best constant step size for the gradient descent iterations
 is :math:`\gamma_{k} = 2/(\mu + L)`, which is equal to 0.5 in the above example.
 Hence, after selecting our algorithm, we provide the constant step size with the
-``step_params`` method call. We, then, ``initialize`` the algorithm with some
-decision vector, and ``solve`` the problem. By default, ``solve`` iterates 100
-times until the algorithm terminates.
+``step_parameters`` method call. We, then, ``initialize`` the algorithm with
+some decision vector, and ``solve`` the problem. By default, ``solve`` iterates
+100 times until the algorithm terminates.
 
 .. note::
 

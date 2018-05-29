@@ -1,5 +1,5 @@
-#ifndef SERIAL_HPP_
-#define SERIAL_HPP_
+#ifndef POLO_EXECUTION_SERIAL_HPP_
+#define POLO_EXECUTION_SERIAL_HPP_
 
 #include <iterator>
 #include <utility>
@@ -111,11 +111,10 @@ protected:
 private:
   template <class Algorithm, class Logger>
   void iterate(Algorithm *alg, Logger &&logger) {
-    alg->grad(std::begin(g), std::end(g), std::begin(g));
+    alg->boost(std::begin(g), std::end(g), std::begin(g));
     alg->smooth(k, std::begin(x), std::end(x), std::begin(g), std::begin(g));
     step_ = alg->step(k, fval, std::begin(x), std::end(x), std::begin(g));
-    alg->project(step_, std::begin(x), std::end(x), std::begin(g),
-                 std::begin(x));
+    alg->prox(step_, std::begin(x), std::end(x), std::begin(g), std::begin(x));
     std::forward<Logger>(logger)(k, fval, std::begin(x), std::end(x),
                                  std::begin(g), std::end(g));
     k++;

@@ -1,5 +1,5 @@
-#ifndef LAPACK_HPP_
-#define LAPACK_HPP_
+#ifndef POLO_UTILITY_LAPACK_HPP_
+#define POLO_UTILITY_LAPACK_HPP_
 
 extern "C" {
 // Single Precision

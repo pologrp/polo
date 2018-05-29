@@ -1,5 +1,2 @@
-Set Projections
-===============
-
 Proximal Calculations
 =====================

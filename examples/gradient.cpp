@@ -22,9 +22,9 @@ using namespace polo;
 
 int main(int argc, char *argv[]) {
   // Select the algorithm
-  algorithm::singlestage<double> alg;
-  // Set the step-size
-  alg.step_params(0.5);
+  algorithm::proxgradient<double> alg;
+  // Set the step size
+  alg.step_parameters(0.5);
   // Initialize the algorithm with x0
   std::vector<double> x0 = {10, 20, 30};
   alg.initialize(x0);

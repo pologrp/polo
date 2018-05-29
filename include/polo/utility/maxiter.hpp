@@ -1,7 +1,5 @@
-#ifndef MAXITER_HPP_
-#define MAXITER_HPP_
-
-#include <cstddef>
+#ifndef POLO_UTILITY_MAXITER_HPP_
+#define POLO_UTILITY_MAXITER_HPP_
 
 namespace polo {
 namespace utility {

@@ -1,5 +1,5 @@
-#ifndef MULTITHREAD_HPP_
-#define MULTITHREAD_HPP_
+#ifndef POLO_EXECUTION_MULTITHREAD_HPP_
+#define POLO_EXECUTION_MULTITHREAD_HPP_
 
 #include <atomic>
 #include <iterator>
@@ -40,7 +40,7 @@ template <class value_t, class index_t, bool consistent> struct multithread {
   multithread &operator=(multithread &&) = default;
 
 protected:
-  void params(const unsigned int nthreads) { this->nthreads = nthreads; }
+  void parameters(const unsigned int nthreads) { this->nthreads = nthreads; }
 
   template <class InputIt>
   std::vector<value_t> initialize(InputIt xbegin, InputIt xend) {
@@ -223,11 +223,10 @@ private:
                                             std::begin(g)))
       return false;
 
-    alg->grad(std::begin(glocal), std::end(glocal), std::begin(g));
+    alg->boost(std::begin(glocal), std::end(glocal), std::begin(g));
     alg->smooth(k, std::begin(x), std::end(x), std::begin(g), std::begin(g));
     auto step = alg->step(k, fval, std::begin(x), std::end(x), std::begin(g));
-    alg->project(step, std::begin(x), std::end(x), std::begin(g),
-                 std::begin(x));
+    alg->prox(step, std::begin(x), std::end(x), std::begin(g), std::begin(x));
     std::forward<Logger>(logger)(k, fval, std::begin(x), std::end(x),
                                  std::begin(g), std::end(g));
     k++;
@@ -256,11 +255,10 @@ private:
     for (std::size_t idx = 0; idx < coordinates.size(); idx++)
       g[coordinates[idx]] = partial[idx];
 
-    alg->grad(std::begin(g), std::end(g), std::begin(g));
+    alg->boost(std::begin(g), std::end(g), std::begin(g));
     alg->smooth(k, std::begin(x), std::end(x), std::begin(g), std::begin(g));
     auto step = alg->step(k, fval, std::begin(x), std::end(x), std::begin(g));
-    alg->project(step, std::begin(x), std::end(x), std::begin(g),
-                 std::begin(x));
+    alg->prox(step, std::begin(x), std::end(x), std::begin(g), std::begin(x));
     std::forward<Logger>(logger)(k, fval, std::begin(x), std::end(x),
                                  std::begin(g), std::end(g));
     k++;
