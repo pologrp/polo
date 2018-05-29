@@ -5,7 +5,7 @@
 const double Q[] = {1, 2, 3};
 const double q[] = {-0.1, 0.2, -0.3};
 
-double loss(const double *x, double *g) {
+double quadratic_loss(const double *x, double *g) {
   // Function value
   double fval = 0;
   for (int idx = 0; idx < 3; idx++) {
@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
   std::vector<double> x0 = {10, 20, 30};
   alg.initialize(x0);
   // Solve the problem
-  alg.solve(loss);
+  alg.solve(quadratic_loss);
   // Get the solution
   std::vector<double> xopt = alg.getx();
   double fopt = alg.getf();
