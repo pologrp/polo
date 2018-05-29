@@ -1,7 +1,7 @@
 #ifndef STEP_HPP_
 #define STEP_HPP_
 
-#include "step/constant.hpp"
-#include "step/decreasing.hpp"
+#include "polo/step/constant.hpp"
+#include "polo/step/decreasing.hpp"
 
 #endif

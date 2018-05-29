@@ -6,12 +6,11 @@
 #include <regex>
 #include <string>
 
-#include <curl/curl.h>
+#include "curl/curl.h"
 
 namespace polo {
 namespace communicator {
 struct ip {
-  /* static functions */
   static ip getexternal() { return getexternal("http://checkip.dyndns.org"); }
   static ip getexternal(const char *address) {
     std::string data, addr;
@@ -40,7 +39,6 @@ struct ip {
       throw std::runtime_error("Could not parse IP address.");
   }
 
-  /* non-static functions */
   ip() = default;
 
   std::string get() const { return address_; }

@@ -1,9 +1,9 @@
 #ifndef SMOOTHING_HPP_
 #define SMOOTHING_HPP_
 
-#include "smoothing/adadelta.hpp"
-#include "smoothing/adagrad.hpp"
-#include "smoothing/none.hpp"
-#include "smoothing/rmsprop.hpp"
+#include "polo/smoothing/adadelta.hpp"
+#include "polo/smoothing/adagrad.hpp"
+#include "polo/smoothing/none.hpp"
+#include "polo/smoothing/rmsprop.hpp"
 
 #endif

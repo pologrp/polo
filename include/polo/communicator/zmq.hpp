@@ -1,8 +1,6 @@
 #ifndef ZMQ_HPP_
 #define ZMQ_HPP_
 
-#include <zmq.h>
-
 #include <algorithm>
 #include <cstring>
 #include <exception>
@@ -13,10 +11,11 @@
 #include <type_traits>
 #include <vector>
 
+#include "zmq.h"
+
 namespace polo {
 namespace communicator {
 namespace zmq {
-/* Version information */
 void version(int &major, int &minor, int &patch) {
   zmq_version(&major, &minor, &patch);
 }
@@ -27,7 +26,6 @@ std::tuple<int, int, int> version() {
   return std::make_tuple(major, minor, patch);
 }
 
-/* Error handling through exceptions */
 struct error : public std::exception {
   error() noexcept : errno_{zmq_errno()} {}
   const char *what() const noexcept override { return zmq_strerror(errno_); }
@@ -37,7 +35,6 @@ private:
   int errno_;
 };
 
-/* Forward declarations and definitions */
 struct context;
 struct socket;
 struct message;
@@ -92,7 +89,6 @@ private:
 struct message {
 private:
   struct part {
-    /* Constructors */
     part() noexcept;
     explicit part(std::size_t);
     template <class T> part(const T &);
@@ -101,16 +97,13 @@ private:
     template <class T> part(std::size_t, T *, zmq_free_fn *, void * = nullptr);
     template <class Iter> part(Iter, Iter);
 
-    /* Copying and moving */
     part(const part &) noexcept;
     part &operator=(const part &) noexcept;
     part(part &&) noexcept;
     part &operator=(part &&) noexcept;
 
-    /* Destruction */
     ~part();
 
-    /* Convenience */
     std::size_t size() const noexcept;
     explicit operator void *() noexcept;
     void *data() noexcept;
@@ -193,7 +186,6 @@ public:
   void clear() noexcept;
 };
 
-/* Proxy functionality */
 void proxy(const socket *frontend, const socket *backend,
            const socket *capture = nullptr) {
   void *f = static_cast<void *>(*frontend);
@@ -210,7 +202,6 @@ void proxy(const socket *frontend, const socket *backend, const socket *capture,
   zmq_proxy_steerable(f, b, cap, con);
 }
 
-/* Implementations */
 enum struct context_opt : int {
 #ifdef ZMQ_IO_THREADS
   io_threads = ZMQ_IO_THREADS,

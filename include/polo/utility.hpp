@@ -1,12 +1,12 @@
 #ifndef UTILITY_HPP_
 #define UTILITY_HPP_
 
-#include "utility/atomic.hpp"
-#include "utility/blas.hpp"
-#include "utility/lapack.hpp"
-#include "utility/logger.hpp"
-#include "utility/maxiter.hpp"
-#include "utility/null.hpp"
-#include "utility/sampler.hpp"
+#include "polo/utility/atomic.hpp"
+#include "polo/utility/blas.hpp"
+#include "polo/utility/lapack.hpp"
+#include "polo/utility/logger.hpp"
+#include "polo/utility/maxiter.hpp"
+#include "polo/utility/null.hpp"
+#include "polo/utility/sampler.hpp"
 
 #endif

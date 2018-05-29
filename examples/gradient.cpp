@@ -17,7 +17,7 @@ double loss(const double *x, double *g) {
   return fval;
 }
 
-#include "polo.hpp"
+#include "polo/polo.hpp"
 using namespace polo;
 
 int main(int argc, char *argv[]) {
