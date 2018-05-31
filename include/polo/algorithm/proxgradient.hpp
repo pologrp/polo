@@ -38,10 +38,12 @@ struct proxgradient : public boosting<value_t, index_t>,
   template <class ForwardIt> void initialize(ForwardIt xbegin, ForwardIt xend) {
     std::vector<value_t> x =
         execution<value_t, index_t>::initialize(xbegin, xend);
-    boosting<value_t, index_t>::initialize(std::begin(x), std::end(x));
-    step<value_t, index_t>::initialize(std::begin(x), std::end(x));
-    smoothing<value_t, index_t>::initialize(std::begin(x), std::end(x));
-    prox<value_t, index_t>::initialize(std::begin(x), std::end(x));
+    const value_t *xb = x.data();
+    const value_t *xe = xb + x.size();
+    boosting<value_t, index_t>::initialize(xb, xe);
+    step<value_t, index_t>::initialize(xb, xe);
+    smoothing<value_t, index_t>::initialize(xb, xe);
+    prox<value_t, index_t>::initialize(xb, xe);
   }
   template <class T> void initialize(const std::vector<T> &x) {
     initialize(std::begin(x), std::end(x));

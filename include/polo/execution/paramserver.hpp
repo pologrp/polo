@@ -218,6 +218,14 @@ protected:
           msg[pid] = {std::begin(data), std::end(data)};
           msg.send(router);
         } else if (tag == 'g') {
+          value_t *gb = g.data();
+          const value_t *gb_c = g.data();
+          const value_t *ge_c = gb_c + g.size();
+
+          value_t *xb = x.data();
+          const value_t *xb_c = x.data();
+          const value_t *xe_c = xb_c + x.size();
+
           detail::deserialize(msg, pid++, kworker);
           detail::deserialize(msg, pid++, fval);
           if (msg.size(pid) == 0)
@@ -231,15 +239,11 @@ protected:
             for (const auto ind : indices)
               g[ind - startind] = values[valind++];
           }
-          alg->boost(std::begin(g), std::end(g), std::begin(g));
-          alg->smooth(k, std::begin(x), std::end(x), std::begin(g),
-                      std::begin(g));
-          auto step =
-              alg->step(k, fval, std::begin(x), std::end(x), std::begin(g));
-          alg->prox(step, std::begin(x), std::end(x), std::begin(g),
-                    std::begin(x));
-          std::forward<Logger>(logger)(k, fval, std::begin(x), std::end(x),
-                                       std::begin(g), std::end(g));
+          alg->boost(gb_c, ge_c, gb);
+          alg->smooth(k, xb_c, xe_c, gb_c, gb);
+          const auto step = alg->step(k, fval, xb_c, xe_c, gb_c);
+          alg->prox(step, xb_c, xe_c, gb_c, ge_c);
+          std::forward<Logger>(logger)(k, fval, xb_c, xe_c, gb_c);
           msg.pop_back();
           msg.pop_back();
           msg.pop_back();
@@ -328,9 +332,10 @@ protected:
 
   template <class Algorithm, class Loss, class Terminator, class Logger>
   void solve(Algorithm *, Loss &&loss, Terminator &&, Logger &&) {
-    const value_t *xbegin{&x[0]};
+    const value_t *xb_c = x.data();
+    value_t gb = g.data();
 
-    auto f = [&, xbegin]() { fval = std::forward<Loss>(loss)(xbegin, &g[0]); };
+    auto f = [&, xb_c, gb]() { fval = std::forward<Loss>(loss)(xb_c, gb); };
 
     kernel(f);
   }
@@ -340,15 +345,19 @@ protected:
   void solve(Algorithm *, Loss &&loss, Terminator &&, Logger &&,
              utility::sampler::detail::component_sampler_t, Sampler &&sampler,
              const index_t num_components) {
-    const value_t *xbegin{&x[0]};
-    std::vector<index_t> components(num_components);
+    const value_t *xb_c = x.data();
+    value_t *gb = g.data();
 
-    auto f = [&, xbegin, num_components]() {
-      std::forward<Sampler>(sampler)(std::begin(components),
-                                     std::end(components));
-      std::sort(std::begin(components), std::end(components));
-      fval = std::forward<Loss>(loss)(xbegin, &g[0], &components[0],
-                                      &components[num_components]);
+    std::vector<index_t> components(num_components);
+    index_t *cb = components.data();
+    index_t *ce = cb + num_components;
+    const index_t *cb_c = components.data();
+    const index_t *ce_c = cb_c + num_components;
+
+    auto f = [&, xb_c, gb, cb, ce, cb_c, ce_c]() {
+      std::forward<Sampler>(sampler)(cb, ce);
+      std::sort(cb, ce);
+      fval = std::forward<Loss>(loss)(xb_c, gb, cb_c, ce_c);
     };
 
     kernel(f);
@@ -359,16 +368,21 @@ protected:
   void solve(Algorithm *, Loss &&loss, Terminator &&, Logger &&,
              utility::sampler::detail::coordinate_sampler_t, Sampler &&sampler,
              const index_t num_coordinates) {
-    const value_t *xbegin{&x[0]};
-    std::vector<index_t> coordinates(num_coordinates);
-    std::vector<value_t> partial(num_coordinates);
+    const value_t *xb_c = x.data();
 
-    auto f = [&, xbegin, num_coordinates]() {
-      std::forward<Sampler>(sampler)(std::begin(coordinates),
-                                     std::end(coordinates));
-      std::sort(std::begin(coordinates), std::end(coordinates));
-      fval = std::forward<Loss>(loss)(xbegin, &partial[0], &coordinates[0],
-                                      &coordinates[num_coordinates]);
+    std::vector<index_t> coordinates(num_coordinates);
+    index_t *cb = coordinates.data();
+    index_t *ce = cb + num_coordinates;
+    const index_t *cb_c = coordinates.data();
+    const index_t *ce_c = cb_c + num_coordinates;
+
+    std::vector<value_t> partial(num_coordinates);
+    value_t *pb = partial.data();
+
+    auto f = [&, xb_c, pb, cb, ce, cb_c, ce_c]() {
+      std::forward<Sampler>(sampler)(cb, ce);
+      std::sort(cb, ce);
+      fval = std::forward<Loss>(loss)(xb_c, pb, cb_c, ce_c);
       for (std::size_t idx = 0; idx < num_coordinates; idx++)
         g[coordinates[idx]] = partial[idx];
     };
@@ -383,21 +397,31 @@ protected:
              const index_t num_components,
              utility::sampler::detail::coordinate_sampler_t,
              Sampler2 &&sampler2, const index_t num_coordinates) {
-    const value_t *xbegin{&x[0]};
-    std::vector<index_t> components(num_components),
-        coordinates(num_coordinates);
-    std::vector<value_t> partial(num_coordinates);
+    const value_t *xb_c = x.data();
 
-    auto f = [&, xbegin, num_components, num_coordinates]() {
-      std::forward<Sampler1>(sampler1)(std::begin(components),
-                                       std::end(components));
-      std::sort(std::begin(components), std::end(components));
-      std::forward<Sampler2>(sampler2)(std::begin(coordinates),
-                                       std::end(coordinates));
-      std::sort(std::begin(coordinates), std::end(coordinates));
-      fval = std::forward<Loss>(loss)(
-          xbegin, &partial[0], &components[0], &components[num_components],
-          &coordinates[0], &coordinates[num_coordinates]);
+    std::vector<index_t> components(num_components);
+    index_t *compb = components.data();
+    index_t *compe = compb + components.size();
+    const index_t *compb_c = components.data();
+    const index_t *compe_c = compb_c + components.size();
+
+    std::vector<index_t> coordinates(num_coordinates);
+    index_t *coorb = coordinates.data();
+    index_t *coore = coorb + coordinates.size();
+    const index_t *coorb_c = coordinates.data();
+    const index_t *coore_c = coorb_c + coordinates.size();
+
+    std::vector<value_t> partial(num_coordinates);
+    value_t *pb = partial.data();
+
+    auto f = [&, xb_c, pb, compb, compe, compb_c, compe_c, coorb, coore,
+              coorb_c, coore_c]() {
+      std::forward<Sampler1>(sampler1)(compb, compe);
+      std::sort(compb, compe);
+      std::forward<Sampler2>(sampler2)(coorb, coore);
+      std::sort(coorb, coore);
+      fval = std::forward<Loss>(loss)(xb_c, pb, compb_c, compe_c, coorb_c,
+                                      coore_c);
       for (std::size_t idx = 0; idx < num_coordinates; idx++)
         g[coordinates[idx]] = partial[idx];
     };

@@ -1,6 +1,7 @@
 #ifndef POLO_EXECUTION_MULTITHREAD_HPP_
 #define POLO_EXECUTION_MULTITHREAD_HPP_
 
+#include <algorithm>
 #include <atomic>
 #include <iterator>
 #include <mutex>
@@ -106,16 +107,17 @@ private:
   void kernel(Algorithm *alg, Loss &&loss, Terminator &&terminate,
               Logger &&logger) {
     value_t flocal;
-    const std::size_t dim{x.size()};
+    const std::size_t dim = x.size();
 
     std::vector<value_t> xlocal(dim);
-    const value_t *xbegin{&xlocal[0]};
+    const value_t *xb_c = xlocal.data();
 
     std::vector<value_t> glocal(dim);
+    value_t *glb = glocal.data();
 
     for (;;) {
       read(xlocal, std::integral_constant<bool, consistent>{});
-      flocal = std::forward<Loss>(loss)(xbegin, &glocal[0]);
+      flocal = std::forward<Loss>(loss)(xb_c, glb);
       if (!update(alg, flocal, glocal, std::forward<Terminator>(terminate),
                   std::forward<Logger>(logger),
                   std::integral_constant<bool, consistent>{}))
@@ -129,18 +131,23 @@ private:
               Logger &&logger, utility::sampler::detail::component_sampler_t,
               Sampler sampler, const index_t num_components) {
     value_t flocal;
-    const std::size_t dim{x.size()};
+    const std::size_t dim = x.size();
 
     std::vector<value_t> xlocal(dim), glocal(dim);
     std::vector<index_t> components(num_components);
+    index_t *cb = components.data();
+    index_t *ce = cb + num_components;
+    const index_t *cb_c = components.data();
+    const index_t *ce_c = cb_c + num_components;
 
-    const value_t *xbegin{&xlocal[0]};
+    const value_t *xb_c = xlocal.data();
+    value_t *glb = glocal.data();
 
     for (;;) {
       read(xlocal, std::integral_constant<bool, consistent>{});
-      sampler(std::begin(components), std::end(components));
-      flocal = std::forward<Loss>(loss)(xbegin, &glocal[0], &components[0],
-                                        &components[num_components]);
+      sampler(cb, ce);
+      std::sort(cb, ce);
+      flocal = std::forward<Loss>(loss)(xb_c, glb, cb_c, ce_c);
       if (!update(alg, flocal, glocal, std::forward<Terminator>(terminate),
                   std::forward<Logger>(logger),
                   std::integral_constant<bool, consistent>{}))
@@ -154,18 +161,23 @@ private:
               Logger &&logger, utility::sampler::detail::coordinate_sampler_t,
               Sampler sampler, const index_t num_coordinates) {
     value_t flocal;
-    const std::size_t dim{x.size()};
+    const std::size_t dim = x.size();
 
     std::vector<value_t> xlocal(dim), partial(num_coordinates);
     std::vector<index_t> coordinates(num_coordinates);
+    index_t *cb = coordinates.data();
+    index_t *ce = cb + num_coordinates;
+    const index_t *cb_c = coordinates.data();
+    const index_t *ce_c = cb_c + num_coordinates;
 
-    const value_t *xbegin{&xlocal[0]};
+    const value_t *xb_c = xlocal.data();
+    value_t *pb = partial.data();
 
     for (;;) {
       read(xlocal, std::integral_constant<bool, consistent>{});
-      sampler(std::begin(coordinates), std::end(coordinates));
-      flocal = std::forward<Loss>(loss)(xbegin, &partial[0], &coordinates[0],
-                                        &coordinates[num_coordinates]);
+      sampler(cb, ce);
+      std::sort(cb, ce);
+      flocal = std::forward<Loss>(loss)(xb_c, pb, cb_c, ce_c);
       if (!update(alg, flocal, partial, coordinates,
                   std::forward<Terminator>(terminate),
                   std::forward<Logger>(logger),
@@ -185,18 +197,29 @@ private:
     const std::size_t dim{x.size()};
 
     std::vector<value_t> xlocal(dim), partial(num_coordinates);
-    std::vector<index_t> components(num_components),
-        coordinates(num_coordinates);
+    std::vector<index_t> components(num_components);
+    index_t *compb = components.data();
+    index_t *compe = compb + components.size();
+    const index_t *compb_c = components.data();
+    const index_t *compe_c = compb_c + components.size();
 
-    const value_t *xbegin{&xlocal[0]};
+    std::vector<index_t> coordinates(num_coordinates);
+    index_t *coorb = coordinates.data();
+    index_t *coore = coorb + coordinates.size();
+    const index_t *coorb_c = coordinates.data();
+    const index_t *coore_c = coorb_c + coordinates.size();
+
+    const value_t *xb_c = xlocal.data();
+    value_t *pb = partial.data();
 
     for (;;) {
       read(xlocal, std::integral_constant<bool, consistent>{});
-      sampler1(std::begin(components), std::end(components));
-      sampler2(std::begin(coordinates), std::end(coordinates));
-      flocal = std::forward<Loss>(loss)(
-          xbegin, &partial[0], &components[0], &components[num_components],
-          &coordinates[0], &coordinates[num_coordinates]);
+      sampler1(compb, compe);
+      std::sort(compb, compe);
+      sampler2(coorb, coore);
+      std::sort(coorb, coore);
+      flocal = std::forward<Loss>(loss)(xb_c, pb, compb_c, compe_c, coorb_c,
+                                        coore_c);
       if (!update(alg, flocal, partial, coordinates,
                   std::forward<Terminator>(terminate),
                   std::forward<Logger>(logger),
@@ -217,18 +240,26 @@ private:
   bool update(Algorithm *alg, const value_t flocal,
               const std::vector<value_t> &glocal, Terminator &&terminate,
               Logger &&logger, std::false_type) {
+    const value_t *glb = glocal.data();
+    const value_t *gle = glb + glocal.size();
+
+    internal_value *gb = g.data();
+    const internal_value *gb_c = g.data();
+
+    internal_value *xb = x.data();
+    const internal_value *xb_c = x.data();
+    const internal_value *xe_c = xb_c + x.size();
+
     fval = flocal;
 
-    if (std::forward<Terminator>(terminate)(k, fval, std::begin(x), std::end(x),
-                                            std::begin(g)))
+    if (std::forward<Terminator>(terminate)(k, fval, xb_c, xe_c, gb_c))
       return false;
 
-    alg->boost(std::begin(glocal), std::end(glocal), std::begin(g));
-    alg->smooth(k, std::begin(x), std::end(x), std::begin(g), std::begin(g));
-    auto step = alg->step(k, fval, std::begin(x), std::end(x), std::begin(g));
-    alg->prox(step, std::begin(x), std::end(x), std::begin(g), std::begin(x));
-    std::forward<Logger>(logger)(k, fval, std::begin(x), std::end(x),
-                                 std::begin(g), std::end(g));
+    alg->boost(glb, gle, gb);
+    alg->smooth(k, xb_c, xe_c, gb_c, gb);
+    const auto step = alg->step(k, fval, xb_c, xe_c, gb_c);
+    alg->prox(step, xb_c, xe_c, gb_c, xb);
+    std::forward<Logger>(logger)(k, fval, xb_c, xe_c, gb_c);
     k++;
     return true;
   }
@@ -246,21 +277,27 @@ private:
               const std::vector<value_t> &partial,
               const std::vector<index_t> &coordinates, Terminator &&terminate,
               Logger &&logger, std::false_type) {
+    internal_value *gb = g.data();
+    const internal_value *gb_c = g.data();
+    const internal_value *ge_c = gb_c + g.size();
+
+    internal_value *xb = x.data();
+    const internal_value *xb_c = x.data();
+    const internal_value *xe_c = xb_c + x.size();
+
     fval = flocal;
 
-    if (std::forward<Terminator>(terminate)(k, fval, std::begin(x), std::end(x),
-                                            std::begin(g)))
+    if (std::forward<Terminator>(terminate)(k, fval, xb_c, xe_c, gb_c))
       return false;
 
     for (std::size_t idx = 0; idx < coordinates.size(); idx++)
       g[coordinates[idx]] = partial[idx];
 
-    alg->boost(std::begin(g), std::end(g), std::begin(g));
-    alg->smooth(k, std::begin(x), std::end(x), std::begin(g), std::begin(g));
-    auto step = alg->step(k, fval, std::begin(x), std::end(x), std::begin(g));
-    alg->prox(step, std::begin(x), std::end(x), std::begin(g), std::begin(x));
-    std::forward<Logger>(logger)(k, fval, std::begin(x), std::end(x),
-                                 std::begin(g), std::end(g));
+    alg->boost(gb_c, ge_c, gb);
+    alg->smooth(k, xb_c, xe_c, gb_c, gb);
+    const auto step = alg->step(k, fval, xb_c, xe_c, gb_c);
+    alg->prox(step, xb_c, xe_c, gb_c, xb);
+    std::forward<Logger>(logger)(k, fval, xb_c, xe_c, gb_c);
     k++;
     return true;
   }

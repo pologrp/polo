@@ -181,7 +181,7 @@ class logger {
 public:
   template <class InputIt1, class InputIt2>
   void operator()(const index_t k, const value_t fval, InputIt1 xbegin,
-                  InputIt1 xend, InputIt2 gbegin, InputIt2 gend) {
+                  InputIt1 xend, InputIt2 gbegin) {
     std::lock_guard<std::mutex> lock(sync);
     tend = std::chrono::high_resolution_clock::now();
     const auto telapsed =
@@ -190,6 +190,7 @@ public:
     iterations.push_back(k);
     times.push_back(telapsed.count());
     fvalues.push_back(fval);
+    InputIt2 gend = gbegin + std::distance(xbegin, xend);
     log(xvalues, xbegin, xend, std::integral_constant<bool, log_x_v>{});
     log(gvalues, gbegin, gend, std::integral_constant<bool, log_g_v>{});
     tstart = std::chrono::high_resolution_clock::now();
