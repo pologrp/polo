@@ -24,26 +24,26 @@ problem:
 It is easy to verify that the optimizer for the problem is :math:`x^{\star} =
 [0.1,-0.1,0.1]` with the corresponding optimum value :math:`f^{\star} = -0.03`.
 
-One possible way to define the above ``loss`` function in C++ is to write a
-function of the form:
+One possible way to define the above loss function in C++ is to write a function
+of the form:
 
 .. literalinclude:: /../examples/gradient.cpp
   :language: cpp
   :lines: 4-18
 
-In POLO, algorithm instances that use the gradient information require that
-``loss`` objects are callable with two pointers to the underlying floating-point
-type. The first parameter, ``x``, points to the first element of the current
-decision vector and the second parameter, ``g``, points to the first element
-of the corresponding gradient. The ``loss`` object is only allowed to modify the
-gradient value, and hence, the signature has ``const`` qualifier for ``x``.
-Finally, the loss objects are required to return the function value at the given
-``x``. In the above example, the user is working with ``double`` precision
-floating-point numbers.
+In POLO, algorithm instances that use the gradient information require that loss
+objects are callable with two pointers to the underlying floating-point type.
+The first parameter, ``x``, points to the first element of the current decision
+vector and the second parameter, ``g``, points to the first element of the
+corresponding gradient. The loss object is only allowed to modify the gradient
+value, and hence, the signature has ``const`` qualifier for ``x``. Finally, the
+loss objects are required to return the function value at the given ``x``. In
+the above example, the user is working with ``double`` precision floating-point
+numbers.
 
-Having defined our ``loss`` object, we can select an algorithm to solve the
-minimization problem defined by the smooth ``loss``. Below is a piece of code
-to achieve this, which is also provided as ``examples/gradient.cpp`` in the
+Having defined our loss object, we can select an algorithm to solve the
+minimization problem defined by the smooth loss function. Below is a piece of
+code to achieve this, which is also provided as ``examples/gradient.cpp`` in the
 repository.
 
 .. literalinclude:: /../examples/gradient.cpp
@@ -64,7 +64,7 @@ some decision vector, and ``solve`` the problem. By default, ``solve`` iterates
   POLO manages its own memory for the algorithms to run correctly. In the
   example above, ``initialize`` will tell the algorithm to preallocate a memory
   space of 3 double variables for both ``x`` and ``g`` that are supplied to the
-  ``loss`` object.
+  loss object.
 
 Finally, we use the standard C++ printing functionality to obtain the result:
 
