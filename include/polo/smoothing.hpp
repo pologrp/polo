@@ -3,6 +3,7 @@
 
 #include "polo/smoothing/adadelta.hpp"
 #include "polo/smoothing/adagrad.hpp"
+#include "polo/smoothing/custom.hpp"
 #include "polo/smoothing/none.hpp"
 #include "polo/smoothing/rmsprop.hpp"
 

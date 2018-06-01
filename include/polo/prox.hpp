@@ -3,6 +3,7 @@
 
 #include "polo/prox/affine.hpp"
 #include "polo/prox/box.hpp"
+#include "polo/prox/custom.hpp"
 #include "polo/prox/halfspace.hpp"
 #include "polo/prox/l1norm.hpp"
 #include "polo/prox/l2ball.hpp"
