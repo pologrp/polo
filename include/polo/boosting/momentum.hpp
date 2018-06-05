@@ -22,9 +22,10 @@ template <class value_t, class index_t, class momentum_t> struct momentum {
   momentum &operator=(momentum &&) = default;
 
   template <class InputIt, class OutputIt>
-  OutputIt boost(InputIt gold_begin, InputIt gold_end, OutputIt gnew_begin) {
+  OutputIt boost(const index_t, const index_t, const index_t, InputIt gprev_b,
+                 InputIt gprev_e, OutputIt gcurr) {
     std::lock_guard<std::mutex> lock(sync);
-    return boost(gold_begin, gold_end, gnew_begin, momentum_t{});
+    return boost(gprev_b, gprev_e, gcurr, momentum_t{});
   }
 
 protected:
@@ -41,32 +42,30 @@ protected:
 
 private:
   template <class InputIt, class OutputIt>
-  OutputIt boost(InputIt gold_begin, InputIt gold_end, OutputIt gnew_begin,
-                 classical) {
+  OutputIt boost(InputIt gprev_b, InputIt gprev_e, OutputIt gcurr, classical) {
     index_t idx{0};
     value_t g_val;
-    while (gold_begin != gold_end) {
-      g_val = *gold_begin++;
+    while (gprev_b != gprev_e) {
+      g_val = *gprev_b++;
       nu[idx] = mu * nu[idx] + epsilon * g_val;
-      *gnew_begin++ = nu[idx];
+      *gcurr++ = nu[idx];
       idx++;
     }
-    return gnew_begin;
+    return gcurr;
   }
 
   template <class InputIt, class OutputIt>
-  OutputIt boost(InputIt gold_begin, InputIt gold_end, OutputIt gnew_begin,
-                 nesterov) {
+  OutputIt boost(InputIt gprev_b, InputIt gprev_e, OutputIt gcurr, nesterov) {
     index_t idx{0};
     value_t nu_prev, g_val;
-    while (gold_begin != gold_end) {
-      g_val = *gold_begin++;
+    while (gprev_b != gprev_e) {
+      g_val = *gprev_b++;
       nu_prev = nu[idx];
       nu[idx] = mu * nu_prev + epsilon * g_val;
-      *gnew_begin++ = mu * mu * nu_prev + (1 + mu) * epsilon * g_val;
+      *gcurr++ = mu * mu * nu_prev + (1 + mu) * epsilon * g_val;
       idx++;
     }
-    return gnew_begin;
+    return gcurr;
   }
 
   value_t mu{0.9}, epsilon{1E-3};

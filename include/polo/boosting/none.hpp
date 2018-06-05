@@ -14,9 +14,9 @@ template <class value_t, class index_t> struct none {
   none &operator=(none &&) = default;
 
   template <class InputIt, class OutputIt>
-  OutputIt boost(InputIt gold_begin, InputIt gold_end,
-                 OutputIt gnew_begin) const {
-    return std::transform(gold_begin, gold_end, gnew_begin,
+  OutputIt boost(const index_t, const index_t, const index_t, InputIt gprev_b,
+                 InputIt gprev_e, OutputIt gcurr) const {
+    return std::transform(gprev_b, gprev_e, gcurr,
                           [](const value_t g) { return g; });
   }
 
