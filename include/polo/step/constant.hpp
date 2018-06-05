@@ -12,8 +12,8 @@ template <class value_t, class index_t> struct constant {
   constant &operator=(constant &&) = default;
 
   template <class InputIt1, class InputIt2>
-  value_t step(const index_t k, const value_t fval, InputIt1 xbegin,
-               InputIt1 xend, InputIt2 gbegin) const {
+  value_t step(const index_t, const index_t, const value_t, InputIt1, InputIt1,
+               InputIt2) const {
     return gamma;
   }
 

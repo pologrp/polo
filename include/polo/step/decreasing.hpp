@@ -14,9 +14,9 @@ template <class value_t, class index_t> struct decreasing {
   decreasing &operator=(decreasing &&) = default;
 
   template <class InputIt1, class InputIt2>
-  value_t step(const index_t k, const value_t fval, InputIt1 xbegin,
-               InputIt1 xend, InputIt2 gbegin) const {
-    return gamma / std::sqrt(k);
+  value_t step(const index_t klocal, const index_t kglobal, const value_t,
+               InputIt1, InputIt1, InputIt2) const {
+    return gamma / std::sqrt(kglobal);
   }
 
 protected:
