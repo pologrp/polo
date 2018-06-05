@@ -28,11 +28,11 @@ protected:
   template <class Algorithm, class Loss, class Terminator, class Logger>
   void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
              Logger &&logger) {
-    value_t *gb = g.data();
-    const value_t *gb_c = g.data();
-
     const value_t *xb_c = x.data();
     const value_t *xe_c = xb_c + x.size();
+
+    value_t *gb = g.data();
+    const value_t *gb_c = gb;
 
     while (!std::forward<Terminator>(terminate)(k, fval, xb_c, xe_c, gb_c)) {
       fval = std::forward<Loss>(loss)(xb_c, gb);
@@ -45,17 +45,17 @@ protected:
   void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
              Logger &&logger, utility::sampler::detail::component_sampler_t,
              Sampler &&sampler, const index_t num_components) {
-    value_t *gb = g.data();
-    const value_t *gb_c = g.data();
-
     const value_t *xb_c = x.data();
     const value_t *xe_c = xb_c + x.size();
+
+    value_t *gb = g.data();
+    const value_t *gb_c = gb;
 
     std::vector<index_t> components(num_components);
     index_t *cb = components.data();
     index_t *ce = cb + components.size();
-    const index_t *cb_c = components.data();
-    const index_t *ce_c = cb_c + components.size();
+    const index_t *cb_c = cb;
+    const index_t *ce_c = ce;
 
     while (!std::forward<Terminator>(terminate)(k, fval, xb_c, xe_c, gb_c)) {
       std::forward<Sampler>(sampler)(cb, ce);
@@ -70,16 +70,16 @@ protected:
   void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
              Logger &&logger, utility::sampler::detail::coordinate_sampler_t,
              Sampler &&sampler, const index_t num_coordinates) {
-    const value_t *gb_c = g.data();
-
     const value_t *xb_c = x.data();
     const value_t *xe_c = xb_c + x.size();
+
+    const value_t *gb_c = g.data();
 
     std::vector<index_t> coordinates(num_coordinates);
     index_t *cb = coordinates.data();
     index_t *ce = cb + coordinates.size();
-    const index_t *cb_c = coordinates.data();
-    const index_t *ce_c = cb_c + coordinates.size();
+    const index_t *cb_c = cb;
+    const index_t *ce_c = ce;
 
     std::vector<value_t> partial(num_coordinates);
     value_t *pb = partial.data();
@@ -88,6 +88,8 @@ protected:
       std::forward<Sampler>(sampler)(cb, ce);
       std::sort(cb, ce);
       fval = std::forward<Loss>(loss)(xb_c, pb, cb_c, ce_c);
+      for (auto &val : g)
+        val = 0;
       for (std::size_t idx = 0; idx < num_coordinates; idx++)
         g[coordinates[idx]] = partial[idx];
       iterate(alg, std::forward<Logger>(logger));
@@ -101,22 +103,22 @@ protected:
              Sampler1 &&sampler1, const index_t num_components,
              utility::sampler::detail::coordinate_sampler_t,
              Sampler2 &&sampler2, const index_t num_coordinates) {
-    const value_t *gb_c = g.data();
-
     const value_t *xb_c = x.data();
     const value_t *xe_c = xb_c + x.size();
+
+    const value_t *gb_c = g.data();
 
     std::vector<index_t> components(num_components);
     index_t *compb = components.data();
     index_t *compe = compb + components.size();
-    const index_t *compb_c = components.data();
-    const index_t *compe_c = compb_c + components.size();
+    const index_t *compb_c = compb;
+    const index_t *compe_c = compe;
 
     std::vector<index_t> coordinates(num_coordinates);
     index_t *coorb = coordinates.data();
     index_t *coore = coorb + coordinates.size();
-    const index_t *coorb_c = coordinates.data();
-    const index_t *coore_c = coorb_c + coordinates.size();
+    const index_t *coorb_c = coorb;
+    const index_t *coore_c = coore;
 
     std::vector<value_t> partial(num_coordinates);
     value_t *pb = partial.data();
@@ -128,6 +130,8 @@ protected:
       std::sort(coorb, coore);
       fval = std::forward<Loss>(loss)(xb_c, pb, compb_c, compe_c, coorb_c,
                                       coore_c);
+      for (auto &val : g)
+        val = 0;
       for (std::size_t idx = 0; idx < num_coordinates; idx++)
         g[coordinates[idx]] = partial[idx];
       iterate(alg, std::forward<Logger>(logger));
@@ -142,17 +146,17 @@ protected:
 private:
   template <class Algorithm, class Logger>
   void iterate(Algorithm *alg, Logger &&logger) {
-    value_t *gb = g.data();
-    const value_t *gb_c = g.data();
-    const value_t *ge_c = gb_c + g.size();
-
     value_t *xb = x.data();
-    const value_t *xb_c = x.data();
+    const value_t *xb_c = xb;
     const value_t *xe_c = xb_c + x.size();
 
-    alg->boost(gb_c, ge_c, gb);
-    alg->smooth(k, xb_c, xe_c, gb_c, gb);
-    const auto step = alg->step(k, fval, xb_c, xe_c, gb_c);
+    value_t *gb = g.data();
+    const value_t *gb_c = gb;
+    const value_t *ge_c = gb_c + g.size();
+
+    alg->boost(index_t(0), k, k, gb_c, ge_c, gb);
+    alg->smooth(k, k, xb_c, xe_c, gb_c, gb);
+    const value_t step = alg->step(k, k, fval, xb_c, xe_c, gb_c);
     alg->prox(step, xb_c, xe_c, gb_c, xb);
     std::forward<Logger>(logger)(k, fval, xb_c, xe_c, gb_c);
     k++;

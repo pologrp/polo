@@ -53,9 +53,9 @@ protected:
   template <class Algorithm, class Loss, class Terminator, class Logger>
   void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
              Logger &&logger) {
-    auto task = [&, alg]() {
-      kernel(alg, std::forward<Loss>(loss), std::forward<Terminator>(terminate),
-             std::forward<Logger>(logger));
+    auto task = [&, alg](const index_t wid) {
+      kernel(alg, wid, std::forward<Loss>(loss),
+             std::forward<Terminator>(terminate), std::forward<Logger>(logger));
     };
     run_in_parallel(task);
   }
@@ -64,9 +64,10 @@ protected:
             class Space, class Sampler>
   void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
              Logger &&logger, Space s, Sampler &&sampler, const index_t num) {
-    auto task = [&, alg, s, sampler, num]() {
-      kernel(alg, std::forward<Loss>(loss), std::forward<Terminator>(terminate),
-             std::forward<Logger>(logger), s, sampler, num);
+    auto task = [&, alg, s, sampler, num](const index_t wid) {
+      kernel(alg, wid, std::forward<Loss>(loss),
+             std::forward<Terminator>(terminate), std::forward<Logger>(logger),
+             s, sampler, num);
     };
     run_in_parallel(task);
   }
@@ -79,10 +80,10 @@ protected:
              utility::sampler::detail::coordinate_sampler_t s2,
              Sampler2 &&sampler2, const index_t num_coordinates) {
     auto task = [&, alg, s1, sampler1, num_components, s2, sampler2,
-                 num_coordinates]() {
-      kernel(alg, std::forward<Loss>(loss), std::forward<Terminator>(terminate),
-             std::forward<Logger>(logger), s1, sampler1, num_components, s2,
-             sampler2, num_coordinates);
+                 num_coordinates](const index_t wid) {
+      kernel(alg, wid, std::forward<Loss>(loss),
+             std::forward<Terminator>(terminate), std::forward<Logger>(logger),
+             s1, sampler1, num_components, s2, sampler2, num_coordinates);
     };
     run_in_parallel(task);
   }
@@ -97,15 +98,16 @@ protected:
 private:
   template <class Task> void run_in_parallel(Task &&task) {
     std::vector<std::thread> workers(nthreads);
+    index_t wid = 0;
     for (auto &worker : workers)
-      worker = std::thread(task);
+      worker = std::thread(std::forward<Task>(task), wid++);
     for (auto &worker : workers)
       worker.join();
   }
 
   template <class Algorithm, class Loss, class Terminator, class Logger>
-  void kernel(Algorithm *alg, Loss &&loss, Terminator &&terminate,
-              Logger &&logger) {
+  void kernel(Algorithm *alg, const index_t wid, Loss &&loss,
+              Terminator &&terminate, Logger &&logger) {
     value_t flocal;
     const std::size_t dim = x.size();
 
@@ -113,12 +115,14 @@ private:
     const value_t *xb_c = xlocal.data();
 
     std::vector<value_t> glocal(dim);
-    value_t *glb = glocal.data();
+    value_t *gb = glocal.data();
 
     for (;;) {
+      const index_t klocal = k;
       read(xlocal, std::integral_constant<bool, consistent>{});
-      flocal = std::forward<Loss>(loss)(xb_c, glb);
-      if (!update(alg, flocal, glocal, std::forward<Terminator>(terminate),
+      flocal = std::forward<Loss>(loss)(xb_c, gb);
+      if (!update(alg, wid, klocal, flocal, glocal,
+                  std::forward<Terminator>(terminate),
                   std::forward<Logger>(logger),
                   std::integral_constant<bool, consistent>{}))
         break;
@@ -127,28 +131,33 @@ private:
 
   template <class Algorithm, class Loss, class Terminator, class Logger,
             class Sampler>
-  void kernel(Algorithm *alg, Loss &&loss, Terminator &&terminate,
-              Logger &&logger, utility::sampler::detail::component_sampler_t,
-              Sampler sampler, const index_t num_components) {
+  void kernel(Algorithm *alg, const index_t wid, Loss &&loss,
+              Terminator &&terminate, Logger &&logger,
+              utility::sampler::detail::component_sampler_t, Sampler sampler,
+              const index_t num_components) {
     value_t flocal;
     const std::size_t dim = x.size();
 
-    std::vector<value_t> xlocal(dim), glocal(dim);
+    std::vector<value_t> xlocal(dim);
+    const value_t *xb_c = xlocal.data();
+
+    std::vector<value_t> glocal(dim);
+    value_t *gb = glocal.data();
+
     std::vector<index_t> components(num_components);
     index_t *cb = components.data();
     index_t *ce = cb + num_components;
-    const index_t *cb_c = components.data();
-    const index_t *ce_c = cb_c + num_components;
-
-    const value_t *xb_c = xlocal.data();
-    value_t *glb = glocal.data();
+    const index_t *cb_c = cb;
+    const index_t *ce_c = ce;
 
     for (;;) {
+      const index_t klocal = k;
       read(xlocal, std::integral_constant<bool, consistent>{});
       sampler(cb, ce);
       std::sort(cb, ce);
-      flocal = std::forward<Loss>(loss)(xb_c, glb, cb_c, ce_c);
-      if (!update(alg, flocal, glocal, std::forward<Terminator>(terminate),
+      flocal = std::forward<Loss>(loss)(xb_c, gb, cb_c, ce_c);
+      if (!update(alg, wid, klocal, flocal, glocal,
+                  std::forward<Terminator>(terminate),
                   std::forward<Logger>(logger),
                   std::integral_constant<bool, consistent>{}))
         break;
@@ -157,28 +166,32 @@ private:
 
   template <class Algorithm, class Loss, class Terminator, class Logger,
             class Sampler>
-  void kernel(Algorithm *alg, Loss &&loss, Terminator &&terminate,
-              Logger &&logger, utility::sampler::detail::coordinate_sampler_t,
-              Sampler sampler, const index_t num_coordinates) {
+  void kernel(Algorithm *alg, const index_t wid, Loss &&loss,
+              Terminator &&terminate, Logger &&logger,
+              utility::sampler::detail::coordinate_sampler_t, Sampler sampler,
+              const index_t num_coordinates) {
     value_t flocal;
     const std::size_t dim = x.size();
 
-    std::vector<value_t> xlocal(dim), partial(num_coordinates);
+    std::vector<value_t> xlocal(dim);
+    const value_t *xb_c = xlocal.data();
+
     std::vector<index_t> coordinates(num_coordinates);
     index_t *cb = coordinates.data();
     index_t *ce = cb + num_coordinates;
-    const index_t *cb_c = coordinates.data();
-    const index_t *ce_c = cb_c + num_coordinates;
+    const index_t *cb_c = cb;
+    const index_t *ce_c = ce;
 
-    const value_t *xb_c = xlocal.data();
+    std::vector<value_t> partial(num_coordinates);
     value_t *pb = partial.data();
 
     for (;;) {
+      const index_t klocal = k;
       read(xlocal, std::integral_constant<bool, consistent>{});
       sampler(cb, ce);
       std::sort(cb, ce);
       flocal = std::forward<Loss>(loss)(xb_c, pb, cb_c, ce_c);
-      if (!update(alg, flocal, partial, coordinates,
+      if (!update(alg, wid, klocal, flocal, partial, coordinates,
                   std::forward<Terminator>(terminate),
                   std::forward<Logger>(logger),
                   std::integral_constant<bool, consistent>{}))
@@ -188,31 +201,35 @@ private:
 
   template <class Algorithm, class Loss, class Terminator, class Logger,
             class Sampler1, class Sampler2>
-  void kernel(Algorithm *alg, Loss &&loss, Terminator &&terminate,
-              Logger &&logger, utility::sampler::detail::component_sampler_t,
-              Sampler1 sampler1, const index_t num_components,
+  void kernel(Algorithm *alg, const index_t wid, Loss &&loss,
+              Terminator &&terminate, Logger &&logger,
+              utility::sampler::detail::component_sampler_t, Sampler1 sampler1,
+              const index_t num_components,
               utility::sampler::detail::coordinate_sampler_t, Sampler2 sampler2,
               const index_t num_coordinates) {
     value_t flocal;
-    const std::size_t dim{x.size()};
+    const std::size_t dim = x.size();
 
-    std::vector<value_t> xlocal(dim), partial(num_coordinates);
+    std::vector<value_t> xlocal(dim);
+    const value_t *xb_c = xlocal.data();
+
     std::vector<index_t> components(num_components);
     index_t *compb = components.data();
     index_t *compe = compb + components.size();
-    const index_t *compb_c = components.data();
-    const index_t *compe_c = compb_c + components.size();
+    const index_t *compb_c = compb;
+    const index_t *compe_c = compe;
 
     std::vector<index_t> coordinates(num_coordinates);
     index_t *coorb = coordinates.data();
     index_t *coore = coorb + coordinates.size();
-    const index_t *coorb_c = coordinates.data();
-    const index_t *coore_c = coorb_c + coordinates.size();
+    const index_t *coorb_c = coorb;
+    const index_t *coore_c = coore;
 
-    const value_t *xb_c = xlocal.data();
+    std::vector<value_t> partial(num_coordinates);
     value_t *pb = partial.data();
 
     for (;;) {
+      const index_t klocal = k;
       read(xlocal, std::integral_constant<bool, consistent>{});
       sampler1(compb, compe);
       std::sort(compb, compe);
@@ -220,7 +237,7 @@ private:
       std::sort(coorb, coore);
       flocal = std::forward<Loss>(loss)(xb_c, pb, compb_c, compe_c, coorb_c,
                                         coore_c);
-      if (!update(alg, flocal, partial, coordinates,
+      if (!update(alg, wid, klocal, flocal, partial, coordinates,
                   std::forward<Terminator>(terminate),
                   std::forward<Logger>(logger),
                   std::integral_constant<bool, consistent>{}))
@@ -237,77 +254,80 @@ private:
   }
 
   template <class Algorithm, class Terminator, class Logger>
-  bool update(Algorithm *alg, const value_t flocal,
-              const std::vector<value_t> &glocal, Terminator &&terminate,
-              Logger &&logger, std::false_type) {
-    const value_t *glb = glocal.data();
-    const value_t *gle = glb + glocal.size();
+  bool update(Algorithm *alg, const index_t wid, const index_t klocal,
+              const value_t flocal, const std::vector<value_t> &glocal,
+              Terminator &&terminate, Logger &&logger, std::false_type) {
+    internal_value *xb = x.data();
+    const internal_value *xb_c = xb;
+    const internal_value *xe_c = xb_c + x.size();
 
     internal_value *gb = g.data();
-    const internal_value *gb_c = g.data();
+    const internal_value *gb_c = gb;
 
-    internal_value *xb = x.data();
-    const internal_value *xb_c = x.data();
-    const internal_value *xe_c = xb_c + x.size();
+    const value_t *glb = glocal.data();
+    const value_t *gle = glb + glocal.size();
 
     fval = flocal;
 
     if (std::forward<Terminator>(terminate)(k, fval, xb_c, xe_c, gb_c))
       return false;
 
-    alg->boost(glb, gle, gb);
-    alg->smooth(k, xb_c, xe_c, gb_c, gb);
-    const auto step = alg->step(k, fval, xb_c, xe_c, gb_c);
+    alg->boost(wid, klocal, k, glb, gle, gb);
+    alg->smooth(klocal, k, xb_c, xe_c, gb_c, gb);
+    const value_t step = alg->step(klocal, k, fval, xb_c, xe_c, gb_c);
     alg->prox(step, xb_c, xe_c, gb_c, xb);
     std::forward<Logger>(logger)(k, fval, xb_c, xe_c, gb_c);
     k++;
     return true;
   }
   template <class Algorithm, class Terminator, class Logger>
-  bool update(Algorithm *alg, const value_t flocal,
-              std::vector<value_t> &glocal, Terminator &&terminate,
-              Logger &&logger, std::true_type) {
+  bool update(Algorithm *alg, const index_t wid, const index_t klocal,
+              const value_t flocal, const std::vector<value_t> &glocal,
+              Terminator &&terminate, Logger &&logger, std::true_type) {
     std::lock_guard<std::mutex> lock(sync);
-    return update(alg, flocal, glocal, std::forward<Terminator>(terminate),
+    return update(alg, wid, klocal, flocal, glocal,
+                  std::forward<Terminator>(terminate),
                   std::forward<Logger>(logger), std::false_type{});
   }
 
   template <class Algorithm, class Terminator, class Logger>
-  bool update(Algorithm *alg, const value_t flocal,
-              const std::vector<value_t> &partial,
+  bool update(Algorithm *alg, const index_t wid, const index_t klocal,
+              const value_t flocal, const std::vector<value_t> &partial,
               const std::vector<index_t> &coordinates, Terminator &&terminate,
               Logger &&logger, std::false_type) {
-    internal_value *gb = g.data();
-    const internal_value *gb_c = g.data();
-    const internal_value *ge_c = gb_c + g.size();
-
     internal_value *xb = x.data();
-    const internal_value *xb_c = x.data();
+    const internal_value *xb_c = xb;
     const internal_value *xe_c = xb_c + x.size();
+
+    internal_value *gb = g.data();
+    const internal_value *gb_c = gb;
+    const internal_value *ge_c = gb_c + g.size();
 
     fval = flocal;
 
     if (std::forward<Terminator>(terminate)(k, fval, xb_c, xe_c, gb_c))
       return false;
 
+    for (auto &val : g)
+      val = 0;
     for (std::size_t idx = 0; idx < coordinates.size(); idx++)
       g[coordinates[idx]] = partial[idx];
 
-    alg->boost(gb_c, ge_c, gb);
-    alg->smooth(k, xb_c, xe_c, gb_c, gb);
-    const auto step = alg->step(k, fval, xb_c, xe_c, gb_c);
+    alg->boost(wid, klocal, k, gb_c, ge_c, gb);
+    alg->smooth(klocal, k, xb_c, xe_c, gb_c, gb);
+    const value_t step = alg->step(klocal, k, fval, xb_c, xe_c, gb_c);
     alg->prox(step, xb_c, xe_c, gb_c, xb);
     std::forward<Logger>(logger)(k, fval, xb_c, xe_c, gb_c);
     k++;
     return true;
   }
   template <class Algorithm, class Terminator, class Logger>
-  bool update(Algorithm *alg, const value_t flocal,
-              const std::vector<value_t> &partial,
+  bool update(Algorithm *alg, const index_t wid, const index_t klocal,
+              const value_t flocal, const std::vector<value_t> &partial,
               const std::vector<index_t> &coordinates, Terminator &&terminate,
               Logger &&logger, std::true_type) {
     std::lock_guard<std::mutex> lock(sync);
-    return update(alg, flocal, partial, coordinates,
+    return update(alg, wid, klocal, flocal, partial, coordinates,
                   std::forward<Terminator>(terminate),
                   std::forward<Logger>(logger), std::false_type{});
   }

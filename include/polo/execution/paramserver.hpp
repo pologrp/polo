@@ -177,6 +177,8 @@ protected:
   void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
              Logger &&logger) {
     value_t fval;
+    index_t wid, kworker;
+    std::string data;
     std::vector<index_t> indices;
     communicator::zmq::message msg;
 
@@ -202,7 +204,6 @@ protected:
           continue;
         }
 
-        index_t kworker;
         std::vector<value_t> values;
         const char tag = msg.read<char>(pid++);
 
@@ -214,18 +215,19 @@ protected:
             for (const auto ind : indices)
               values.push_back(x[ind - startind]);
           }
-          auto data = detail::serialize(values);
+          data = detail::serialize(values);
           msg[pid] = {std::begin(data), std::end(data)};
           msg.send(router);
         } else if (tag == 'g') {
-          value_t *gb = g.data();
-          const value_t *gb_c = g.data();
-          const value_t *ge_c = gb_c + g.size();
-
           value_t *xb = x.data();
-          const value_t *xb_c = x.data();
+          const value_t *xb_c = xb;
           const value_t *xe_c = xb_c + x.size();
 
+          value_t *gb = g.data();
+          const value_t *gb_c = gb;
+          const value_t *ge_c = gb_c + g.size();
+
+          detail::deserialize(msg, pid++, wid);
           detail::deserialize(msg, pid++, kworker);
           detail::deserialize(msg, pid++, fval);
           if (msg.size(pid) == 0)
@@ -239,11 +241,12 @@ protected:
             for (const auto ind : indices)
               g[ind - startind] = values[valind++];
           }
-          alg->boost(gb_c, ge_c, gb);
-          alg->smooth(k, xb_c, xe_c, gb_c, gb);
-          const auto step = alg->step(k, fval, xb_c, xe_c, gb_c);
-          alg->prox(step, xb_c, xe_c, gb_c, ge_c);
+          alg->boost(wid, kworker, k, gb_c, ge_c, gb);
+          alg->smooth(kworker, k, xb_c, xe_c, gb_c, gb);
+          const value_t step = alg->step(kworker, k, fval, xb_c, xe_c, gb_c);
+          alg->prox(step, xb_c, xe_c, gb_c, xb);
           std::forward<Logger>(logger)(k, fval, xb_c, xe_c, gb_c);
+          msg.pop_back();
           msg.pop_back();
           msg.pop_back();
           msg.pop_back();
@@ -324,6 +327,27 @@ protected:
     address = "tcp://" + saddress + ":" + std::to_string(sworker);
     request.connect(address.c_str());
 
+    communicator::ip myip = communicator::ip::getexternal();
+    address = "tcp://" + myip.get();
+
+    msg.addpart('r');
+    msg.send(request);
+
+    poll.additem(request, communicator::zmq::poll_event::pollin);
+
+    if (poll.poll(timeout) == 0)
+      throw std::runtime_error(address + ": No response from " + saddress +
+                               ":" + std::to_string(sworker) + " for " +
+                               std::to_string(timeout) + " ms.");
+
+    msg.receive(request);
+    if (msg.numparts() != 2 || msg.read<char>(0) != 'r')
+      throw std::runtime_error(address + ": Wrong message from " + saddress +
+                               ":" + std::to_string(sworker) + ".");
+
+    detail::deserialize(msg, 1, wid);
+
+    poll.clear();
     poll.additem(subscription, communicator::zmq::poll_event::pollin);
     poll.additem(request, communicator::zmq::poll_event::pollin);
 
@@ -351,8 +375,8 @@ protected:
     std::vector<index_t> components(num_components);
     index_t *cb = components.data();
     index_t *ce = cb + num_components;
-    const index_t *cb_c = components.data();
-    const index_t *ce_c = cb_c + num_components;
+    const index_t *cb_c = cb;
+    const index_t *ce_c = ce;
 
     auto f = [&, xb_c, gb, cb, ce, cb_c, ce_c]() {
       std::forward<Sampler>(sampler)(cb, ce);
@@ -373,8 +397,8 @@ protected:
     std::vector<index_t> coordinates(num_coordinates);
     index_t *cb = coordinates.data();
     index_t *ce = cb + num_coordinates;
-    const index_t *cb_c = coordinates.data();
-    const index_t *ce_c = cb_c + num_coordinates;
+    const index_t *cb_c = cb;
+    const index_t *ce_c = ce;
 
     std::vector<value_t> partial(num_coordinates);
     value_t *pb = partial.data();
@@ -402,14 +426,14 @@ protected:
     std::vector<index_t> components(num_components);
     index_t *compb = components.data();
     index_t *compe = compb + components.size();
-    const index_t *compb_c = components.data();
-    const index_t *compe_c = compb_c + components.size();
+    const index_t *compb_c = compb;
+    const index_t *compe_c = compe;
 
     std::vector<index_t> coordinates(num_coordinates);
     index_t *coorb = coordinates.data();
     index_t *coore = coorb + coordinates.size();
-    const index_t *coorb_c = coordinates.data();
-    const index_t *coore_c = coorb_c + coordinates.size();
+    const index_t *coorb_c = coorb;
+    const index_t *coore_c = coore;
 
     std::vector<value_t> partial(num_coordinates);
     value_t *pb = partial.data();
@@ -512,6 +536,7 @@ private:
     index_t indstart{0}, indend;
     std::vector<std::future<void>> futures;
 
+    auto wdata = detail::serialize(wid);
     auto kdata = detail::serialize(k);
     auto fdata = detail::serialize(fval);
 
@@ -529,11 +554,12 @@ private:
         futures.push_back(promise.get_future());
 
         std::thread(
-            [=](const std::string address, const std::string kdata,
-                const std::string fdata, const std::string gdata,
-                std::promise<void> promise) {
+            [=](const std::string address, const std::string wdata,
+                const std::string kdata, const std::string fdata,
+                const std::string gdata, std::promise<void> promise) {
               communicator::zmq::message msg;
               msg.addpart('g');
+              msg.addpart(std::begin(wdata), std::end(wdata));
               msg.addpart(std::begin(kdata), std::end(kdata));
               msg.addpart(std::begin(fdata), std::end(fdata));
               msg.addpart();
@@ -556,7 +582,7 @@ private:
                 promise.set_exception_at_thread_exit(std::make_exception_ptr(
                     std::runtime_error("Could not send data")));
             },
-            msg.read(pid + 1), kdata, fdata, std::move(gdata),
+            msg.read(pid + 1), wdata, kdata, fdata, std::move(gdata),
             std::move(promise))
             .detach();
 
@@ -583,11 +609,13 @@ private:
         futures.push_back(promise.get_future());
 
         std::thread(
-            [=](const std::string address, const std::string kdata,
-                const std::string fdata, const std::string grange,
-                const std::string gdata, std::promise<void> promise) {
+            [=](const std::string address, const std::string wdata,
+                const std::string kdata, const std::string fdata,
+                const std::string grange, const std::string gdata,
+                std::promise<void> promise) {
               communicator::zmq::message msg;
               msg.addpart('g');
+              msg.addpart(std::begin(wdata), std::end(wdata));
               msg.addpart(std::begin(kdata), std::end(kdata));
               msg.addpart(std::begin(fdata), std::end(fdata));
               msg.addpart(std::begin(grange), std::end(grange));
@@ -610,7 +638,7 @@ private:
                 promise.set_exception_at_thread_exit(std::make_exception_ptr(
                     std::runtime_error("Could not send data")));
             },
-            msg.read(pid + 1), kdata, fdata, std::move(grange),
+            msg.read(pid + 1), wdata, kdata, fdata, std::move(grange),
             std::move(gdata), std::move(promise))
             .detach();
       }
@@ -664,7 +692,7 @@ private:
   long timeout;
   std::string saddress;
   std::uint16_t spub, sworker;
-  index_t k;
+  index_t wid, k;
   value_t fval;
   std::vector<value_t> x, g;
   communicator::zmq::context ctx;
@@ -763,6 +791,8 @@ protected:
   template <class Algorithm, class Loss, class Terminator, class Logger>
   void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
              Logger &&logger) {
+    std::string data;
+    std::vector<index_t> indices;
     communicator::zmq::message msg;
 
     while (
@@ -783,28 +813,31 @@ protected:
 
         const char tag = msg.read<char>(pid++);
 
-        if (tag == 'u') {
+        if (tag == 'r') {
+          data = detail::serialize(wid++);
+          msg.addpart(std::begin(data), std::end(data));
+          msg.send(worker);
+        } else if (tag == 'u') {
           k++;
           msg.send(worker);
           msg.clear();
           msg.addpart('M');
-          auto data = detail::serialize(k);
+          data = detail::serialize(k);
           msg.addpart(std::begin(data), std::end(data));
           msg.send(publisher);
         } else if (tag == 'x' || tag == 'g') {
-          std::vector<index_t> indices;
           detail::deserialize(msg, pid, indices);
           msg.pop_back();
 
           if (tag == 'x') {
-            auto data = paramserver::detail::serialize(k);
+            data = paramserver::detail::serialize(k);
             msg.addpart(std::begin(data), std::end(data));
           }
 
           for (const auto &pair : datadist) {
             if (pair.first.first <= indices[1] &&
                 pair.first.second > indices[0]) {
-              auto data = paramserver::detail::serialize(pair.first.second);
+              data = paramserver::detail::serialize(pair.first.second);
               msg.addpart(std::begin(data), std::end(data));
               msg.addpart(std::begin(pair.second), std::end(pair.second));
             }
@@ -815,6 +848,7 @@ protected:
       }
 
       if (poll[0].isready()) {
+        // TODO: Implement handling of termination requests from masters
       }
     }
 
@@ -852,7 +886,7 @@ private:
   long timeout;
   std::int32_t nmasters;
   std::uint16_t ppub, pmaster, pworker;
-  index_t k{1};
+  index_t wid{0}, k{1};
   std::vector<std::pair<std::pair<index_t, index_t>, std::string>> datadist;
   communicator::zmq::context ctx;
   communicator::zmq::socket publisher{ctx, communicator::zmq::socket_type::pub},
