@@ -11,9 +11,9 @@ template <class value_t, class index_t> struct custom {
 
   custom() = default;
 
-  value_t *prox(const value_t step, const value_t *xb, const value_t *xe,
-                const value_t *gb, value_t *xcurr) {
-    return compute_(step, xb, xe, gb, xcurr, data_);
+  value_t *prox(const value_t step, const value_t *xbegin, const value_t *xend,
+                const value_t *gcurr, value_t *xcurr) {
+    return compute_(step, xbegin, xend, gcurr, xcurr, data_);
   }
 
 protected:

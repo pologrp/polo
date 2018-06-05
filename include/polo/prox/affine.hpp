@@ -22,10 +22,10 @@ struct affine : private none<value_t, index_t> {
   affine &operator=(affine &&) = default;
 
   template <class InputIt1, class InputIt2, class OutputIt>
-  OutputIt prox(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
-                InputIt2 gbegin, OutputIt xnew_begin) {
+  OutputIt prox(const value_t step, InputIt1 xprev_b, InputIt1 xprev_e,
+                InputIt2 gcurr, OutputIt xcurr) {
     std::lock_guard<std::mutex> lock(sync);
-    none<value_t, index_t>::prox(step, xold_begin, xold_end, gbegin,
+    none<value_t, index_t>::prox(step, xprev_b, xprev_e, gcurr,
                                  std::begin(temp2));
     std::copy(std::begin(b), std::end(b), std::begin(temp1));
     utility::matrix::blas<value_t>::gemv('N', m, d, 1, &A[0], m, &temp2[0], 1,
@@ -33,15 +33,14 @@ struct affine : private none<value_t, index_t> {
     utility::matrix::lapack<value_t>::pptrs('L', m, 1, &H[0], &temp1[0], m);
     utility::matrix::blas<value_t>::gemv('T', m, d, -1, &A[0], m, &temp1[0], 1,
                                          1, &temp2[0], 1);
-    return std::copy(std::begin(temp2), std::end(temp2), xnew_begin);
+    return std::copy(std::begin(temp2), std::end(temp2), xcurr);
   }
 
 protected:
   template <class InputIt1, class InputIt2>
-  void parameters(InputIt1 abegin, InputIt1 aend, InputIt2 bbegin,
-                  InputIt2 bend) {
-    A = std::vector<value_t>(abegin, aend);
-    b = std::vector<value_t>(bbegin, bend);
+  void parameters(InputIt1 A_b, InputIt1 A_e, InputIt2 b_b, InputIt2 b_e) {
+    A = std::vector<value_t>(A_b, A_e);
+    b = std::vector<value_t>(b_b, b_e);
     factorize();
   }
   template <class T1, class T2>

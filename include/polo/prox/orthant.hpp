@@ -19,9 +19,9 @@ template <class value_t, class index_t, class side_t> struct orthant {
   orthant &operator=(orthant &&) = default;
 
   template <class InputIt1, class InputIt2, class OutputIt>
-  OutputIt prox(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
-                InputIt2 gbegin, OutputIt xnew_begin) const {
-    return prox(step, xold_begin, xold_end, gbegin, xnew_begin, side_t{});
+  OutputIt prox(const value_t step, InputIt1 xprev_b, InputIt1 xprev_e,
+                InputIt2 gcurr, OutputIt xcurr) const {
+    return prox(step, xprev_b, xprev_e, gcurr, xcurr, side_t{});
   }
 
 protected:
@@ -31,18 +31,18 @@ protected:
 
 private:
   template <class InputIt1, class InputIt2, class OutputIt>
-  OutputIt prox(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
-                InputIt2 gbegin, OutputIt xnew_begin, positive) const {
-    while (xold_begin != xold_end)
-      *xnew_begin++ = std::max(*xold_begin++ - step * *gbegin++, value_t{0});
-    return xnew_begin;
+  OutputIt prox(const value_t step, InputIt1 xprev_b, InputIt1 xprev_e,
+                InputIt2 gcurr, OutputIt xcurr, positive) const {
+    while (xprev_b != xprev_e)
+      *xcurr++ = std::max(*xprev_b++ - step * *gcurr++, value_t{0});
+    return xcurr;
   }
   template <class InputIt1, class InputIt2, class OutputIt>
-  OutputIt prox(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
-                InputIt2 gbegin, OutputIt xnew_begin, negative) const {
-    while (xold_begin != xold_end)
-      *xnew_begin++ = std::min(*xold_begin++ - step * *gbegin++, value_t{0});
-    return xnew_begin;
+  OutputIt prox(const value_t step, InputIt1 xprev_b, InputIt1 xprev_e,
+                InputIt2 gcurr, OutputIt xcurr, negative) const {
+    while (xprev_b != xprev_e)
+      *xcurr++ = std::min(*xprev_b++ - step * *gcurr++, value_t{0});
+    return xcurr;
   }
 };
 } // namespace detail

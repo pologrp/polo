@@ -17,26 +17,25 @@ template <class value_t, class index_t> struct l2ball {
   l2ball &operator=(l2ball &&) = default;
 
   template <class InputIt1, class InputIt2, class OutputIt>
-  OutputIt prox(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
-                InputIt2 gbegin, OutputIt xnew_begin) const {
+  OutputIt prox(const value_t step, InputIt1 xprev_b, InputIt1 xprev_e,
+                InputIt2 gcurr, OutputIt xcurr) const {
     value_t temp, radius{0}, scaling;
     index_t idx{0};
-    OutputIt xtemp{xnew_begin};
+    OutputIt xtemp{xcurr};
 
-    while (xold_begin != xold_end) {
-      temp = *xold_begin++ - step * *gbegin++;
+    while (xprev_b != xprev_e) {
+      temp = *xprev_b++ - step * *gcurr++;
       *xtemp++ = temp;
       radius += (temp - c[idx]) * (temp - c[idx]);
       idx++;
     }
 
-    idx = 0;
     scaling = r / std::max(std::sqrt(radius), r);
 
     for (const auto cval : c)
-      *xnew_begin++ = cval + scaling * (*xnew_begin++ - cval);
+      *xcurr = cval + scaling * (*xcurr++ - cval);
 
-    return xnew_begin;
+    return xcurr;
   }
 
 protected:

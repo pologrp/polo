@@ -12,11 +12,11 @@ template <class value_t, class index_t> struct none {
   none &operator=(none &&) = default;
 
   template <class InputIt1, class InputIt2, class OutputIt>
-  OutputIt prox(const value_t step, InputIt1 xold_begin, InputIt1 xold_end,
-                InputIt2 gbegin, OutputIt xnew_begin) const {
-    while (xold_begin != xold_end)
-      *xnew_begin++ = *xold_begin++ - step * *gbegin++;
-    return xnew_begin;
+  OutputIt prox(const value_t step, InputIt1 xprev_b, InputIt1 xprev_e,
+                InputIt2 gcurr, OutputIt xcurr) const {
+    while (xprev_b != xprev_e)
+      *xcurr++ = *xprev_b++ - step * *gcurr++;
+    return xcurr;
   }
 
 protected:
