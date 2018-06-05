@@ -11,6 +11,11 @@ template <class value_t, class index_t> struct custom {
 
   custom() = default;
 
+  custom(const custom &) = default;
+  custom &operator=(const custom &) = default;
+  custom(custom &&) = default;
+  custom &operator=(custom &&) = default;
+
   value_t *prox(const value_t step, const value_t *xbegin, const value_t *xend,
                 const value_t *gcurr, value_t *xcurr) {
     return compute_(step, xbegin, xend, gcurr, xcurr, data_);

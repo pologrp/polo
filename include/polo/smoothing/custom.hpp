@@ -11,6 +11,11 @@ template <class value_t, class index_t> struct custom {
 
   custom() = default;
 
+  custom(const custom &) = default;
+  custom &operator=(const custom &) = default;
+  custom(custom &&) = default;
+  custom &operator=(custom &&) = default;
+
   value_t *smooth(const index_t klocal, const index_t kglobal,
                   const value_t *xbegin, const value_t *xend,
                   const value_t *gprev, value_t *gcurr) {
