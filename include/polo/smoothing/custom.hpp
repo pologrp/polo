@@ -5,14 +5,16 @@ namespace polo {
 namespace smoothing {
 template <class value_t, class index_t> struct custom {
   using init_t = void (*)(const value_t *, const value_t *, void *);
-  using func_t = value_t *(*)(const index_t, const value_t *, const value_t *,
-                              const value_t *, value_t *, void *);
+  using func_t = value_t *(*)(const index_t, const index_t, const value_t *,
+                              const value_t *, const value_t *, value_t *,
+                              void *);
 
   custom() = default;
 
-  value_t *smooth(const index_t k, const value_t *xb, const value_t *xe,
+  value_t *smooth(const index_t klocal, const index_t kglobal,
+                  const value_t *xbegin, const value_t *xend,
                   const value_t *gprev, value_t *gcurr) {
-    return compute_(k, xb, xe, gprev, gcurr, data_);
+    return compute_(klocal, kglobal, xbegin, xend, gprev, gcurr, data_);
   }
 
 protected:

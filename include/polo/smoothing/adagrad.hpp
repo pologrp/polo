@@ -19,19 +19,19 @@ template <class value_t, class index_t> struct adagrad {
   adagrad &operator=(adagrad &&) = default;
 
   template <class InputIt1, class InputIt2, class OutputIt>
-  OutputIt smooth(const index_t k, InputIt1 xbegin, InputIt1 xend,
-                  InputIt2 gold_begin, OutputIt gnew_begin) {
+  OutputIt smooth(const index_t, const index_t, InputIt1 xbegin, InputIt1 xend,
+                  InputIt2 gprev, OutputIt gcurr) {
     std::lock_guard<std::mutex> lock(sync);
     value_t g_val{0};
     index_t idx{0};
     while (xbegin != xend) {
       xbegin++;
-      g_val = *gold_begin++;
+      g_val = *gprev++;
       rms_g[idx] += g_val * g_val;
-      *gnew_begin++ = g_val / (std::sqrt(rms_g[idx]) + epsilon);
+      *gcurr++ = g_val / (std::sqrt(rms_g[idx]) + epsilon);
       idx++;
     }
-    return gnew_begin;
+    return gcurr;
   }
 
 protected:

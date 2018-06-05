@@ -20,23 +20,23 @@ template <class value_t, class index_t> struct adadelta {
   adadelta &operator=(adadelta &&) = default;
 
   template <class InputIt1, class InputIt2, class OutputIt>
-  OutputIt smooth(const index_t k, InputIt1 xbegin, InputIt1 xend,
-                  InputIt2 gold_begin, OutputIt gnew_begin) {
+  OutputIt smooth(const index_t, const index_t, InputIt1 xbegin, InputIt1 xend,
+                  InputIt2 gprev, OutputIt gcurr) {
     std::lock_guard<std::mutex> lock(sync);
     value_t x_val{0}, x_del{0}, g_val{0};
     index_t idx{0};
     while (xbegin != xend) {
       x_val = *xbegin++;
-      g_val = *gold_begin++;
+      g_val = *gprev++;
       x_del = x_val - x_prev[idx];
       rms_g[idx] = rho * rms_g[idx] + (1 - rho) * g_val * g_val;
       rms_x[idx] = rho * rms_x[idx] + (1 - rho) * x_del * x_del;
-      *gnew_begin++ = g_val * (std::sqrt(rms_x[idx]) + epsilon) /
-                      (std::sqrt(rms_g[idx]) + epsilon);
+      *gcurr++ = g_val * (std::sqrt(rms_x[idx]) + epsilon) /
+                 (std::sqrt(rms_g[idx]) + epsilon);
       x_prev[idx] = x_val;
       idx++;
     }
-    return gnew_begin;
+    return gcurr;
   }
 
 protected:
