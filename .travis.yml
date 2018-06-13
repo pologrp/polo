@@ -12,7 +12,8 @@ matrix:
         WORKDIR /tmp/polo/build
         RUN cmake -D CMAKE_BUILD_TYPE=Release \
                   -D BUILD_SHARED_LIBS=ON ../
-        RUN cmake --build ." > Dockerfile
+        RUN cmake --build .
+        RUN ctest -R 'polo.' -j\$(nproc) --output-on-failure" > Dockerfile
         docker build .
 
     - <<: *main
