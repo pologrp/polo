@@ -1,7 +1,6 @@
 #ifndef POLO_SMOOTHING_ADADELTA_HPP_
 #define POLO_SMOOTHING_ADADELTA_HPP_
 
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <iterator>

@@ -1,9 +1,7 @@
 #ifndef POLO_SMOOTHING_RMSPROP_HPP_
 #define POLO_SMOOTHING_RMSPROP_HPP_
 
-#include <algorithm>
 #include <cmath>
-#include <cstddef>
 #include <iterator>
 #include <mutex>
 #include <vector>
