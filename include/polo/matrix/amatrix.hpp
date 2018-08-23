@@ -1,6 +1,8 @@
 #ifndef POLO_MATRIX_AMATRIX_HPP_
 #define POLO_MATRIX_AMATRIX_HPP_
 
+#include <string>
+
 namespace polo {
 namespace matrix {
 template <class value_t, class index_t> struct amatrix {
@@ -33,7 +35,14 @@ template <class value_t, class index_t> struct amatrix {
     mult_add(trans, alpha, x, 0, y, rbegin, rend);
   }
 
+  virtual void save(const std::string &filename) const = 0;
+  virtual void load(const std::string &filename) = 0;
+
   virtual ~amatrix() = default;
+
+protected:
+  void nrows(const index_t nrows) noexcept { nrows_ = nrows; }
+  void ncols(const index_t ncols) noexcept { ncols_ = ncols; }
 
 private:
   index_t nrows_{0}, ncols_{0};

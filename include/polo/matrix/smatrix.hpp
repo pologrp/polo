@@ -57,6 +57,39 @@ struct smatrix : public amatrix<value_t, index_t> {
     kernel(trans, alpha, x, beta, y, rbegin, rend);
   }
 
+  void save(const std::string &filename) const override {
+    const index_t nrows_ = amatrix<value_t, index_t>::nrows(),
+                  ncols_ = amatrix<value_t, index_t>::ncols();
+    const std::size_t nnz_ = values_.size();
+    std::ofstream file(filename, std::ios_base::binary);
+    file.write(reinterpret_cast<const char *>(&nrows_), sizeof(index_t));
+    file.write(reinterpret_cast<const char *>(&ncols_), sizeof(index_t));
+    file.write(reinterpret_cast<const char *>(&nnz_), sizeof(std::size_t));
+    file.write(reinterpret_cast<const char *>(&row_ptr_[0]),
+               row_ptr_.size() * sizeof(index_t));
+    file.write(reinterpret_cast<const char *>(&cols_[0]),
+               nnz_ * sizeof(index_t));
+    file.write(reinterpret_cast<const char *>(&values_[0]),
+               nnz_ * sizeof(value_t));
+  }
+  void load(const std::string &filename) override {
+    index_t nrows_, ncols_;
+    std::size_t nnz_;
+    std::ifstream file(filename, std::ios_base::binary);
+    file.read(reinterpret_cast<char *>(&nrows_), sizeof(index_t));
+    file.read(reinterpret_cast<char *>(&ncols_), sizeof(index_t));
+    file.read(reinterpret_cast<char *>(&nnz_), sizeof(std::size_t));
+    amatrix<value_t, index_t>::nrows(nrows_);
+    amatrix<value_t, index_t>::ncols(ncols_);
+    row_ptr_ = std::vector<index_t>(std::size_t(nrows_) + 1);
+    cols_ = std::vector<index_t>(nnz_);
+    values_ = std::vector<value_t>(nnz_);
+    file.read(reinterpret_cast<char *>(&row_ptr_[0]),
+              row_ptr_.size() * sizeof(index_t));
+    file.read(reinterpret_cast<char *>(&cols_[0]), nnz_ * sizeof(index_t));
+    file.read(reinterpret_cast<char *>(&values_[0]), nnz_ * sizeof(value_t));
+  }
+
   dmatrix<value_t, index_t> dense() const {
     const index_t nrows = amatrix<value_t, index_t>::nrows();
     const index_t ncols = amatrix<value_t, index_t>::ncols();
