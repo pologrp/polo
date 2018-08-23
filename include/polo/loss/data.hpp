@@ -4,10 +4,13 @@
 #include <algorithm>
 #include <exception>
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
 #include "polo/matrix/amatrix.hpp"
+#include "polo/matrix/dmatrix.hpp"
+#include "polo/matrix/smatrix.hpp"
 
 namespace polo {
 namespace loss {
@@ -44,6 +47,31 @@ template <class value_t, class index_t> struct data {
   }
   std::shared_ptr<const std::vector<value_t>> labels() const noexcept {
     return b;
+  }
+
+  void save(const std::string &filename) const {
+    std::ofstream file(filename, std::ios_base::binary);
+    A->save(file);
+    file.write(reinterpret_cast<const char *>(b->data()),
+               b->size() * sizeof(value_t));
+  }
+  void load(const std::string &filename, bool dense) {
+    std::ifstream file(filename, std::ios_base::binary);
+    A.reset();
+    b.reset();
+    if (dense) {
+      matrix::dmatrix<value_t, index_t> matrix_;
+      matrix_.load(file);
+      A.reset(new matrix::dmatrix<value_t, index_t>(std::move(matrix_)));
+    } else {
+      matrix::smatrix<value_t, index_t> matrix_;
+      matrix_.load(file);
+      A.reset(new matrix::smatrix<value_t, index_t>(std::move(matrix_)));
+    }
+    std::vector<value_t> labels(A->nrows());
+    file.read(reinterpret_cast<char *>(&labels[0]),
+              A->nrows() * sizeof(value_t));
+    b.reset(new std::vector<value_t>(std::move(labels)));
   }
 
 private:

@@ -1,6 +1,7 @@
 #ifndef POLO_MATRIX_AMATRIX_HPP_
 #define POLO_MATRIX_AMATRIX_HPP_
 
+#include <fstream>
 #include <string>
 
 namespace polo {
@@ -35,8 +36,16 @@ template <class value_t, class index_t> struct amatrix {
     mult_add(trans, alpha, x, 0, y, rbegin, rend);
   }
 
-  virtual void save(const std::string &filename) const = 0;
-  virtual void load(const std::string &filename) = 0;
+  void save(const std::string &filename) const {
+    std::ofstream file(filename, std::ios_base::binary);
+    save(file);
+  };
+  virtual void save(std::ostream &os) const = 0;
+  void load(const std::string &filename) {
+    std::ifstream file(filename, std::ios_base::binary);
+    load(file);
+  };
+  virtual void load(std::istream &is) = 0;
 
   virtual ~amatrix() = default;
 

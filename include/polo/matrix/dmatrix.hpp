@@ -2,7 +2,6 @@
 #define POLO_MATRIX_DMATRIX_HPP_
 
 #include <exception>
-#include <fstream>
 #include <limits>
 #include <utility>
 #include <vector>
@@ -47,25 +46,23 @@ struct dmatrix : public amatrix<value_t, index_t> {
     }
   }
 
-  void save(const std::string &filename) const override {
+  void save(std::ostream &os) const override {
     const index_t nrows_ = amatrix<value_t, index_t>::nrows(),
                   ncols_ = amatrix<value_t, index_t>::ncols();
-    std::ofstream file(filename, std::ios_base::binary);
-    file.write(reinterpret_cast<const char *>(&nrows_), sizeof(index_t));
-    file.write(reinterpret_cast<const char *>(&ncols_), sizeof(index_t));
-    file.write(reinterpret_cast<const char *>(&values_[0]),
-               std::size_t(nrows_) * ncols_ * sizeof(value_t));
+    os.write(reinterpret_cast<const char *>(&nrows_), sizeof(index_t));
+    os.write(reinterpret_cast<const char *>(&ncols_), sizeof(index_t));
+    os.write(reinterpret_cast<const char *>(&values_[0]),
+             std::size_t(nrows_) * ncols_ * sizeof(value_t));
   }
-  void load(const std::string &filename) override {
+  void load(std::istream &is) override {
     index_t nrows_, ncols_;
-    std::ifstream file(filename, std::ios_base::binary);
-    file.read(reinterpret_cast<char *>(&nrows_), sizeof(index_t));
-    file.read(reinterpret_cast<char *>(&ncols_), sizeof(index_t));
+    is.read(reinterpret_cast<char *>(&nrows_), sizeof(index_t));
+    is.read(reinterpret_cast<char *>(&ncols_), sizeof(index_t));
     amatrix<value_t, index_t>::nrows(nrows_);
     amatrix<value_t, index_t>::ncols(ncols_);
     values_ = std::vector<value_t>(std::size_t(nrows_) * ncols_);
-    file.read(reinterpret_cast<char *>(&values_[0]),
-              std::size_t(nrows_) * ncols_ * sizeof(value_t));
+    is.read(reinterpret_cast<char *>(&values_[0]),
+            std::size_t(nrows_) * ncols_ * sizeof(value_t));
   }
 
   smatrix<value_t, index_t>
