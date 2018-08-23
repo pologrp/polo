@@ -42,6 +42,10 @@ struct smatrix : public amatrix<value_t, index_t> {
     const index_t ncols = amatrix<value_t, index_t>::ncols();
     return ncols * nrows == 0 ? 0 : value_t(values_.size()) / nrows / ncols;
   }
+  std::size_t size() const noexcept override {
+    return (row_ptr_.size() + cols_.size()) * sizeof(index_t) +
+           values_.size() * sizeof(value_t);
+  }
 
   void mult_add(const char trans, const value_t alpha, const value_t *x,
                 const value_t beta, value_t *y) const noexcept override {

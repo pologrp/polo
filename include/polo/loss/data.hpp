@@ -23,6 +23,9 @@ template <class value_t, class index_t> struct data {
   index_t nsamples() const noexcept { return A->nrows(); }
   index_t nfeatures() const noexcept { return A->ncols(); }
   value_t density() const noexcept { return A->density(); }
+  std::size_t size() const noexcept {
+    return A->size() + sizeof(value_t) * b->size();
+  }
 
   void residual(const value_t *x, value_t *r) const noexcept {
     std::copy(std::begin(*b), std::end(*b), r);

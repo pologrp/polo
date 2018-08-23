@@ -14,6 +14,9 @@ template <class value_t, class index_t> struct amatrix {
   virtual value_t density() const noexcept {
     return nrows_ * ncols_ == 0 ? 0 : 1;
   }
+  virtual std::size_t size() const noexcept {
+    return nrows_ * ncols_ * sizeof(value_t);
+  }
 
   virtual void mult_add(const char trans, const value_t alpha, const value_t *x,
                         const value_t beta, value_t *y) const noexcept = 0;
