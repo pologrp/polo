@@ -21,12 +21,11 @@ struct dmatrix : public amatrix<value_t, index_t> {
   dmatrix(const index_t nrows, const index_t ncols)
       : amatrix<value_t, index_t>(nrows, ncols), values_(nrows * ncols) {}
 
-  dmatrix(const index_t nrows, const index_t ncols,
-          const std::vector<value_t> &values)
+  dmatrix(const index_t nrows, const index_t ncols, std::vector<value_t> values)
       : amatrix<value_t, index_t>(nrows, ncols) {
     if (values.size() != std::size_t(nrows) * ncols)
       throw std::domain_error("dmatrix: dimension mismatch in construction");
-    values_ = values;
+    values_ = std::move(values);
   }
 
   void mult_add(const char trans, const value_t alpha, const value_t *x,

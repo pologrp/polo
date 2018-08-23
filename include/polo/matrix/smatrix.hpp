@@ -21,8 +21,8 @@ struct smatrix : public amatrix<value_t, index_t> {
       : amatrix<value_t, index_t>(nrows, ncols), row_ptr_(nrows + 1) {}
 
   smatrix(const index_t nrows, const index_t ncols,
-          const std::vector<index_t> &row_ptr, const std::vector<index_t> &cols,
-          const std::vector<value_t> &values)
+          std::vector<index_t> row_ptr, std::vector<index_t> cols,
+          std::vector<value_t> values)
       : amatrix<value_t, index_t>(nrows, ncols) {
     if ((std::size_t(nrows) != row_ptr.size() - 1) |
         (cols.size() != values.size()))
@@ -32,9 +32,9 @@ struct smatrix : public amatrix<value_t, index_t> {
       throw std::domain_error("smatrix: dimension mismatch in construction");
     if (values.size() > 0 && std::size_t(row_ptr.back()) != values.size())
       throw std::domain_error("smatrix: dimension mismatch in construction");
-    row_ptr_ = row_ptr;
-    cols_ = cols;
-    values_ = values;
+    row_ptr_ = std::move(row_ptr);
+    cols_ = std::move(cols);
+    values_ = std::move(values);
   }
 
   value_t density() const noexcept override {
