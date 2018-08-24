@@ -1,10 +1,11 @@
 #ifndef POLO_MATRIX_DMATRIX_HPP_
 #define POLO_MATRIX_DMATRIX_HPP_
 
+#include <algorithm>
 #include <exception>
 #include <limits>
+#include <stdexcept>
 #include <utility>
-#include <vector>
 
 #include "polo/matrix/amatrix.hpp"
 #include "polo/utility/blas.hpp"
@@ -28,6 +29,35 @@ struct dmatrix : public amatrix<value_t, index_t> {
     values_ = std::move(values);
   }
 
+  value_t operator()(const index_t row, const index_t col) const override {
+    const index_t nrows_ = amatrix<value_t, index_t>::nrows();
+    const index_t ncols_ = amatrix<value_t, index_t>::ncols();
+    if (row >= nrows_ || col >= ncols_)
+      throw std::range_error("row or column out of range.");
+    return values_[col * nrows_ + row];
+  }
+  std::vector<value_t> getrow(const index_t row) const override {
+    const index_t nrows_ = amatrix<value_t, index_t>::nrows();
+    const index_t ncols_ = amatrix<value_t, index_t>::ncols();
+    if (row >= nrows_)
+      throw std::range_error("row or column out of range.");
+    std::vector<value_t> rowvec(ncols_);
+    for (index_t col = 0; col < ncols_; col++)
+      rowvec[col] = values_[col * nrows_ + row];
+    return rowvec;
+  }
+  std::vector<index_t> colindices(const index_t row) const override {
+    const index_t nrows_ = amatrix<value_t, index_t>::nrows();
+    const index_t ncols_ = amatrix<value_t, index_t>::ncols();
+    if (row >= nrows_)
+      throw std::range_error("row or column out of range.");
+    std::vector<index_t> indices(ncols_);
+    index_t idx{0};
+    std::transform(std::begin(indices), std::end(indices), std::begin(indices),
+                   [&](const index_t) { return idx++; });
+    return indices;
+  }
+
   void mult_add(const char trans, const value_t alpha, const value_t *x,
                 const value_t beta, value_t *y) const noexcept override {
     utility::matrix::blas<value_t>::gemv(
@@ -47,8 +77,8 @@ struct dmatrix : public amatrix<value_t, index_t> {
   }
 
   void save(std::ostream &os) const override {
-    const index_t nrows_ = amatrix<value_t, index_t>::nrows(),
-                  ncols_ = amatrix<value_t, index_t>::ncols();
+    const index_t nrows_ = amatrix<value_t, index_t>::nrows();
+    const index_t ncols_ = amatrix<value_t, index_t>::ncols();
     os.write(reinterpret_cast<const char *>(&nrows_), sizeof(index_t));
     os.write(reinterpret_cast<const char *>(&ncols_), sizeof(index_t));
     os.write(reinterpret_cast<const char *>(&values_[0]),

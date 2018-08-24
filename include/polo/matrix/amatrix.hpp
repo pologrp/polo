@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <string>
+#include <vector>
 
 namespace polo {
 namespace matrix {
@@ -20,6 +21,10 @@ template <class value_t, class index_t> struct amatrix {
   virtual std::size_t size() const noexcept {
     return nrows_ * ncols_ * sizeof(value_t);
   }
+
+  virtual value_t operator()(const index_t row, const index_t col) const = 0;
+  virtual std::vector<value_t> getrow(const index_t row) const = 0;
+  virtual std::vector<index_t> colindices(const index_t row) const = 0;
 
   virtual void mult_add(const char trans, const value_t alpha, const value_t *x,
                         const value_t beta, value_t *y) const noexcept = 0;

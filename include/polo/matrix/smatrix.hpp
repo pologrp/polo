@@ -3,8 +3,8 @@
 
 #include <algorithm>
 #include <exception>
+#include <stdexcept>
 #include <utility>
-#include <vector>
 
 #include "polo/matrix/amatrix.hpp"
 
@@ -47,6 +47,41 @@ struct smatrix : public amatrix<value_t, index_t> {
            values_.size() * sizeof(value_t);
   }
 
+  value_t operator()(const index_t row, const index_t col) const override {
+    const index_t nrows_ = amatrix<value_t, index_t>::nrows();
+    const index_t ncols_ = amatrix<value_t, index_t>::ncols();
+    if (row >= nrows_ && col >= ncols_)
+      throw std::range_error("row or column out of range.");
+    for (index_t colidx = row_ptr_[row]; colidx < row_ptr_[row + 1]; colidx++)
+      if (cols_[colidx] == col)
+        return values_[colidx];
+    return value_t{0};
+  }
+  std::vector<value_t> getrow(const index_t row) const override {
+    const index_t nrows_ = amatrix<value_t, index_t>::nrows();
+    if (row >= nrows_)
+      throw std::range_error("row or column out of range.");
+    const index_t colstart = row_ptr_[row];
+    const index_t colend = row_ptr_[row + 1];
+    std::vector<value_t> rowvec(colend - colstart);
+    index_t idx{0};
+    for (index_t col = colstart; col < colend; col++)
+      rowvec[idx++] = values_[col];
+    return rowvec;
+  }
+  std::vector<index_t> colindices(const index_t row) const override {
+    const index_t nrows_ = amatrix<value_t, index_t>::nrows();
+    if (row >= nrows_)
+      throw std::range_error("row or column out of range.");
+    const index_t colstart = row_ptr_[row];
+    const index_t colend = row_ptr_[row + 1];
+    std::vector<index_t> indices(colend - colstart);
+    index_t idx{0};
+    for (index_t col = colstart; col < colend; col++)
+      indices[idx++] = cols_[col];
+    return indices;
+  }
+
   void mult_add(const char trans, const value_t alpha, const value_t *x,
                 const value_t beta, value_t *y) const noexcept override {
     kernel(trans, alpha, x, beta, y, nullptr, nullptr);
@@ -58,8 +93,8 @@ struct smatrix : public amatrix<value_t, index_t> {
   }
 
   void save(std::ostream &os) const override {
-    const index_t nrows_ = amatrix<value_t, index_t>::nrows(),
-                  ncols_ = amatrix<value_t, index_t>::ncols();
+    const index_t nrows_ = amatrix<value_t, index_t>::nrows();
+    const index_t ncols_ = amatrix<value_t, index_t>::ncols();
     const std::size_t nnz_ = values_.size();
     os.write(reinterpret_cast<const char *>(&nrows_), sizeof(index_t));
     os.write(reinterpret_cast<const char *>(&ncols_), sizeof(index_t));
