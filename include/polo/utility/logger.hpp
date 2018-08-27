@@ -193,7 +193,6 @@ public:
     InputIt2 gend = gbegin + std::distance(xbegin, xend);
     log(xvalues, xbegin, xend, std::integral_constant<bool, log_x_v>{});
     log(gvalues, gbegin, gend, std::integral_constant<bool, log_g_v>{});
-    tstart = std::chrono::high_resolution_clock::now();
   }
 
   iterator_t begin() const { return iterator_t(this, 0); }
