@@ -2,7 +2,6 @@
 #define POLO_MATRIX_DMATRIX_HPP_
 
 #include <algorithm>
-#include <exception>
 #include <limits>
 #include <stdexcept>
 #include <utility>
@@ -40,7 +39,7 @@ struct dmatrix : public amatrix<value_t, index_t> {
     const index_t nrows_ = amatrix<value_t, index_t>::nrows();
     const index_t ncols_ = amatrix<value_t, index_t>::ncols();
     if (row >= nrows_)
-      throw std::range_error("row or column out of range.");
+      throw std::range_error("row out of range.");
     std::vector<value_t> rowvec(ncols_);
     for (index_t col = 0; col < ncols_; col++)
       rowvec[col] = values_[col * nrows_ + row];
@@ -50,7 +49,7 @@ struct dmatrix : public amatrix<value_t, index_t> {
     const index_t nrows_ = amatrix<value_t, index_t>::nrows();
     const index_t ncols_ = amatrix<value_t, index_t>::ncols();
     if (row >= nrows_)
-      throw std::range_error("row or column out of range.");
+      throw std::range_error("row out of range.");
     std::vector<index_t> indices(ncols_);
     index_t idx{0};
     std::transform(std::begin(indices), std::end(indices), std::begin(indices),

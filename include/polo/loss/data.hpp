@@ -2,8 +2,8 @@
 #define POLO_LOSS_DATA_HPP_
 
 #include <algorithm>
-#include <exception>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -57,6 +57,9 @@ template <class value_t, class index_t> struct data {
   }
   void load(const std::string &filename, bool dense) {
     std::ifstream file(filename, std::ios_base::binary);
+    if (!file)
+      throw std::runtime_error(filename + " could not be opened.");
+
     A.reset();
     b.reset();
     if (dense) {

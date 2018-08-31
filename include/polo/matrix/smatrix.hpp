@@ -2,7 +2,6 @@
 #define POLO_MATRIX_SMATRIX_HPP_
 
 #include <algorithm>
-#include <exception>
 #include <stdexcept>
 #include <utility>
 
@@ -60,7 +59,7 @@ struct smatrix : public amatrix<value_t, index_t> {
   std::vector<value_t> getrow(const index_t row) const override {
     const index_t nrows_ = amatrix<value_t, index_t>::nrows();
     if (row >= nrows_)
-      throw std::range_error("row or column out of range.");
+      throw std::range_error("row out of range.");
     const index_t colstart = row_ptr_[row];
     const index_t colend = row_ptr_[row + 1];
     std::vector<value_t> rowvec(colend - colstart);
@@ -72,7 +71,7 @@ struct smatrix : public amatrix<value_t, index_t> {
   std::vector<index_t> colindices(const index_t row) const override {
     const index_t nrows_ = amatrix<value_t, index_t>::nrows();
     if (row >= nrows_)
-      throw std::range_error("row or column out of range.");
+      throw std::range_error("row out of range.");
     const index_t colstart = row_ptr_[row];
     const index_t colend = row_ptr_[row + 1];
     std::vector<index_t> indices(colend - colstart);
