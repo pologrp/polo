@@ -45,7 +45,7 @@ protected:
   }
 
   template <class InputIt> void initialize(InputIt xbegin, InputIt xend) {
-    const std::size_t dim{std::distance(xbegin, xend)};
+    const std::size_t dim = std::distance(xbegin, xend);
     x_prev = std::vector<value_t>(xbegin, xend);
     rms_g = std::vector<value_t>(dim);
     rms_x = std::vector<value_t>(dim);
