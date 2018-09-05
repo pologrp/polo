@@ -1,46 +1,24 @@
 #ifndef POLO_PROBLEM_QP_HPP_
 #define POLO_PROBLEM_QP_HPP_
 
-#include <iterator>
-#include <utility>
+#include <random>
+#include <type_traits>
 #include <vector>
+
+#include "polo/utility/lapack.hpp"
 
 namespace polo {
 namespace problem {
 template <class value_t> struct qp {
-  qp(std::vector<value_t> Q, std::vector<value_t> q)
-      : Q{std::move(Q)}, q{std::move(q)} {}
+  qp(const std::size_t p, const std::size_t n, std::true_type) {}
 
-  template <class InputIt, class OutputIt>
-  value_t operator()(InputIt xbegin, InputIt xend, OutputIt gbegin) {
-    value_t loss{0}, xval;
-    std::size_t idx{0};
-    while (xbegin != xend) {
-      xval = *xbegin++;
-      loss += 0.5 * Q[idx] * xval * xval + q[idx] * xval;
-      *gbegin++ = Q[idx] * xval + q[idx];
-      idx++;
-    }
-    return loss;
-  }
-
-  template <class OutputIt> value_t optimum(OutputIt xbegin) {
-    std::size_t idx{0};
-    value_t fopt{0}, xopt;
-    for (const auto qval : q) {
-      xopt = -qval / Q[idx];
-      fopt += 0.5 * Q[idx] * xopt * xopt + qval * xopt;
-      *xbegin++ = xopt;
-      idx++;
-    }
-    return fopt;
-  }
-  value_t optimum(std::vector<value_t> &xopt) {
-    return optimum(std::begin(xopt));
-  }
+  qp(const std::size_t p, const std::size_t n, std::false_type) {}
 
 private:
-  std::vector<value_t> Q, q;
+  std::vector<value_t> Q, q, A, b;
+  value_t r;
+  std::random_device rd;
+  std::mt19937{rd()};
 };
 } // namespace problem
 } // namespace polo
