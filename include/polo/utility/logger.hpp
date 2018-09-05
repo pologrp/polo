@@ -4,6 +4,7 @@
 #include <chrono>
 #include <cstddef>
 #include <iterator>
+#include <memory>
 #include <mutex>
 #include <ostream>
 #include <type_traits>
@@ -22,7 +23,7 @@ class logger {
   template <class Container, class InputIt>
   void log(Container &, InputIt, InputIt, std::false_type) {}
 
-  std::mutex sync;
+  std::unique_ptr<std::mutex> sync{new std::mutex{}};
   std::vector<index_t> iterations;
   std::vector<value_t> times;
   std::vector<value_t> fvalues;
@@ -182,7 +183,7 @@ public:
   template <class InputIt1, class InputIt2>
   void operator()(const index_t k, const value_t fval, InputIt1 xbegin,
                   InputIt1 xend, InputIt2 gbegin) {
-    std::lock_guard<std::mutex> lock(sync);
+    std::lock_guard<std::mutex> lock(*sync);
     tend = std::chrono::high_resolution_clock::now();
     const auto telapsed =
         std::chrono::duration<value_t, std::chrono::milliseconds::period>(
