@@ -380,7 +380,6 @@ protected:
 
     auto f = [&, xb_c, gb, cb, ce, cb_c, ce_c]() {
       std::forward<Sampler>(sampler)(cb, ce);
-      std::sort(cb, ce);
       fval = std::forward<Loss>(loss)(xb_c, gb, cb_c, ce_c);
     };
 
@@ -441,7 +440,6 @@ protected:
     auto f = [&, xb_c, pb, compb, compe, compb_c, compe_c, coorb, coore,
               coorb_c, coore_c]() {
       std::forward<Sampler1>(sampler1)(compb, compe);
-      std::sort(compb, compe);
       std::forward<Sampler2>(sampler2)(coorb, coore);
       std::sort(coorb, coore);
       fval = std::forward<Loss>(loss)(xb_c, pb, compb_c, compe_c, coorb_c,

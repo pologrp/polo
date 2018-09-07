@@ -154,7 +154,6 @@ private:
       const index_t klocal = k;
       read(xlocal, std::integral_constant<bool, consistent>{});
       sampler(cb, ce);
-      std::sort(cb, ce);
       flocal = std::forward<Loss>(loss)(xb_c, gb, cb_c, ce_c);
       if (!update(alg, wid, klocal, flocal, glocal,
                   std::forward<Terminator>(terminate),
@@ -189,7 +188,6 @@ private:
       const index_t klocal = k;
       read(xlocal, std::integral_constant<bool, consistent>{});
       sampler(cb, ce);
-      std::sort(cb, ce);
       flocal = std::forward<Loss>(loss)(xb_c, pb, cb_c, ce_c);
       if (!update(alg, wid, klocal, flocal, partial, coordinates,
                   std::forward<Terminator>(terminate),
@@ -232,9 +230,7 @@ private:
       const index_t klocal = k;
       read(xlocal, std::integral_constant<bool, consistent>{});
       sampler1(compb, compe);
-      std::sort(compb, compe);
       sampler2(coorb, coore);
-      std::sort(coorb, coore);
       flocal = std::forward<Loss>(loss)(xb_c, pb, compb_c, compe_c, coorb_c,
                                         coore_c);
       if (!update(alg, wid, klocal, flocal, partial, coordinates,

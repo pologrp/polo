@@ -1,7 +1,6 @@
 #ifndef POLO_EXECUTION_SERIAL_HPP_
 #define POLO_EXECUTION_SERIAL_HPP_
 
-#include <algorithm>
 #include <utility>
 #include <vector>
 
@@ -59,7 +58,6 @@ protected:
 
     while (!std::forward<Terminator>(terminate)(k, fval, xb_c, xe_c, gb_c)) {
       std::forward<Sampler>(sampler)(cb, ce);
-      std::sort(cb, ce);
       fval = std::forward<Loss>(loss)(xb_c, gb, cb_c, ce_c);
       iterate(alg, std::forward<Logger>(logger));
     }
@@ -86,7 +84,6 @@ protected:
 
     while (!std::forward<Terminator>(terminate)(k, fval, xb_c, xe_c, gb_c)) {
       std::forward<Sampler>(sampler)(cb, ce);
-      std::sort(cb, ce);
       fval = std::forward<Loss>(loss)(xb_c, pb, cb_c, ce_c);
       for (auto &val : g)
         val = 0;
@@ -125,9 +122,7 @@ protected:
 
     while (!std::forward<Terminator>(terminate)(k, fval, xb_c, xe_c, gb_c)) {
       std::forward<Sampler1>(sampler1)(compb, compe);
-      std::sort(compb, compe);
       std::forward<Sampler2>(sampler2)(coorb, coore);
-      std::sort(coorb, coore);
       fval = std::forward<Loss>(loss)(xb_c, pb, compb_c, compe_c, coorb_c,
                                       coore_c);
       for (auto &val : g)
