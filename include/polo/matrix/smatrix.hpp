@@ -143,19 +143,19 @@ private:
     if ((trans == 'n') | (trans == 'N')) {
       if ((rbegin == nullptr) | (rend == nullptr))
         for (index_t row = 0; row < nrows; row++)
-          notrans_f(alpha, x, row, beta, y);
+          notrans_f(alpha, x, row, beta, y++);
       else
         while (rbegin != rend)
-          notrans_f(alpha, x, *rbegin++, beta, y);
+          notrans_f(alpha, x, *rbegin++, beta, y++);
     } else {
       for (index_t col = 0; col < ncols; col++)
         y[col] *= beta;
       if ((rbegin == nullptr) | (rend == nullptr))
         for (index_t row = 0; row < nrows; row++)
-          trans_f(alpha, x, row, y);
+          trans_f(alpha, x++, row, y);
       else
         while (rbegin != rend)
-          trans_f(alpha, x, *rbegin++, y);
+          trans_f(alpha, x++, *rbegin++, y);
     }
   }
 
@@ -163,9 +163,9 @@ private:
                  const value_t beta, value_t *y) const noexcept {
     const index_t nnz = row_ptr_[row + 1] - row_ptr_[row];
     index_t colstart = row_ptr_[row];
-    y[row] *= beta;
+    *y *= beta;
     for (index_t colidx = colstart; colidx < colstart + nnz; colidx++)
-      y[row] += alpha * values_[colidx] * x[cols_[colidx]];
+      *y += alpha * values_[colidx] * x[cols_[colidx]];
   }
 
   void trans_f(const value_t alpha, const value_t *x, const index_t row,
@@ -173,7 +173,7 @@ private:
     const index_t nnz = row_ptr_[row + 1] - row_ptr_[row];
     index_t colstart = row_ptr_[row];
     for (index_t colidx = colstart; colidx < colstart + nnz; colidx++)
-      y[cols_[colidx]] += alpha * values_[colidx] * x[row];
+      y[cols_[colidx]] += alpha * values_[colidx] * (*x);
   }
 
   std::vector<index_t> row_ptr_, cols_;
