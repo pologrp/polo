@@ -13,6 +13,9 @@ struct leastsquares : public aloss<value_t, index_t> {
   leastsquares(data<value_t, index_t> data)
       : aloss<value_t, index_t>(std::move(data)) {}
 
+  using aloss<value_t, index_t>::operator();
+  using aloss<value_t, index_t>::partial;
+
   value_t operator()(const value_t *x, value_t *g) const noexcept override {
     value_t loss{0};
     std::vector<value_t> residual(aloss<value_t, index_t>::data_.nsamples());
