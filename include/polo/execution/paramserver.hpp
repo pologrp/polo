@@ -85,14 +85,20 @@ struct options {
     return std::make_tuple(saddress_, spub_, smaster_, sworker_);
   }
 
+  void master(std::string address, std::uint16_t worker_port) noexcept {
+    maddress_ = std::move(address);
+    mworker_ = worker_port;
+  }
   void master(std::uint16_t worker_port) noexcept { mworker_ = worker_port; }
-  std::uint16_t master() const noexcept { return mworker_; }
+  std::pair<std::string, std::uint16_t> master() const noexcept {
+    return {maddress_, mworker_};
+  }
 
 private:
   int linger_{1000};
   long mtimeout_{10000}, wtimeout_{-1}, stimeout_{-1};
   std::int32_t num_masters_{1};
-  std::string saddress_{"localhost"};
+  std::string saddress_{"localhost"}, maddress_;
   std::uint16_t spub_{40000}, smaster_{40001}, sworker_{40002};
   std::uint16_t mworker_{40000};
 };
@@ -113,7 +119,9 @@ protected:
     saddress = std::get<0>(scheduler);
     spub = std::get<1>(scheduler);
     smaster = std::get<2>(scheduler);
-    mworker = opts.master();
+    auto m = opts.master();
+    maddress = m.first;
+    mworker = m.second;
   }
 
   template <class InputIt> std::vector<value_t> initialize(InputIt, InputIt) {
@@ -143,8 +151,11 @@ protected:
       }
     }
 
-    communicator::ip myip = communicator::ip::getexternal();
-    address = "tcp://" + myip.get() + ":" + std::to_string(mworker);
+    if (maddress.empty()) {
+      communicator::ip myip = communicator::ip::getexternal();
+      address = "tcp://" + myip.get() + ":" + std::to_string(mworker);
+    } else
+      address = "tcp://" + maddress + ":" + std::to_string(mworker);
 
     communicator::zmq::message msg;
     msg.addpart(std::begin(address), std::end(address));
@@ -280,7 +291,7 @@ protected:
 private:
   int linger;
   long timeout;
-  std::string saddress;
+  std::string maddress, saddress;
   std::uint16_t spub, smaster, mworker;
   index_t startind, k;
   std::vector<value_t> x, g;
@@ -357,7 +368,7 @@ protected:
   template <class Algorithm, class Loss, class Terminator, class Logger>
   void solve(Algorithm *, Loss &&loss, Terminator &&, Logger &&) {
     const value_t *xb_c = x.data();
-    value_t gb = g.data();
+    value_t *gb = g.data();
 
     auto f = [&, xb_c, gb]() { fval = std::forward<Loss>(loss)(xb_c, gb); };
 
