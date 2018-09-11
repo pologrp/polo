@@ -196,10 +196,10 @@ protected:
     while (poll.poll(timeout) > 0) {
       if (poll[0].isready()) {
         msg.receive(subscription);
-        if (msg.size() == 1 && msg.read<char>(0) == 'T')
+        if (msg.size(1) == 1 && msg.read<char>(1) == 'T')
           break;
 
-        detail::deserialize(msg, 0, k);
+        detail::deserialize(msg, 1, k);
       }
 
       if (poll[1].isready()) {
@@ -667,7 +667,7 @@ private:
     while (poll.poll(timeout) > 0) {
       if (poll[0].isready()) {
         msg.receive(subscription);
-        if (msg.size() == 1 && msg.read<char>(0) == 'T')
+        if (msg.size(1) == 1 && msg.read<char>(1) == 'T')
           break;
       }
 
