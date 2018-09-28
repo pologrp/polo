@@ -16,7 +16,7 @@ template <class value_t, class index_t> struct custom {
   template <class InputIt1, class InputIt2>
   void operator()(const index_t k, const value_t fval, InputIt1 x_begin,
                   InputIt1 x_end, InputIt2 g_begin) const {
-    return log_(k,fval,x_begin,x_end,g_begin);
+    log_(k,fval,x_begin,x_end,g_begin,data_);
   }
 
 private:
