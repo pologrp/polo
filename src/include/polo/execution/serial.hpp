@@ -19,6 +19,8 @@ template <class value_t, class index_t> struct serial {
 protected:
   template <class InputIt>
   std::vector<value_t> initialize(InputIt xbegin, InputIt xend) {
+    k = 1;
+    fval = 0
     x = std::vector<value_t>(xbegin, xend);
     g = std::vector<value_t>(x.size());
     return x;
@@ -33,9 +35,10 @@ protected:
     value_t *gb = g.data();
     const value_t *gb_c = gb;
 
+    fval = std::forward<Loss>(loss)(xb_c, gb);
     while (!std::forward<Terminator>(terminate)(k, fval, xb_c, xe_c, gb_c)) {
-      fval = std::forward<Loss>(loss)(xb_c, gb);
       iterate(alg, std::forward<Logger>(logger));
+      fval = std::forward<Loss>(loss)(xb_c, gb);
     }
   }
 
