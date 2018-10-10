@@ -16,11 +16,11 @@
 namespace polo {
 namespace communicator {
 namespace zmq {
-void version(int &major, int &minor, int &patch) {
+inline void version(int &major, int &minor, int &patch) {
   zmq_version(&major, &minor, &patch);
 }
 
-std::tuple<int, int, int> version() {
+inline std::tuple<int, int, int> version() {
   int major, minor, patch;
   version(major, minor, patch);
   return std::make_tuple(major, minor, patch);
@@ -186,14 +186,14 @@ public:
   void clear() noexcept;
 };
 
-void proxy(const socket *frontend, const socket *backend,
+inline void proxy(const socket *frontend, const socket *backend,
            const socket *capture = nullptr) {
   void *f = static_cast<void *>(*frontend);
   void *b = static_cast<void *>(*backend);
   void *c = (capture == nullptr) ? nullptr : static_cast<void *>(*capture);
   zmq_proxy(f, b, c);
 }
-void proxy(const socket *frontend, const socket *backend, const socket *capture,
+inline void proxy(const socket *frontend, const socket *backend, const socket *capture,
            const socket *control) {
   void *f = static_cast<void *>(*frontend);
   void *b = static_cast<void *>(*backend);
@@ -238,7 +238,7 @@ enum struct context_opt : int {
 #endif
 };
 
-context::context()
+inline context::context()
     : ptr_{zmq_ctx_new(), [](void *ptr) noexcept {
              if (ptr != nullptr)
                zmq_ctx_term(ptr);
@@ -247,20 +247,20 @@ context::context()
     throw error();
 }
 
-void context::set(context_opt name, int value) const {
+inline void context::set(context_opt name, int value) const {
   int rc = zmq_ctx_set(ptr_.get(), static_cast<int>(name), value);
   if (rc != 0)
     throw error();
 }
-int context::get(context_opt name) const {
+inline int context::get(context_opt name) const {
   int val = zmq_ctx_get(ptr_.get(), static_cast<int>(name));
   if (val < 0)
     throw error();
   return val;
 }
 
-context::operator void *() const noexcept { return ptr_.get(); }
-context::operator bool() const noexcept { return static_cast<bool>(ptr_); }
+inline context::operator void *() const noexcept { return ptr_.get(); }
+inline context::operator bool() const noexcept { return static_cast<bool>(ptr_); }
 
 enum struct socket_type : int {
 #ifdef ZMQ_PAIR
@@ -601,8 +601,8 @@ enum struct monitor_event : int {
 #endif
 };
 
-socket::socket() noexcept : ptr_{nullptr, [](void *ptr) noexcept {}} {}
-socket::socket(const context &ctx, socket_type type)
+inline socket::socket() noexcept : ptr_{nullptr, [](void *ptr) noexcept {}} {}
+inline socket::socket(const context &ctx, socket_type type)
     : ptr_{zmq_socket(static_cast<void *>(ctx), static_cast<int>(type)),
            [](void *ptr) noexcept { zmq_close(ptr); }} {
   if (!ptr_)
@@ -622,28 +622,28 @@ template <class T> void socket::get(socket_opt name, T &value) const {
     throw error();
 }
 
-void socket::bind(const char *endpoint) const {
+inline void socket::bind(const char *endpoint) const {
   int rc = zmq_bind(ptr_.get(), endpoint);
   if (rc != 0)
     throw error();
 }
-void socket::connect(const char *endpoint) const {
+inline void socket::connect(const char *endpoint) const {
   int rc = zmq_connect(ptr_.get(), endpoint);
   if (rc != 0)
     throw error();
 }
-void socket::unbind(const char *endpoint) const {
+inline void socket::unbind(const char *endpoint) const {
   int rc = zmq_unbind(ptr_.get(), endpoint);
   if (rc != 0)
     throw error();
 }
-void socket::disconnect(const char *endpoint) const {
+inline void socket::disconnect(const char *endpoint) const {
   int rc = zmq_disconnect(ptr_.get(), endpoint);
   if (rc != 0)
     throw error();
 }
 
-int socket::send(message msg, bool wait) const {
+inline int socket::send(message msg, bool wait) const {
   int bytes = msg.send(*this, wait);
   return bytes;
 }
@@ -658,7 +658,7 @@ int socket::send(std::size_t len, const T *data, int flags) const {
   return bytes;
 }
 
-message socket::receive(bool wait) const {
+inline message socket::receive(bool wait) const {
   message msg;
   msg.receive(*this, wait);
   return msg;
@@ -674,11 +674,11 @@ int socket::receive(std::size_t len, T *data, int flags) const {
   return bytes;
 }
 
-socket socket::monitor(const context &ctx, const char *endpoint,
+inline socket socket::monitor(const context &ctx, const char *endpoint,
                        monitor_event event) const {
   return monitor(ctx, endpoint, static_cast<int>(event));
 }
-socket socket::monitor(const context &ctx, const char *endpoint,
+inline socket socket::monitor(const context &ctx, const char *endpoint,
                        int events) const {
   int rc = zmq_socket_monitor(static_cast<void *>(*this), endpoint, events);
   if (rc < 0)
@@ -688,10 +688,10 @@ socket socket::monitor(const context &ctx, const char *endpoint,
   return listener;
 }
 
-socket::operator void *() const noexcept { return ptr_.get(); }
+inline socket::operator void *() const noexcept { return ptr_.get(); }
 
-message::part::part() noexcept { zmq_msg_init(&msg_); }
-message::part::part(std::size_t size) {
+inline message::part::part() noexcept { zmq_msg_init(&msg_); }
+inline message::part::part(std::size_t size) {
   int rc = zmq_msg_init_size(&msg_, size);
   if (rc != 0)
     throw error();
@@ -734,37 +734,37 @@ template <class Iter> message::part::part(Iter begin, Iter end) {
   std::copy(begin, end, dest);
 }
 
-message::part::part(const part &rhs) noexcept : part() {
+inline message::part::part(const part &rhs) noexcept : part() {
   zmq_msg_copy(&msg_, const_cast<zmq_msg_t *>(&rhs.msg_));
 }
-message::part &message::part::operator=(const part &rhs) noexcept {
+inline message::part &message::part::operator=(const part &rhs) noexcept {
   clear();
   zmq_msg_copy(&msg_, const_cast<zmq_msg_t *>(&rhs.msg_));
   return *this;
 }
-message::part::part(part &&rhs) noexcept : part() {
+inline message::part::part(part &&rhs) noexcept : part() {
   zmq_msg_move(&msg_, &rhs.msg_);
 }
-message::part &message::part::operator=(part &&rhs) noexcept {
+inline message::part &message::part::operator=(part &&rhs) noexcept {
   clear();
   zmq_msg_move(&msg_, &rhs.msg_);
   return *this;
 }
 
-message::part::~part() { zmq_msg_close(&msg_); }
+inline message::part::~part() { zmq_msg_close(&msg_); }
 
-std::size_t message::part::size() const noexcept { return zmq_msg_size(&msg_); }
-message::part::operator void *() noexcept { return zmq_msg_data(&msg_); }
-void *message::part::data() noexcept { return static_cast<void *>(*this); }
-bool message::part::more() const noexcept { return zmq_msg_more(&msg_) == 1; }
+inline std::size_t message::part::size() const noexcept { return zmq_msg_size(&msg_); }
+inline message::part::operator void *() noexcept { return zmq_msg_data(&msg_); }
+inline void *message::part::data() noexcept { return static_cast<void *>(*this); }
+inline bool message::part::more() const noexcept { return zmq_msg_more(&msg_) == 1; }
 
-int message::part::send(const socket &s, int flags) {
+inline int message::part::send(const socket &s, int flags) {
   int bytes = zmq_msg_send(&msg_, static_cast<void *>(s), flags);
   if (bytes < 0)
     throw error();
   return bytes;
 }
-int message::part::receive(const socket &s, int flags) {
+inline int message::part::receive(const socket &s, int flags) {
   clear();
   int bytes = zmq_msg_recv(&msg_, static_cast<void *>(s), flags);
   if (bytes < 0)
@@ -776,7 +776,7 @@ template <class T> T message::part::read() noexcept {
                 "message::part::read requires a trivially copyable type");
   return *static_cast<T *>(data());
 }
-std::string message::part::read() noexcept {
+inline std::string message::part::read() noexcept {
   return std::string(static_cast<char *>(data()), size());
 }
 template <class OutputIt>
@@ -790,23 +790,23 @@ OutputIt message::part::read(OutputIt begin, OutputIt end) noexcept {
   value_type *source = static_cast<value_type *>(static_cast<void *>(*this));
   return std::copy(source, source + std::min(iterlen, datalen), begin);
 }
-void message::part::clear() noexcept {
+inline void message::part::clear() noexcept {
   zmq_msg_close(&msg_);
   zmq_msg_init(&msg_);
 }
 
-message::message() noexcept(noexcept(std::vector<part>())) = default;
-message::message(std::vector<part> parts) noexcept : parts_(std::move(parts)) {}
+inline message::message() noexcept(noexcept(std::vector<part>())) = default;
+inline message::message(std::vector<part> parts) noexcept : parts_(std::move(parts)) {}
 
-std::size_t message::addpart() {
+inline std::size_t message::addpart() {
   parts_.push_back(part());
   return parts_.back().size();
 }
-std::size_t message::addpart(std::size_t size) {
+inline std::size_t message::addpart(std::size_t size) {
   parts_.push_back(part(size));
   return parts_.back().size();
 }
-std::size_t message::addpart(part p) {
+inline std::size_t message::addpart(part p) {
   parts_.push_back(std::move(p));
   return parts_.back().size();
 }
@@ -836,27 +836,27 @@ template <class Iter> std::size_t message::addpart(Iter begin, Iter end) {
   return parts_.back().size();
 }
 
-void *message::data(std::size_t pid) noexcept {
+inline void *message::data(std::size_t pid) noexcept {
   return pid < numparts() ? static_cast<void *>(parts_[pid]) : nullptr;
 }
 
-std::size_t message::numparts() const noexcept { return parts_.size(); }
-std::size_t message::size() const noexcept {
+inline std::size_t message::numparts() const noexcept { return parts_.size(); }
+inline std::size_t message::size() const noexcept {
   std::size_t size_ = 0;
   for (const auto &part : parts_)
     size_ += part.size();
   return size_;
 }
-std::size_t message::size(std::size_t pid) const noexcept {
+inline std::size_t message::size(std::size_t pid) const noexcept {
   return pid < numparts() ? parts_[pid].size() : 0;
 }
 
-message::part &message::operator[](std::size_t pid) { return parts_[pid]; }
-const message::part &message::operator[](std::size_t pid) const {
+inline message::part &message::operator[](std::size_t pid) { return parts_[pid]; }
+inline const message::part &message::operator[](std::size_t pid) const {
   return parts_[pid];
 }
 
-message message::header() const noexcept {
+inline message message::header() const noexcept {
   message msg;
   std::size_t pid{0};
   while (pid < numparts() && size(pid) != 0)
@@ -866,9 +866,9 @@ message message::header() const noexcept {
   return msg;
 }
 
-void message::pop_back() { parts_.pop_back(); }
+inline void message::pop_back() { parts_.pop_back(); }
 
-int message::send(const socket &s, bool wait) {
+inline int message::send(const socket &s, bool wait) {
   int flags = wait ? 0 : ZMQ_DONTWAIT;
   int bytes, total{0};
   const std::size_t len = parts_.size();
@@ -878,7 +878,7 @@ int message::send(const socket &s, bool wait) {
   }
   return total;
 }
-int message::receive(const socket &s, bool wait) {
+inline int message::receive(const socket &s, bool wait) {
   clear();
   int flags = wait ? 0 : ZMQ_DONTWAIT;
   int bytes, total{0};
@@ -897,14 +897,14 @@ int message::receive(const socket &s, bool wait) {
 template <class T> T message::read(std::size_t pid) noexcept {
   return pid < numparts() ? parts_[pid].read<T>() : T{};
 }
-std::string message::read(std::size_t pid) noexcept {
+inline std::string message::read(std::size_t pid) noexcept {
   return pid < numparts() ? parts_[pid].read() : std::string{};
 }
 template <class OutputIt>
 OutputIt message::read(std::size_t pid, OutputIt begin, OutputIt end) noexcept {
   return pid < numparts() ? parts_[pid].read(begin, end) : begin;
 }
-void message::clear() noexcept { parts_.clear(); }
+inline void message::clear() noexcept { parts_.clear(); }
 
 enum struct poll_event : short {
 #ifdef ZMQ_POLLIN
@@ -921,21 +921,21 @@ enum struct poll_event : short {
 #endif
 };
 
-poller::item::item(const zmq_pollitem_t item) noexcept : item_{item} {}
+inline poller::item::item(const zmq_pollitem_t item) noexcept : item_{item} {}
 
-bool poller::item::belongsto(const socket &s) const noexcept {
+inline bool poller::item::belongsto(const socket &s) const noexcept {
   return item_.socket == static_cast<void *>(s);
 }
-bool poller::item::isready() const noexcept {
+inline bool poller::item::isready() const noexcept {
   return item_.events & item_.revents;
 }
 
-poller::poller() noexcept(noexcept(std::vector<zmq_pollitem_t>())) = default;
+inline poller::poller() noexcept(noexcept(std::vector<zmq_pollitem_t>())) = default;
 
-void poller::additem(const socket &s, poll_event pe) {
+inline void poller::additem(const socket &s, poll_event pe) {
   additem(s, static_cast<short>(pe));
 }
-void poller::additem(const socket &s, short events) {
+inline void poller::additem(const socket &s, short events) {
   zmq_pollitem_t item;
   item.socket = static_cast<void *>(s);
   item.fd = 0;
@@ -944,19 +944,19 @@ void poller::additem(const socket &s, short events) {
   items_.push_back(item);
 }
 
-std::size_t poller::size() const noexcept { return items_.size(); }
-poller::item poller::operator[](std::size_t idx) const {
+inline std::size_t poller::size() const noexcept { return items_.size(); }
+inline poller::item poller::operator[](std::size_t idx) const {
   return item{items_[idx]};
 }
 
-int poller::poll(long timeout) {
+inline int poller::poll(long timeout) {
   int rc = zmq_poll(&items_[0], items_.size(), timeout);
   if (rc < 0)
     throw error();
   return rc;
 }
 
-void poller::clear() noexcept { items_.clear(); }
+inline void poller::clear() noexcept { items_.clear(); }
 } // namespace zmq
 } // namespace communicator
 } // namespace polo
