@@ -10,6 +10,8 @@ find_package(cereal REQUIRED)
 add_library(polo INTERFACE)
 add_library(polo::polo ALIAS polo)
 
+target_compile_features(polo INTERFACE cxx_std_11)
+
 target_include_directories(polo
   INTERFACE
     $<BUILD_INTERFACE:${polo_SOURCE_DIR}/include>
@@ -35,9 +37,7 @@ else()
   )
 endif()
 
-install(TARGETS polo EXPORT polo
-  INCLUDES DESTIONATION include
-)
+install(TARGETS polo EXPORT polo)
 
 install(EXPORT polo
   FILE polo-targets.cmake
