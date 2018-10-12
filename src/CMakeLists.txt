@@ -4,8 +4,8 @@ project(polo VERSION 1.0.0 LANGUAGES C CXX)
 
 find_package(Threads REQUIRED)
 find_package(LAPACK REQUIRED NAMES OpenBLAS lapack)
-find_package(ZeroMQ REQUIRED CONFIG)
-find_package(cereal REQUIRED CONFIG)
+find_package(ZeroMQ REQUIRED)
+find_package(cereal REQUIRED)
 
 add_library(polo INTERFACE)
 add_library(polo::polo ALIAS polo)
