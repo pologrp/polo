@@ -1,6 +1,8 @@
 #ifndef POLO_COMMUNICATOR_ADDRESS_HPP_
 #define POLO_COMMUNICATOR_ADDRESS_HPP_
 
+#ifdef POLO_WITH_CURL
+
 #include <cstdint>
 #include <exception>
 #include <regex>
@@ -70,5 +72,7 @@ private:
 };
 } // namespace communicator
 } // namespace polo
+
+#endif
 
 #endif

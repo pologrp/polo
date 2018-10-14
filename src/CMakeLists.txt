@@ -6,17 +6,28 @@ find_package(Threads REQUIRED)
 find_package(LAPACK REQUIRED NAMES OpenBLAS lapack)
 find_package(ZeroMQ REQUIRED)
 find_package(cereal REQUIRED)
+find_package(CURL QUIET)
 
 add_library(polo INTERFACE)
 add_library(polo::polo ALIAS polo)
 
 target_compile_features(polo INTERFACE cxx_std_11)
 
+if (CURL_FOUND)
+target_compile_definitions(polo INTERFACE POLO_WITH_CURL)
+endif()
+
 target_include_directories(polo
   INTERFACE
     $<BUILD_INTERFACE:${polo_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
+if (CURL_FOUND)
+target_include_directories(polo
+  INTERFACE
+    $<BUILD_INTERFACE:${CURL_INCLUDE_DIRS}>
+)
+endif()
 
 target_link_libraries(polo
   INTERFACE
@@ -35,6 +46,12 @@ else()
       blas
       lapack
   )
+endif()
+if (CURL_FOUND)
+target_link_libraries(polo
+  INTERFACE
+    ${CURL_LIBRARIES}
+)
 endif()
 
 install(TARGETS polo EXPORT polo)

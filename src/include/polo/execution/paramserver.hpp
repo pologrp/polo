@@ -16,7 +16,10 @@
 #include "cereal/archives/portable_binary.hpp"
 #include "cereal/types/vector.hpp"
 
+#ifdef POLO_WITH_CURL
 #include "polo/communicator/address.hpp"
+#endif
+
 #include "polo/communicator/zmq.hpp"
 #include "polo/utility/sampler.hpp"
 
@@ -152,8 +155,10 @@ protected:
     }
 
     if (maddress.empty()) {
+#ifdef POLO_WITH_CURL
       communicator::ip myip = communicator::ip::getexternal();
       address = "tcp://" + myip.get() + ":" + std::to_string(mworker);
+#endif
     } else
       address = "tcp://" + maddress + ":" + std::to_string(mworker);
 
@@ -343,8 +348,10 @@ protected:
     address = "tcp://" + saddress + ":" + std::to_string(sworker);
     request.connect(address.c_str());
 
+#ifdef POLO_WITH_CURL
     communicator::ip myip = communicator::ip::getexternal();
     address = "tcp://" + myip.get();
+#endif
 
     msg.addpart('r');
     msg.send(request);
