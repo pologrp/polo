@@ -288,6 +288,11 @@ protected:
 
   ~master() = default;
 
+  value_t getf() const { return 0; }
+  std::vector<value_t> getx() const {
+    return std::vector<value_t>(std::begin(x), std::end(x));
+  }
+
 private:
   int linger;
   long timeout;
@@ -460,6 +465,11 @@ protected:
     };
 
     kernel(f, &coordinates);
+  }
+
+  value_t getf() const { return fval; }
+  std::vector<value_t> getx() const {
+    return std::vector<value_t>(std::begin(x), std::end(x));
   }
 
   ~worker() = default;
@@ -887,6 +897,9 @@ protected:
     solve(alg, std::forward<Loss>(loss), std::forward<Terminator>(terminate),
           std::forward<Logger>(logger));
   }
+
+  value_t getf() const { return 0; }
+  std::vector<value_t> getx() const { return {}; }
 
   ~scheduler() = default;
 

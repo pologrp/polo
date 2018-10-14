@@ -1,17 +1,18 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.9.0)
 
-project(api LANGUAGES CXX)
+project(polo-api VERSION 1.0.0 LANGUAGES C CXX)
 
-find_package(ZeroMQ CONFIG REQUIRED)
+add_library(poloapi
+  src/api.cpp
+  src/custom-api.cpp
+  src/popts.cpp
+)
+target_include_directories(poloapi PUBLIC include)
+target_link_libraries(poloapi PRIVATE polo::polo)
 
-file(GLOB SOURCES "src/*.cpp")
-
-add_library(api SHARED ${SOURCES})
-target_include_directories(api PUBLIC include)
-target_link_libraries(api PRIVATE polo)
-target_link_libraries(api PRIVATE libzmq)
-install(TARGETS api
-        LIBRARY DESTINATION lib
-        PUBLIC_HEADER DESTINATION include)
-
-add_subdirectory(external/polo)
+install(TARGETS poloapi
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
