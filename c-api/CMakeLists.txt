@@ -9,7 +9,15 @@ add_library(poloapi
 target_include_directories(poloapi PUBLIC include)
 target_link_libraries(poloapi PRIVATE polo::polo)
 
-install(TARGETS poloapi
+add_library(psapi
+  src/paramserver_m.cpp
+  src/paramserver_s.cpp
+  src/paramserver_w.cpp
+)
+target_include_directories(psapi PUBLIC include)
+target_link_libraries(psapi PRIVATE polo::polo)
+
+install(TARGETS poloapi psapi
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
