@@ -28,13 +28,13 @@
                              smooth, proxim)                                   \
   value_t CAT3(default, _, CAT3(algname, _, abbrv))(                           \
       value_t * xbegin, value_t * xend, loss_t<value_t> loss_fcn,              \
-      void *loss_data, void *option_data) {                                    \
-    option_t *psopts = static_cast<option_t *>(option_data);                   \
+      void *loss_data, option_t option_data) {                                 \
+    auto psopts = get_psopts(option_data);                                     \
     algorithm::proxgradient<value_t, index_t, boosting::boost,                 \
                             step::steplength, smoothing::smooth, prox::proxim, \
                             execution::executor>                               \
         alg;                                                                   \
-    alg.execution_parameters(*psopts);                                         \
+    alg.execution_parameters(psopts);                                          \
     alg.initialize(xbegin, xend);                                              \
     alg.solve([=](const value_t *xbegin, value_t *gbegin) -> value_t {         \
       return loss_fcn(xbegin, gbegin, loss_data);                              \
@@ -128,15 +128,15 @@ value_t gradient_mti(value_t *xbegin, value_t *xend, loss_t<value_t> loss_fcn,
   return alg.getf();
 }
 #define PARAMSERVER_GRADIENT(executor, abbrv)                                  \
-  value_t CAT3(gradient, _, abbrv)(value_t * xbegin, value_t * xend,           \
-                                   loss_t<value_t> loss_fcn, void *loss_data,  \
-                                   void *option_data, const value_t gamma) {   \
-    option_t *psopts = static_cast<option_t *>(option_data);                   \
+  value_t CAT3(gradient, _, abbrv)(                                            \
+      value_t * xbegin, value_t * xend, loss_t<value_t> loss_fcn,              \
+      void *loss_data, option_t option_data, const value_t gamma) {            \
+    auto psopts = get_psopts(option_data);                                     \
     algorithm::proxgradient<value_t, index_t, boosting::none, step::constant,  \
                             smoothing::none, prox::none, execution::executor>  \
         alg;                                                                   \
     alg.step_parameters(gamma);                                                \
-    alg.execution_parameters(*psopts);                                         \
+    alg.execution_parameters(psopts);                                          \
     alg.initialize(xbegin, xend);                                              \
     alg.solve([=](const value_t *xbegin, value_t *gbegin) -> value_t {         \
       return loss_fcn(xbegin, gbegin, loss_data);                              \
@@ -198,16 +198,16 @@ INCONSISTENT_MOMENTUM(momentum)
 #define PARAMSERVER_MOMENTUM(momentum, executor, abbrv)                        \
   value_t CAT3(momentum, _, abbrv)(                                            \
       value_t * xbegin, value_t * xend, loss_t<value_t> loss_fcn,              \
-      void *loss_data, void *option_data, const value_t mu,                    \
+      void *loss_data, option_t option_data, const value_t mu,                 \
       const value_t epsilon, const value_t gamma) {                            \
-    option_t *psopts = static_cast<option_t *>(option_data);                   \
+    auto psopts = get_psopts(option_data);                                     \
     algorithm::proxgradient<value_t, index_t, boosting::momentum,              \
                             step::constant, smoothing::none, prox::none,       \
                             execution::executor>                               \
         alg;                                                                   \
     alg.boosting_parameters(mu, epsilon);                                      \
     alg.step_parameters(gamma);                                                \
-    alg.execution_parameters(*psopts);                                         \
+    alg.execution_parameters(psopts);                                          \
     alg.initialize(xbegin, xend);                                              \
     alg.solve([=](const value_t *xbegin, value_t *gbegin) -> value_t {         \
       return loss_fcn(xbegin, gbegin, loss_data);                              \
@@ -274,16 +274,16 @@ value_t adagrad_mti(value_t *xbegin, value_t *xend, loss_t<value_t> loss_fcn,
 #define PARAMSERVER_ADAGRAD(executor, abbrv)                                   \
   value_t CAT3(adagrad, _, abbrv)(value_t * xbegin, value_t * xend,            \
                                   loss_t<value_t> loss_fcn, void *loss_data,   \
-                                  void *option_data, const value_t gamma,      \
+                                  option_t option_data, const value_t gamma,   \
                                   const value_t epsilon) {                     \
-    option_t *psopts = static_cast<option_t *>(option_data);                   \
+    auto psopts = get_psopts(option_data);                                     \
     algorithm::proxgradient<value_t, index_t, boosting::none, step::constant,  \
                             smoothing::adagrad, prox::none,                    \
                             execution::executor>                               \
         alg;                                                                   \
     alg.step_parameters(gamma);                                                \
     alg.smoothing_parameters(epsilon);                                         \
-    alg.execution_parameters(*psopts);                                         \
+    alg.execution_parameters(psopts);                                          \
     alg.initialize(xbegin, xend);                                              \
     alg.solve([=](const value_t *xbegin, value_t *gbegin) -> value_t {         \
       return loss_fcn(xbegin, gbegin, loss_data);                              \
@@ -343,16 +343,16 @@ value_t adadelta_mti(value_t *xbegin, value_t *xend, loss_t<value_t> loss_fcn,
 #define PARAMSERVER_ADADELTA(executor, abbrv)                                  \
   value_t CAT3(adadelta, _, abbrv)(value_t * xbegin, value_t * xend,           \
                                    loss_t<value_t> loss_fcn, void *loss_data,  \
-                                   void *option_data, const value_t gamma,     \
+                                   option_t option_data, const value_t gamma,  \
                                    const value_t rho, const value_t epsilon) { \
-    option_t *psopts = static_cast<option_t *>(option_data);                   \
+    auto psopts = get_psopts(option_data);                                     \
     algorithm::proxgradient<value_t, index_t, boosting::none, step::constant,  \
                             smoothing::adadelta, prox::none,                   \
                             execution::executor>                               \
         alg;                                                                   \
     alg.step_parameters(gamma);                                                \
     alg.smoothing_parameters(rho, epsilon);                                    \
-    alg.execution_parameters(*psopts);                                         \
+    alg.execution_parameters(psopts);                                          \
     alg.initialize(xbegin, xend);                                              \
     alg.solve([=](const value_t *xbegin, value_t *gbegin) -> value_t {         \
       return loss_fcn(xbegin, gbegin, loss_data);                              \
@@ -418,10 +418,10 @@ INCONSISTENT_ADAM(adam, momentum)
 #define PARAMSERVER_ADAM(name, momentum, executor, abbrv)                      \
   value_t CAT3(name, _, abbrv)(value_t * xbegin, value_t * xend,               \
                                loss_t<value_t> loss_fcn, void *loss_data,      \
-                               void *option_data, const value_t mu,            \
+                               option_t option_data, const value_t mu,         \
                                const value_t epsilon, const value_t gamma,     \
                                const value_t rho, const value_t epsilon_rms) { \
-    option_t *psopts = static_cast<option_t *>(option_data);                   \
+    auto psopts = get_psopts(option_data);                                     \
     algorithm::proxgradient<value_t, index_t, boosting::momentum,              \
                             step::constant, smoothing::rmsprop, prox::none,    \
                             execution::executor>                               \
@@ -429,7 +429,7 @@ INCONSISTENT_ADAM(adam, momentum)
     alg.boosting_parameters(mu, epsilon);                                      \
     alg.step_parameters(gamma);                                                \
     alg.smoothing_parameters(rho, epsilon);                                    \
-    alg.execution_parameters(*psopts);                                         \
+    alg.execution_parameters(psopts);                                          \
     alg.initialize(xbegin, xend);                                              \
     alg.solve([=](const value_t *xbegin, value_t *gbegin) -> value_t {         \
       return loss_fcn(xbegin, gbegin, loss_data);                              \

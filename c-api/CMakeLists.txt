@@ -5,7 +5,6 @@ project(polo-api VERSION 1.0.0 LANGUAGES C CXX)
 add_library(poloapi
   src/api.cpp
   src/custom-api.cpp
-  src/popts.cpp
 )
 target_include_directories(poloapi PUBLIC include)
 target_link_libraries(poloapi PRIVATE polo::polo)

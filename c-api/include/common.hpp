@@ -14,10 +14,22 @@ using index_t = int;
 
 using termination_t =
     typename polo::utility::terminator::custom<value_t, index_t>::func_t;
-using termination =
-    typename polo::utility::terminator::custom<value_t, index_t>;
+using termination = polo::utility::terminator::custom<value_t, index_t>;
 using log_t = typename polo::utility::logger::custom<value_t, index_t>::func_t;
-using logger = typename polo::utility::logger::custom<value_t, index_t>;
-using option_t = polo::execution::paramserver::options;
+using logger = polo::utility::logger::custom<value_t, index_t>;
+using psoption_t = polo::execution::paramserver::options;
+
+extern "C" {
+typedef struct {
+  int linger;
+  long mtimeout, wtimeout, stimeout;
+  int32_t num_masters;
+  char saddress[256], maddress[256];
+  uint16_t spub, smaster, sworker;
+  uint16_t mworker;
+} option_t;
+}
+
+psoption_t get_psopts(option_t);
 
 #endif

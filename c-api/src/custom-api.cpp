@@ -1,5 +1,18 @@
 #include "common.hpp"
 
+psoption_t get_psopts(option_t option_data) {
+  psoption_t psopts;
+  psopts.linger(option_data.linger);
+  psopts.master_timeout(option_data.mtimeout);
+  psopts.worker_timeout(option_data.wtimeout);
+  psopts.scheduler_timeout(option_data.stimeout);
+  psopts.num_masters(option_data.num_masters);
+  psopts.scheduler(option_data.saddress, option_data.spub, option_data.smaster,
+                   option_data.sworker);
+  psopts.master(option_data.maddress, option_data.mworker);
+  return psopts;
+}
+
 extern "C" {
 
 using namespace polo;
@@ -110,16 +123,16 @@ void *proxgradient_s(init_t<value_t> init_fcn, boost_t boost_fcn,
                               execution::paramserver::master>;
 
   void* proxgradient_master(init_t<value_t> init_fcn, boost_t boost_fcn,
-			    void *boost_data, step_t step_fcn, void *step_data,
-			    smooth_t smooth_fcn, void *smooth_data, prox_t prox_fcn,
-			    void *prox_data, void *option_data) {
-    option_t* psopts = static_cast<option_t *>(option_data);
+  			    void *boost_data, step_t step_fcn, void *step_data,
+  			    smooth_t smooth_fcn, void *smooth_data, prox_t prox_fcn,
+  			    void *prox_data, option_t option_data) {
+    auto psopts = get_psopts(option_data);
     master_t* alg = new master_t();
     alg->boosting_parameters(init_fcn, boost_fcn, boost_data);
     alg->smoothing_parameters(init_fcn, smooth_fcn, smooth_data);
     alg->step_parameters(init_fcn, step_fcn, step_data);
     alg->prox_parameters(init_fcn, prox_fcn, prox_data);
-    alg->execution_parameters(*psopts);
+    alg->execution_parameters(psopts);
     return static_cast<void *>(alg);
   }
 
@@ -155,14 +168,14 @@ void *proxgradient_s(init_t<value_t> init_fcn, boost_t boost_fcn,
                             void *boost_data, step_t step_fcn, void *step_data,
                             smooth_t smooth_fcn, void *smooth_data,
                             prox_t prox_fcn, void *prox_data,
-                            void *option_data) {
-    option_t *psopts = static_cast<option_t *>(option_data);
+                            option_t option_data) {
+    auto psopts = get_psopts(option_data);
     worker_t *alg = new worker_t();
     alg->boosting_parameters(init_fcn, boost_fcn, boost_data);
     alg->smoothing_parameters(init_fcn, smooth_fcn, smooth_data);
     alg->step_parameters(init_fcn, step_fcn, step_data);
     alg->prox_parameters(init_fcn, prox_fcn, prox_data);
-    alg->execution_parameters(*psopts);
+    alg->execution_parameters(psopts);
     return static_cast<void *>(alg);
   }
 
@@ -203,14 +216,14 @@ void *proxgradient_s(init_t<value_t> init_fcn, boost_t boost_fcn,
                                void *boost_data, step_t step_fcn,
                                void *step_data, smooth_t smooth_fcn,
                                void *smooth_data, prox_t prox_fcn,
-                               void *prox_data, void *option_data) {
-    option_t *psopts = static_cast<option_t *>(option_data);
+                               void *prox_data, option_t option_data) {
+    auto psopts = get_psopts(option_data);
     scheduler_t *alg = new scheduler_t();
     alg->boosting_parameters(init_fcn, boost_fcn, boost_data);
     alg->smoothing_parameters(init_fcn, smooth_fcn, smooth_data);
     alg->step_parameters(init_fcn, step_fcn, step_data);
     alg->prox_parameters(init_fcn, prox_fcn, prox_data);
-    alg->execution_parameters(*psopts);
+    alg->execution_parameters(psopts);
     return static_cast<void *>(alg);
   }
 
