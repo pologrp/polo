@@ -24,7 +24,7 @@ typedef value_t *(*prox_t)(const value_t, const value_t *, const value_t *,
                            const value_t *, value_t *, void *);
 
 typedef void (*master_log_t)(const index_t, const value_t, const value_t *,
-                             const value_t *, const value_t *);
+                             const value_t *, const value_t *, void *);
 
 typedef value_t (*loss_t)(const value_t *, value_t *, void *);
 

@@ -3,9 +3,9 @@
 
 using namespace polo;
 
-err_t paramserver_m(master_log_t logger, const ps_opt_t options, init_t init,
-                    boost_t boost_compute, void *boost_data,
-                    step_t step_compute, void *step_data,
+err_t paramserver_m(master_log_t logger, void *logger_data,
+                    const ps_opt_t options, init_t init, boost_t boost_compute,
+                    void *boost_data, step_t step_compute, void *step_data,
                     smoothing_t smoothing_compute, void *smoothing_data,
                     prox_t prox_compute, void *prox_data) {
   err_t err;
@@ -35,7 +35,7 @@ err_t paramserver_m(master_log_t logger, const ps_opt_t options, init_t init,
     alg.solve(nullptr, nullptr,
               [=](const index_t k, const value_t fval, const value_t *xbegin,
                   const value_t *xend, const value_t *gbegin) {
-                logger(k, fval, xbegin, xend, gbegin);
+                logger(k, fval, xbegin, xend, gbegin, logger_data);
               });
   } catch (const std::exception &ex) {
     err.id = -1;
