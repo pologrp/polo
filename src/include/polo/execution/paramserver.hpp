@@ -303,7 +303,7 @@ private:
   long timeout;
   std::string maddress, saddress;
   std::uint16_t spub, smaster, mworker;
-  index_t startind, k;
+  index_t startind, k{1};
   std::vector<value_t> x, g;
   communicator::zmq::context ctx;
   communicator::zmq::socket request{ctx, communicator::zmq::socket_type::req},
