@@ -3,6 +3,7 @@
 
 using namespace polo;
 
+extern "C" {
 err_t paramserver_m(master_log_t logger, void *logger_data,
                     const ps_opt_t options, init_t init, boost_t boost_compute,
                     void *boost_data, step_t step_compute, void *step_data,
@@ -47,4 +48,5 @@ err_t paramserver_m(master_log_t logger, void *logger_data,
   }
 
   return err;
+}
 }

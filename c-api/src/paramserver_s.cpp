@@ -3,6 +3,7 @@
 
 using namespace polo;
 
+extern "C" {
 err_t paramserver_s(const value_t *xbegin, const value_t *xend, const index_t K,
                     const ps_opt_t options) {
   err_t err;
@@ -39,4 +40,5 @@ err_t paramserver_s(const value_t *xbegin, const value_t *xend, const index_t K,
   }
 
   return err;
+}
 }

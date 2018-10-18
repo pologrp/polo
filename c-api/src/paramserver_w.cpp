@@ -3,6 +3,7 @@
 
 using namespace polo;
 
+extern "C" {
 err_t paramserver_w(const value_t *xbegin, const value_t *xend, loss_t loss,
                     void *loss_data, const ps_opt_t options) {
   err_t err;
@@ -35,4 +36,5 @@ err_t paramserver_w(const value_t *xbegin, const value_t *xend, loss_t loss,
   }
 
   return err;
+}
 }
