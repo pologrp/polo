@@ -25,7 +25,7 @@ target_include_directories(polo
 if (CURL_FOUND)
 target_include_directories(polo
   INTERFACE
-    $<BUILD_INTERFACE:${CURL_INCLUDE_DIRS}>
+    ${CURL_INCLUDE_DIRS}
 )
 endif()
 
