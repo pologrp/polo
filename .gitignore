@@ -54,7 +54,6 @@ build
 
 # Sphinx documentation
 docs/_build
-!docs/Makefile
 
 # vscode folder
 .vscode/
