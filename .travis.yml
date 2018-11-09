@@ -1,0 +1,28 @@
+services: docker
+
+matrix:
+  include:
+    - &main
+      name: "AMD64 build"
+      env: ARCH=amd64
+      script: |
+        echo "FROM pologrp/polo-ci:lapack-${ARCH}
+        COPY . /tmp/polo
+        RUN mkdir /tmp/polo/build
+        WORKDIR /tmp/polo/build
+        RUN cmake -D CMAKE_BUILD_TYPE=Release \
+                  -D BUILD_SHARED_LIBS=ON ../
+        RUN cmake --build ." > Dockerfile
+        docker build .
+
+    - <<: *main
+      name: "Emulated ARM32 build"
+      before_install:
+        - sudo docker run --rm --privileged multiarch/qemu-user-static:register --reset
+      env: ARCH=arm32
+
+    - <<: *main
+      name: "Emulated ARM64 build"
+      before_install:
+        - sudo docker run --rm --privileged multiarch/qemu-user-static:register --reset
+      env: ARCH=arm64
