@@ -1,5 +1,3 @@
-.. _example start:
-
 Gradient Descent
 ================
 
@@ -27,7 +25,7 @@ It is easy to verify that the optimizer for the problem is :math:`x^{\star} =
 One possible way to define the above loss function in C++ is to write a function
 of the form:
 
-.. literalinclude:: /../examples/gradient.cpp
+.. literalinclude:: cpp/gradient.cpp
   :language: cpp
   :lines: 4-18
 
@@ -46,7 +44,7 @@ minimization problem defined by the smooth loss function. Below is a piece of
 code to achieve this, which is also provided as ``examples/gradient.cpp`` in the
 repository.
 
-.. literalinclude:: /../examples/gradient.cpp
+.. literalinclude:: cpp/gradient.cpp
   :language: cpp
 
 In POLO, the ``algorithm::proxgradient`` class is an abstraction of a family of

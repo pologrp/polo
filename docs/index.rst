@@ -1,4 +1,5 @@
-POLO: POLicy-Based Optimization Framework
+=========================================
+POLO: a POLicy-based Optimization library
 =========================================
 
 POLicy-Based Optimization Framework (POLO) is a C++ header-only library. It is
@@ -26,115 +27,13 @@ use these policies in a modular way. By leveraging on template metaprogramming
 capabilities of C++, the library can be used to prototype, test and deploy
 different algorithms in a flexible, yet, efficient way.
 
-How to Install
---------------
-
-Because POLO is header-only, it is enough to copy the contents of the
-``include`` directory to one of the search paths of your compiler. If you have
-cmake_ installed on your system, you can issue the following commands on your
-terminal:
-
-.. _cmake: https://cmake.org/
-
-.. code-block:: shell
-
-  git clone https://github.com/aytekinar/polo
-  cd polo
-  mkdir build
-  cd build
-  cmake -D CMAKE_INSTALL_PREFIX=$HOME/local ../
-  cmake --build . --target install
-
-This will install the library into ``$HOME/local/include``, where ``$HOME``
-usually points to ``/home/<username>`` on Linux systems. Once the installation
-is complete, you can either configure your compiler to search for the header
-files under ``$HOME/local/include`` or use the switch ``-I $HOME/local/include``
-whenever you compile your project that uses POLO.
-
-What Next
----------
-
-Having installed the library successfully, you continue reading to understand
-how things work :ref:`under the hood <explanation start>`, or you can jump to
-the :ref:`examples <example start>` section to have a walkthrough.
-
 .. toctree::
-  :glob:
   :hidden:
-  :maxdepth: 2
-  :Caption: Algorithm Abstraction
+  :maxdepth: 3
 
-  algorithm/proxgradient
-
-.. toctree::
-  :glob:
-  :hidden:
-  :maxdepth: 2
-  :Caption: Boosting Policy
-
-  boosting/momentum
-  boosting/incremental
-
-.. toctree::
-  :glob:
-  :hidden:
-  :maxdepth: 2
-  :Caption: Smoothing Policy
-
-  smoothing
-
-.. toctree::
-  :glob:
-  :hidden:
-  :maxdepth: 2
-  :Caption: Step Size Policy
-
-  step
-
-.. toctree::
-  :glob:
-  :hidden:
-  :maxdepth: 2
-  :Caption: Prox Policy
-
-  prox/set
-  prox/prox
-
-.. toctree::
-  :glob:
-  :hidden:
-  :maxdepth: 2
-  :Caption: Execution Policy
-
-  execution/serial
-  execution/multithread
-  execution/paramserver
-
-.. toctree::
-  :glob:
-  :hidden:
-  :maxdepth: 2
-  :Caption: Utilities
-
-  utility/terminator
-  utility/sampler
-  utility/logger
-  utility/matrix
-  utility/problem
-
-.. toctree::
-  :glob:
-  :hidden:
-  :maxdepth: 2
-  :Caption: Examples
-
-  examples/*
-
-..
-  .. toctree::
-    :glob:
-    :hidden:
-    :maxdepth: 2
-    :Caption: Further Topics
-
-    further/*
+  installation
+  algorithms
+  policies
+  utilities
+  api
+  examples

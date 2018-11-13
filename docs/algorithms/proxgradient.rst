@@ -1,5 +1,3 @@
-.. _explanation start:
-
 Proximal Gradient Algorithms
 ============================
 
