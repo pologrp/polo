@@ -13,21 +13,11 @@ add_library(polo::polo ALIAS polo)
 
 target_compile_features(polo INTERFACE cxx_std_11)
 
-if (CURL_FOUND)
-target_compile_definitions(polo INTERFACE POLO_WITH_CURL)
-endif()
-
 target_include_directories(polo
   INTERFACE
     $<BUILD_INTERFACE:${polo_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
-if (CURL_FOUND)
-target_include_directories(polo
-  INTERFACE
-    ${CURL_INCLUDE_DIRS}
-)
-endif()
 
 target_link_libraries(polo
   INTERFACE
@@ -35,6 +25,7 @@ target_link_libraries(polo
     libzmq
     cereal
 )
+
 if (TARGET OpenBLAS::OpenBLAS)
   target_link_libraries(polo
     INTERFACE
@@ -47,11 +38,18 @@ else()
       lapack
   )
 endif()
+
 if (CURL_FOUND)
-target_link_libraries(polo
-  INTERFACE
-    ${CURL_LIBRARIES}
-)
+  set(POLO_DEPENDS_CURL "find_dependency(CURL)")
+  target_compile_definitions(polo INTERFACE POLO_WITH_CURL)
+  target_include_directories(polo
+    INTERFACE
+      ${CURL_INCLUDE_DIRS}
+  )
+  target_link_libraries(polo
+    INTERFACE
+      ${CURL_LIBRARIES}
+  )
 endif()
 
 install(TARGETS polo EXPORT polo)
@@ -74,9 +72,12 @@ install(
   DESTINATION
     include/polo
 )
+
+configure_file(polo-config.cmake.in polo-config.cmake @ONLY)
+
 install(
   FILES
-    "polo-config.cmake"
+    "${polo_BINARY_DIR}/polo-config.cmake"
     "${polo_BINARY_DIR}/polo-config-version.cmake"
   DESTINATION
     lib/cmake/polo

@@ -1,7 +1,0 @@
-include(CMakeFindDependencyMacro)
-find_dependency(Threads REQUIRED)
-find_dependency(LAPACK REQUIRED NAMES OpenBLAS lapack)
-find_dependency(ZeroMQ REQUIRED)
-find_dependency(cereal REQUIRED)
-find_dependency(CURL QUIET)
-include("${CMAKE_CURRENT_LIST_DIR}/polo-targets.cmake")
