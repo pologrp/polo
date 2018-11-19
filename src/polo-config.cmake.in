@@ -1,6 +1,7 @@
 include(CMakeFindDependencyMacro)
 find_dependency(Threads)
-find_dependency(LAPACK NAMES OpenBLAS lapack)
+find_dependency(BLAS)
+find_dependency(LAPACK)
 find_dependency(ZeroMQ)
 find_dependency(cereal)
 @POLO_DEPENDS_CURL@

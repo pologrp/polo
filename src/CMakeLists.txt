@@ -3,7 +3,8 @@ cmake_minimum_required(VERSION 3.9.0)
 project(polo VERSION 1.0.0 LANGUAGES C CXX)
 
 find_package(Threads REQUIRED)
-find_package(LAPACK REQUIRED NAMES OpenBLAS lapack)
+find_package(BLAS REQUIRED)
+find_package(LAPACK REQUIRED)
 find_package(ZeroMQ REQUIRED)
 find_package(cereal REQUIRED)
 find_package(CURL QUIET)
@@ -24,20 +25,9 @@ target_link_libraries(polo
     Threads::Threads
     libzmq
     cereal
+    ${BLAS_LIBRARIES}
+    ${LAPACK_LIBRARIES}
 )
-
-if (TARGET OpenBLAS::OpenBLAS)
-  target_link_libraries(polo
-    INTERFACE
-      OpenBLAS::OpenBLAS
-  )
-else()
-  target_link_libraries(polo
-    INTERFACE
-      blas
-      lapack
-  )
-endif()
 
 if (CURL_FOUND)
   set(POLO_DEPENDS_CURL "find_dependency(CURL)")
