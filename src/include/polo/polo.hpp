@@ -3,6 +3,7 @@
 
 #include "polo/algorithm.hpp"
 #include "polo/boosting.hpp"
+#include "polo/encoder.hpp"
 #include "polo/execution.hpp"
 #include "polo/loss.hpp"
 #include "polo/matrix.hpp"

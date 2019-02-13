@@ -10,5 +10,6 @@ endif()
 enable_testing()
 
 add_subdirectory(boosting)
+add_subdirectory(encoder)
 add_subdirectory(step)
 add_subdirectory(utility)
