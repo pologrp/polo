@@ -15,18 +15,31 @@
 namespace polo {
 namespace loss {
 template <class value_t, class index_t> struct data {
+  using matrix_t = std::shared_ptr<const matrix::amatrix<value_t, index_t>>;
+  using vector_t = std::shared_ptr<const std::vector<value_t>>;
+
   data() = default;
-  data(std::shared_ptr<const matrix::amatrix<value_t, index_t>> A,
-       std::shared_ptr<const std::vector<value_t>> b)
-      : A(std::move(A)), b(std::move(b)) {
-    if (std::size_t(this->A->nrows()) != this->b->size())
+  data(matrix_t A, vector_t b) : A(std::move(A)), b(std::move(b)) {
+    if (size_t(this->A->nrows()) != this->b->size())
       throw std::domain_error("data: dimension mismatch in construction");
+  }
+  data(matrix::dmatrix<value_t, index_t> A, std::vector<value_t> b) {
+    if (size_t(A.nrows()) != b.size())
+      throw std::domain_error("data: dimension mismatch in construction");
+    this->A.reset(new matrix::dmatrix<value_t, index_t>(std::move(A)));
+    this->b.reset(new std::vector<value_t>(std::move(b)));
+  }
+  data(matrix::smatrix<value_t, index_t> A, std::vector<value_t> b) {
+    if (size_t(A.nrows()) != b.size())
+      throw std::domain_error("data: dimension mismatch in construction");
+    this->A.reset(new matrix::smatrix<value_t, index_t>(std::move(A)));
+    this->b.reset(new std::vector<value_t>(std::move(b)));
   }
 
   index_t nsamples() const noexcept { return A->nrows(); }
   index_t nfeatures() const noexcept { return A->ncols(); }
   value_t density() const noexcept { return A->density(); }
-  std::size_t size() const noexcept {
+  size_t size() const noexcept {
     return A->size() + sizeof(value_t) * b->size();
   }
 
@@ -36,18 +49,15 @@ template <class value_t, class index_t> struct data {
   }
   void residual(const value_t *x, value_t *r, const index_t *ibegin,
                 const index_t *iend) const noexcept {
-    for (const index_t *temp = ibegin; temp < iend; temp++)
-      r[*temp] = (*b)[*temp];
+    index_t k{0};
+    const index_t *itemp{ibegin};
+    while (itemp != iend)
+      r[k++] = (*b)[*itemp++];
     A->mult_add('n', 1, x, -1, r, ibegin, iend);
   }
 
-  std::shared_ptr<const matrix::amatrix<value_t, index_t>> matrix() const
-      noexcept {
-    return A;
-  }
-  std::shared_ptr<const std::vector<value_t>> labels() const noexcept {
-    return b;
-  }
+  matrix_t matrix() const noexcept { return A; }
+  vector_t labels() const noexcept { return b; }
 
   void save(const std::string &filename) const {
     std::ofstream file(filename, std::ios_base::binary);

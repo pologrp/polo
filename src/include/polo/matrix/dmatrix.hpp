@@ -59,20 +59,31 @@ struct dmatrix : public amatrix<value_t, index_t> {
 
   void mult_add(const char trans, const value_t alpha, const value_t *x,
                 const value_t beta, value_t *y) const noexcept override {
-    utility::matrix::blas<value_t>::gemv(
-        trans, amatrix<value_t, index_t>::nrows(),
-        amatrix<value_t, index_t>::ncols(), alpha, &values_[0],
-        amatrix<value_t, index_t>::nrows(), x, 1, beta, y, 1);
+    const index_t nrows = amatrix<value_t, index_t>::nrows();
+    const index_t ncols = amatrix<value_t, index_t>::ncols();
+    utility::matrix::blas<value_t>::gemv(trans, nrows, ncols, alpha,
+                                         &values_[0], nrows, x, 1, beta, y, 1);
   }
   void mult_add(const char trans, const value_t alpha, const value_t *x,
                 const value_t beta, value_t *y, const index_t *rbegin,
                 const index_t *rend) const noexcept override {
-    while (rbegin != rend) {
-      const index_t row = *rbegin++;
-      utility::matrix::blas<value_t>::gemv(
-          trans, 1, amatrix<value_t, index_t>::ncols(), alpha, &values_[row],
-          amatrix<value_t, index_t>::nrows(), x, 1, beta, y, 1);
-    }
+    const index_t nrows = amatrix<value_t, index_t>::nrows();
+    const index_t ncols = amatrix<value_t, index_t>::ncols();
+    const bool notrans = (trans == 'N') | (trans == 'n');
+    value_t *yend = y + (notrans ? std::distance(rbegin, rend) : size_t(ncols));
+    std::transform(y, yend, y, [=](const value_t val) { return beta * val; });
+    if (notrans)
+      while (rbegin != rend) {
+        const index_t row = *rbegin++;
+        utility::matrix::blas<value_t>::gemv(
+            trans, 1, ncols, alpha, &values_[row], nrows, x, 1, 1, y++, 1);
+      }
+    else
+      while (rbegin != rend) {
+        const index_t row = *rbegin++;
+        utility::matrix::blas<value_t>::gemv(
+            trans, 1, ncols, alpha, &values_[row], nrows, x++, 1, 1, y, 1);
+      }
   }
 
   void save(std::ostream &os) const override {

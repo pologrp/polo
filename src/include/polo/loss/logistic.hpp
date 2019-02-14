@@ -15,14 +15,12 @@ struct logistic : public aloss<value_t, index_t> {
   logistic(data<value_t, index_t> data)
       : aloss<value_t, index_t>(std::move(data)) {}
 
-  using aloss<value_t, index_t>::operator();
-  using aloss<value_t, index_t>::partial;
-
-  value_t operator()(const value_t *x, value_t *g) const noexcept override {
+  value_t operator()(const value_t *x, value_t *g) const
+      noexcept override final {
     value_t loss{0};
-    std::vector<value_t> ax(aloss<value_t, index_t>::data_.nsamples());
-    auto A = aloss<value_t, index_t>::data_.matrix();
-    auto b = aloss<value_t, index_t>::data_.labels();
+    std::vector<value_t> ax(aloss<value_t, index_t>::nsamples());
+    auto A = aloss<value_t, index_t>::matrix();
+    auto b = aloss<value_t, index_t>::labels();
     A->mult_add('n', 1, x, 0, &ax[0]);
     std::transform(std::begin(*b), std::end(*b), std::begin(ax), std::begin(ax),
                    [](const value_t b, const value_t ax) { return -b * ax; });
@@ -40,29 +38,29 @@ struct logistic : public aloss<value_t, index_t> {
     A->mult_add('t', 1, &ax[0], 0, g);
     return loss;
   }
-  value_t incremental(const value_t *x, value_t *g, const index_t *ibegin,
-                      const index_t *iend) const noexcept override {
+  value_t operator()(const value_t *x, value_t *g, const index_t *ib,
+                     const index_t *ie) const noexcept override final {
     value_t loss{0};
-    std::vector<value_t> ax(std::distance(ibegin, iend));
-    auto A = aloss<value_t, index_t>::data_.matrix();
-    auto b = aloss<value_t, index_t>::data_.labels();
-    A->mult_add('n', 1, x, 0, &ax[0], ibegin, iend);
-    const index_t *ibegin2 = ibegin;
+    std::vector<value_t> ax(std::distance(ib, ie));
+    auto A = aloss<value_t, index_t>::matrix();
+    auto b = aloss<value_t, index_t>::labels();
+    A->mult_add('n', 1, x, 0, &ax[0], ib, ie);
+    const index_t *itemp{ib};
     index_t idx = 0;
-    while (ibegin2 != iend)
-      ax[idx++] *= -(*b)[*ibegin2++];
-    ibegin2 = ibegin;
+    while (itemp != ie)
+      ax[idx++] *= -(*b)[*itemp++];
+    itemp = ib;
     for (auto &val : ax) {
       const value_t temp = std::exp(val);
       if (std::isinf(temp)) {
         loss += val;
-        val = -(*b)[*ibegin2++];
+        val = -(*b)[*itemp++];
       } else {
         loss += std::log1p(temp);
-        val = -(*b)[*ibegin2++] * temp / (1 + temp);
+        val = -(*b)[*itemp++] * temp / (1 + temp);
       }
     }
-    A->mult_add('t', 1, &ax[0], 0, g, ibegin, iend);
+    A->mult_add('t', 1, &ax[0], 0, g, ib, ie);
     return loss;
   }
 };

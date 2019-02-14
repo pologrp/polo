@@ -6,48 +6,30 @@
 namespace polo {
 namespace loss {
 template <class value_t, class index_t> struct aloss {
+  using data_t = loss::data<value_t, index_t>;
+  using matrix_t = typename data_t::matrix_t;
+  using vector_t = typename data_t::vector_t;
+
   aloss() = default;
-  aloss(loss::data<value_t, index_t> data) : data_(std::move(data)) {}
+  aloss(data_t data) : data_(std::move(data)) {}
 
-  void data(loss::data<value_t, index_t> data) { data_ = std::move(data); }
-  loss::data<value_t, index_t> data() const noexcept { return data_; }
+  void data(data_t data) { data_ = std::move(data); }
+  data_t data() const noexcept { return data_; }
 
-  std::shared_ptr<matrix::amatrix<value_t, index_t>> matrix() const noexcept {
-    return data_.matrix();
-  }
-  std::shared_ptr<std::vector<value_t>> labels() const noexcept {
-    return data_.labels();
-  }
+  index_t nsamples() const noexcept { return data_.nsamples(); }
+  index_t nfeatures() const noexcept { return data_.nfeatures(); }
+
+  matrix_t matrix() const noexcept { return data_.matrix(); }
+  vector_t labels() const noexcept { return data_.labels(); }
 
   virtual value_t operator()(const value_t *x, value_t *g) const noexcept = 0;
-  virtual value_t partial(const value_t *x, value_t *g, const index_t *ibegin,
-                          const index_t *iend) const noexcept {
-    std::vector<value_t> full(data_.nfeatures());
-    value_t fval = operator()(x, &full[0]);
-    std::size_t idx{0};
-    while (ibegin != iend)
-      g[idx++] = full[*ibegin++];
-    return fval;
-  };
-  virtual value_t incremental(const value_t *x, value_t *g,
-                              const index_t *ibegin, const index_t *iend) const
-      noexcept = 0;
-  virtual value_t operator()(const value_t *x, value_t *g,
-                             const index_t *i1begin, const index_t *i1end,
-                             const index_t *i2begin, const index_t *i2end) const
-      noexcept {
-    std::vector<value_t> full(data_.nfeatures());
-    value_t fval = incremental(x, &full[0], i1begin, i1end);
-    std::size_t idx{0};
-    while (i2begin != i2end)
-      g[idx++] = full[*i2begin++];
-    return fval;
-  };
+  virtual value_t operator()(const value_t *x, value_t *g, const index_t *ib,
+                             const index_t *ie) const noexcept = 0;
 
   virtual ~aloss() = default;
 
 protected:
-  loss::data<value_t, index_t> data_;
+  data_t data_;
 };
 } // namespace loss
 } // namespace polo
