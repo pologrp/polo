@@ -16,8 +16,7 @@ template <class value_t, class index_t> struct none {
   template <class InputIt, class OutputIt>
   OutputIt boost(const index_t, const index_t, const index_t, InputIt gprev_b,
                  InputIt gprev_e, OutputIt gcurr) const {
-    return std::transform(gprev_b, gprev_e, gcurr,
-                          [](const value_t g) { return g; });
+    return std::copy(gprev_b, gprev_e, gcurr);
   }
 
 protected:

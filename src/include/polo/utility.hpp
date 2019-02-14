@@ -3,8 +3,6 @@
 
 #include "polo/utility/atomic.hpp"
 #include "polo/utility/blas.hpp"
-#include "polo/utility/custom_logger.hpp"
-#include "polo/utility/custom_termination.hpp"
 #include "polo/utility/lapack.hpp"
 #include "polo/utility/logger.hpp"
 #include "polo/utility/maxiter.hpp"

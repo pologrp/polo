@@ -19,7 +19,10 @@ template <class value_t, class index_t> struct aggregated {
   template <class InputIt, class OutputIt>
   OutputIt boost(const index_t wid, const index_t, const index_t,
                  InputIt gprev_b, InputIt gprev_e, OutputIt gcurr) {
-    gradients[wid] = std::vector<value_t>(gprev_b, gprev_e);
+    if (gradients.count(wid) > 0)
+      std::copy(gprev_b, gprev_e, std::begin(gradients[wid]));
+    else
+      gradients[wid] = std::vector<value_t>(gprev_b, gprev_e);
     for (auto &g : gradient)
       g = 0;
     for (const auto &p : gradients)
