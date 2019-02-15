@@ -27,3 +27,6 @@ matrix:
       before_install:
         - sudo docker run --rm --privileged multiarch/qemu-user-static:register --reset
       env: ARCH=arm64
+
+notifications:
+  email: false
