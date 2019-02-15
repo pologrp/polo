@@ -3,7 +3,7 @@
 [![Unix][unix-img]][unix-link] [![Docker][docker-img]][docker-link]
 [![Docs][docs-img]][docs-link] [![License][license-img]][license-link]
 
-[unix-img]: https://img.shields.io/travis/com/pologrp/polo.svg
+[unix-img]: https://img.shields.io/travis/com/pologrp/polo/master.svg
 [unix-link]: https://travis-ci.com/pologrp/polo
 [docs-img]: https://readthedocs.org/projects/polo/badge/?version=latest
 [docs-link]: https://polo.readthedocs.io/
