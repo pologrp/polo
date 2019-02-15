@@ -4,6 +4,7 @@ project(polo-super)
 
 add_subdirectory(src)
 add_subdirectory(c-api)
+add_subdirectory(docs)
 
 enable_testing()
 add_subdirectory(tests)
