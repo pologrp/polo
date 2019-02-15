@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "polo/boosting/none.hpp"
+#include "polo/encoder/identity.hpp"
 #include "polo/execution/serial.hpp"
 #include "polo/prox/none.hpp"
 #include "polo/smoothing/none.hpp"
@@ -65,94 +66,138 @@ struct proxgradient : public boosting<value_t, index_t>,
     execution<value_t, index_t>::parameters(std::forward<Ts>(params)...);
   }
 
-  template <class Loss, class Terminator, class Logger>
-  void solve(Loss &&loss, Terminator &&terminator, Logger &&logger) {
-    execution<value_t, index_t>::solve(this, std::forward<Loss>(loss),
-                                       std::forward<Terminator>(terminator),
-                                       std::forward<Logger>(logger));
+  template <class Loss, class Encoder, class Terminator, class Logger>
+  void solve(Loss &&loss, Encoder &&encoder, Terminator &&terminator,
+             Logger &&logger) {
+    execution<value_t, index_t>::solve(
+        this, std::forward<Loss>(loss), std::forward<Encoder>(encoder),
+        std::forward<Terminator>(terminator), std::forward<Logger>(logger));
   }
-  template <class Loss, class Terminator>
-  void solve(Loss &&loss, Terminator &&terminator) {
-    solve(std::forward<Loss>(loss), std::forward<Terminator>(terminator),
+  template <class Loss, class Encoder, class Terminator>
+  void solve(Loss &&loss, Encoder &&encoder, Terminator &&terminator) {
+    solve(std::forward<Loss>(loss), std::forward<Encoder>(encoder),
+          std::forward<Terminator>(terminator), utility::detail::null{});
+  }
+  template <class Loss, class Encoder>
+  void solve(Loss &&loss, Encoder &&encoder) {
+    solve(std::forward<Loss>(loss), std::forward<Encoder>(encoder),
+          utility::terminator::maxiter<value_t, index_t>{100},
           utility::detail::null{});
   }
   template <class Loss> void solve(Loss &&loss) {
-    solve(std::forward<Loss>(loss),
+    solve(std::forward<Loss>(loss), encoder::identity<value_t, index_t>{},
           utility::terminator::maxiter<value_t, index_t>{100},
           utility::detail::null{});
   }
 
-  template <class Loss, class Sampler, class Terminator, class Logger>
+  template <class Loss, class Sampler, class Encoder, class Terminator,
+            class Logger>
   void solve(Loss &&loss, utility::sampler::detail::component_sampler_t s,
-             Sampler &&sampler, const index_t num_components,
+             Sampler &&sampler, const index_t num_components, Encoder &&encoder,
              Terminator &&terminator, Logger &&logger) {
     execution<value_t, index_t>::solve(
-        this, std::forward<Loss>(loss), std::forward<Terminator>(terminator),
-        std::forward<Logger>(logger), s, std::forward<Sampler>(sampler),
-        num_components);
+        this, std::forward<Loss>(loss), std::forward<Encoder>(encoder),
+        std::forward<Terminator>(terminator), std::forward<Logger>(logger), s,
+        std::forward<Sampler>(sampler), num_components);
   }
-  template <class Loss, class Sampler, class Terminator>
+  template <class Loss, class Sampler, class Encoder, class Terminator>
   void solve(Loss &&loss, utility::sampler::detail::component_sampler_t s,
-             Sampler &&sampler, const index_t num_components,
+             Sampler &&sampler, const index_t num_components, Encoder &&encoder,
              Terminator &&terminator) {
     solve(std::forward<Loss>(loss), s, std::forward<Sampler>(sampler),
-          num_components, std::forward<Terminator>(terminator),
+          num_components, std::forward<Encoder>(encoder),
+          std::forward<Terminator>(terminator), utility::detail::null{});
+  }
+  template <class Loss, class Sampler, class Encoder>
+  void solve(Loss &&loss, utility::sampler::detail::component_sampler_t s,
+             Sampler &&sampler, const index_t num_components,
+             Encoder &&encoder) {
+    solve(std::forward<Loss>(loss), s, std::forward<Sampler>(sampler),
+          num_components, std::forward<Encoder>(encoder),
+          utility::terminator::maxiter<value_t, index_t>{100},
           utility::detail::null{});
   }
   template <class Loss, class Sampler>
   void solve(Loss &&loss, utility::sampler::detail::component_sampler_t s,
              Sampler &&sampler, const index_t num_components) {
     solve(std::forward<Loss>(loss), s, std::forward<Sampler>(sampler),
-          num_components, utility::terminator::maxiter<value_t, index_t>{100},
+          num_components, encoder::identity<value_t, index_t>{},
+          utility::terminator::maxiter<value_t, index_t>{100},
           utility::detail::null{});
   }
 
-  template <class Loss, class Sampler, class Terminator, class Logger>
+  template <class Loss, class Sampler, class Encoder, class Terminator,
+            class Logger>
   void solve(Loss &&loss, utility::sampler::detail::coordinate_sampler_t s,
              Sampler &&sampler, const index_t num_coordinates,
-             Terminator &&terminator, Logger &&logger) {
+             Encoder &&encoder, Terminator &&terminator, Logger &&logger) {
     execution<value_t, index_t>::solve(
-        this, std::forward<Loss>(loss), std::forward<Terminator>(terminator),
-        std::forward<Logger>(logger), s, std::forward<Sampler>(sampler),
-        num_coordinates);
+        this, std::forward<Loss>(loss), std::forward<Encoder>(encoder),
+        std::forward<Terminator>(terminator), std::forward<Logger>(logger), s,
+        std::forward<Sampler>(sampler), num_coordinates);
   }
-  template <class Loss, class Sampler, class Terminator>
+  template <class Loss, class Sampler, class Encoder, class Terminator>
   void solve(Loss &&loss, utility::sampler::detail::coordinate_sampler_t s,
              Sampler &&sampler, const index_t num_coordinates,
-             Terminator &&terminator) {
+             Encoder &&encoder, Terminator &&terminator) {
     solve(std::forward<Loss>(loss), s, std::forward<Sampler>(sampler),
-          num_coordinates, std::forward<Terminator>(terminator),
+          num_coordinates, std::forward<Encoder>(encoder),
+          std::forward<Terminator>(terminator), utility::detail::null{});
+  }
+  template <class Loss, class Sampler, class Encoder>
+  void solve(Loss &&loss, utility::sampler::detail::coordinate_sampler_t s,
+             Sampler &&sampler, const index_t num_coordinates,
+             Encoder &&encoder) {
+    solve(std::forward<Loss>(loss), s, std::forward<Sampler>(sampler),
+          num_coordinates, std::forward<Encoder>(encoder),
+          utility::terminator::maxiter<value_t, index_t>{100},
           utility::detail::null{});
   }
   template <class Loss, class Sampler>
   void solve(Loss &&loss, utility::sampler::detail::coordinate_sampler_t s,
              Sampler &&sampler, const index_t num_coordinates) {
     solve(std::forward<Loss>(loss), s, std::forward<Sampler>(sampler),
-          num_coordinates, utility::terminator::maxiter<value_t, index_t>{100},
+          num_coordinates, encoder::identity<value_t, index_t>{},
+          utility::terminator::maxiter<value_t, index_t>{100},
           utility::detail::null{});
   }
 
-  template <class Loss, class Sampler1, class Sampler2, class Terminator,
-            class Logger>
+  template <class Loss, class Sampler1, class Sampler2, class Encoder,
+            class Terminator, class Logger>
   void solve(Loss &&loss, utility::sampler::detail::component_sampler_t s1,
              Sampler1 &&sampler1, const index_t num_components,
              utility::sampler::detail::coordinate_sampler_t s2,
              Sampler2 &&sampler2, const index_t num_coordinates,
-             Terminator &&terminator, Logger &&logger) {
+             Encoder &&encoder, Terminator &&terminator, Logger &&logger) {
     execution<value_t, index_t>::solve(
-        this, std::forward<Loss>(loss), std::forward<Terminator>(terminator),
-        std::forward<Logger>(logger), s1, std::forward<Sampler1>(sampler1),
-        num_components, s2, std::forward<Sampler2>(sampler2), num_coordinates);
+        this, std::forward<Loss>(loss), std::forward<Encoder>(encoder),
+        std::forward<Terminator>(terminator), std::forward<Logger>(logger), s1,
+        std::forward<Sampler1>(sampler1), num_components, s2,
+        std::forward<Sampler2>(sampler2), num_coordinates);
   }
-  template <class Loss, class Sampler1, class Sampler2, class Terminator>
+  template <class Loss, class Sampler1, class Sampler2, class Encoder,
+            class Terminator>
   void solve(Loss &&loss, utility::sampler::detail::component_sampler_t s1,
              Sampler1 &&sampler1, const index_t num_components,
              utility::sampler::detail::coordinate_sampler_t s2,
              Sampler2 &&sampler2, const index_t num_coordinates,
-             Terminator &&terminator) {
+             Encoder &&encoder, Terminator &&terminator) {
     solve(std::forward<Loss>(loss), s1, std::forward<Sampler1>(sampler1),
           num_components, s2, std::forward<Sampler2>(sampler2), num_coordinates,
-          std::forward<Terminator>(terminator), utility::detail::null{});
+          std::forward<Encoder>(encoder), std::forward<Terminator>(terminator),
+          utility::detail::null{});
+  }
+  template <class Loss, class Sampler1, class Sampler2, class Encoder>
+  void solve(Loss &&loss, utility::sampler::detail::component_sampler_t s1,
+             Sampler1 &&sampler1, const index_t num_components,
+             utility::sampler::detail::coordinate_sampler_t s2,
+             Sampler2 &&sampler2, const index_t num_coordinates,
+             Encoder &&encoder) {
+    solve(std::forward<Loss>(loss), s1, std::forward<Sampler1>(sampler1),
+          num_components, s2, std::forward<Sampler2>(sampler2), num_coordinates,
+          std::forward<Encoder>(encoder),
+          utility::terminator::maxiter<value_t, index_t>{100},
+          utility::detail::null{});
   }
   template <class Loss, class Sampler1, class Sampler2>
   void solve(Loss &&loss, utility::sampler::detail::component_sampler_t s1,
@@ -161,6 +206,7 @@ struct proxgradient : public boosting<value_t, index_t>,
              Sampler2 &&sampler2, const index_t num_coordinates) {
     solve(std::forward<Loss>(loss), s1, std::forward<Sampler1>(sampler1),
           num_components, s2, std::forward<Sampler2>(sampler2), num_coordinates,
+          encoder::identity<value_t, index_t>{},
           utility::terminator::maxiter<value_t, index_t>{100},
           utility::detail::null{});
   }
