@@ -5,6 +5,7 @@
 #include "polo_aux.hpp"
 
 #include "polo/algorithm/proxgradient.hpp"
+#include "polo/encoder/identity.hpp"
 
 extern "C" {
 polo_error_t polo_gradient_s(polo_value_t *fval, polo_value_t *xbegin,
@@ -24,6 +25,7 @@ polo_error_t polo_gradient_s(polo_value_t *fval, polo_value_t *xbegin,
     alg.initialize(xbegin, xend);
     alg.solve([=](const polo_value_t *x,
                   polo_value_t *g) { return loss_f(x, g, loss_d); },
+              encoder::identity<polo_value_t, polo_index_t>{},
               [=](const polo_index_t k, const polo_value_t fval,
                   const polo_value_t *xbegin, const polo_value_t *xend,
                   const polo_value_t *gbegin) {

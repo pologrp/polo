@@ -3,6 +3,7 @@
 
 #include "polo/algorithm/proxgradient.hpp"
 #include "polo/boosting/custom.hpp"
+#include "polo/encoder/identity.hpp"
 #include "polo/execution/paramserver.hpp"
 #include "polo/prox/custom.hpp"
 #include "polo/smoothing/custom.hpp"
@@ -24,7 +25,7 @@ polo_error_t polo_proxgrad_pss(const polo_value_t *xbegin,
         alg;
     alg.execution_parameters(parse_ps_opts(opts));
     alg.initialize(xbegin, xend);
-    alg.solve(nullptr,
+    alg.solve(nullptr, encoder::identity<polo_value_t, polo_index_t>{},
               [=](const polo_index_t k, const polo_value_t fval,
                   const polo_value_t *xbegin, const polo_value_t *xend,
                   const polo_value_t *gbegin) {

@@ -3,6 +3,7 @@
 
 #include "polo/algorithm/proxgradient.hpp"
 #include "polo/boosting/momentum.hpp"
+#include "polo/encoder/identity.hpp"
 #include "polo/execution/paramserver.hpp"
 
 extern "C" {
@@ -24,7 +25,7 @@ polo_error_t polo_momentum_psw(const polo_value_t *xbegin,
         [=](const polo_value_t *xbegin, polo_value_t *gbegin) {
           return loss_f(xbegin, gbegin, loss_d);
         },
-        nullptr,
+        encoder::identity<polo_value_t, polo_index_t>{}, nullptr,
         [=](const polo_index_t k, const polo_value_t fval,
             const polo_value_t *xbegin, const polo_value_t *xend,
             const polo_value_t *gbegin) {
