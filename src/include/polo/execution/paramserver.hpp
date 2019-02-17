@@ -10,6 +10,7 @@
 #include <string>
 #include <thread>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -182,6 +183,15 @@ protected:
     detail::deserialize(msg, 1, x);
     g = std::vector<value_t>(x.size());
 
+    xb = x.data();
+    xe = xb + x.size();
+    xb_c = xb;
+    xe_c = xe;
+    gb = g.data();
+    ge = gb + g.size();
+    gb_c = gb;
+    ge_c = ge;
+
     poll.clear();
     poll.additem(subscription, communicator::zmq::poll_event::pollin);
     poll.additem(router, communicator::zmq::poll_event::pollin);
@@ -189,14 +199,16 @@ protected:
     return x;
   }
 
-  template <class Algorithm, class Loss, class Terminator, class Logger>
-  void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
+  template <class Algorithm, class Loss, class Encoder, class Terminator,
+            class Logger>
+  void solve(Algorithm *alg, Loss &&loss, Encoder &&, Terminator &&terminate,
              Logger &&logger) {
     value_t fval;
     index_t wid, kworker;
     std::string data;
-    std::vector<index_t> indices;
     communicator::zmq::message msg;
+
+    typename std::decay<Encoder>::type::result_type enc;
 
     while (poll.poll(timeout) > 0) {
       if (poll[0].isready()) {
@@ -220,49 +232,23 @@ protected:
           continue;
         }
 
-        std::vector<value_t> values;
         const char tag = msg.read<char>(pid++);
 
         if (tag == 'x') {
-          if (msg.size(pid) == 0)
-            values = x;
-          else {
-            detail::deserialize(msg, pid, indices);
-            for (const auto ind : indices)
-              values.push_back(x[ind - startind]);
-          }
-          data = detail::serialize(values);
+          data = detail::serialize(x);
           msg[pid] = {std::begin(data), std::end(data)};
           msg.send(router);
         } else if (tag == 'g') {
-          value_t *xb = x.data();
-          const value_t *xb_c = xb;
-          const value_t *xe_c = xb_c + x.size();
-
-          value_t *gb = g.data();
-          const value_t *gb_c = gb;
-          const value_t *ge_c = gb_c + g.size();
-
           detail::deserialize(msg, pid++, wid);
           detail::deserialize(msg, pid++, kworker);
           detail::deserialize(msg, pid++, fval);
-          if (msg.size(pid) == 0)
-            detail::deserialize(msg, pid + 1, g);
-          else {
-            for (auto &val : g)
-              val = 0;
-            detail::deserialize(msg, pid++, indices);
-            detail::deserialize(msg, pid, values);
-            std::size_t valind{0};
-            for (const auto ind : indices)
-              g[ind - startind] = values[valind++];
-          }
+          detail::deserialize(msg, pid, enc);
+          enc(gb, ge, startind);
           alg->boost(wid, kworker, k, gb_c, ge_c, gb);
           alg->smooth(kworker, k, xb_c, xe_c, gb_c, gb);
           const value_t step = alg->step(kworker, k, fval, xb_c, xe_c, gb_c);
           alg->prox(step, xb_c, xe_c, gb_c, xb);
           std::forward<Logger>(logger)(k, fval, xb_c, xe_c, gb_c);
-          msg.pop_back();
           msg.pop_back();
           msg.pop_back();
           msg.pop_back();
@@ -274,21 +260,24 @@ protected:
     }
   }
 
-  template <class Algorithm, class Loss, class Terminator, class Logger,
-            class Space, class Sampler>
-  void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
-             Logger &&logger, Space, Sampler &&, const index_t) {
-    solve(alg, std::forward<Loss>(loss), std::forward<Terminator>(terminate),
-          std::forward<Logger>(logger));
+  template <class Algorithm, class Loss, class Encoder, class Terminator,
+            class Logger, class Space, class Sampler>
+  void solve(Algorithm *alg, Loss &&loss, Encoder &&encoder,
+             Terminator &&terminate, Logger &&logger, Space, Sampler &&,
+             const index_t) {
+    solve(alg, std::forward<Loss>(loss), std::forward<Encoder>(encoder),
+          std::forward<Terminator>(terminate), std::forward<Logger>(logger));
   }
 
-  template <class Algorithm, class Loss, class Terminator, class Logger,
-            class Space1, class Sampler1, class Space2, class Sampler2>
-  void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
-             Logger &&logger, Space1, Sampler1 &&, const index_t, Space2,
+  template <class Algorithm, class Loss, class Encoder, class Terminator,
+            class Logger, class Sampler1, class Sampler2>
+  void solve(Algorithm *alg, Loss &&loss, Encoder &&encoder,
+             Terminator &&terminate, Logger &&logger,
+             utility::sampler::detail::component_sampler_t, Sampler1 &&,
+             const index_t, utility::sampler::detail::coordinate_sampler_t,
              Sampler2 &&, const index_t) {
-    solve(alg, std::forward<Loss>(loss), std::forward<Terminator>(terminate),
-          std::forward<Logger>(logger));
+    solve(alg, std::forward<Loss>(loss), std::forward<Encoder>(encoder),
+          std::forward<Terminator>(terminate), std::forward<Logger>(logger));
   }
 
   ~master() = default;
@@ -304,6 +293,8 @@ private:
   std::string maddress, saddress;
   std::uint16_t spub, smaster, mworker;
   index_t startind, k{1};
+  value_t *xb, *xe, *gb, *ge;
+  const value_t *xb_c, *xe_c, *gb_c, *ge_c;
   std::vector<value_t> x, g;
   communicator::zmq::context ctx;
   communicator::zmq::socket request{ctx, communicator::zmq::socket_type::req},
@@ -334,6 +325,12 @@ protected:
   std::vector<value_t> initialize(InputIt xbegin, InputIt xend) {
     x = std::vector<value_t>(xbegin, xend);
     g = std::vector<value_t>(x.size());
+
+    xb = x.data();
+    xb_c = xb;
+    gb = g.data();
+    gb_c = gb;
+    ge_c = gb_c + g.size();
 
     subscription =
         communicator::zmq::socket{ctx, communicator::zmq::socket_type::sub};
@@ -377,74 +374,62 @@ protected:
     return x;
   }
 
-  template <class Algorithm, class Loss, class Terminator, class Logger>
-  void solve(Algorithm *, Loss &&loss, Terminator &&, Logger &&) {
-    const value_t *xb_c = x.data();
-    value_t *gb = g.data();
-
-    auto f = [&, xb_c, gb]() { fval = std::forward<Loss>(loss)(xb_c, gb); };
-
-    kernel(f);
+  template <class Algorithm, class Loss, class Encoder, class Terminator,
+            class Logger>
+  void solve(Algorithm *, Loss &&loss, Encoder &&encoder, Terminator &&,
+             Logger &&) {
+    auto f = [&]() {
+      fval = std::forward<Loss>(loss)(xb_c, gb);
+      return std::forward<Encoder>(encoder)(gb_c, ge_c);
+    };
+    kernel<typename std::decay<Encoder>::type>(f, nullptr);
   }
 
-  template <class Algorithm, class Loss, class Terminator, class Logger,
-            class Sampler>
-  void solve(Algorithm *, Loss &&loss, Terminator &&, Logger &&,
-             utility::sampler::detail::component_sampler_t, Sampler &&sampler,
-             const index_t num_components) {
-    const value_t *xb_c = x.data();
-    value_t *gb = g.data();
-
+  template <class Algorithm, class Loss, class Encoder, class Terminator,
+            class Logger, class Sampler>
+  void solve(Algorithm *, Loss &&loss, Encoder &&encoder, Terminator &&,
+             Logger &&, utility::sampler::detail::component_sampler_t,
+             Sampler &&sampler, const index_t num_components) {
     std::vector<index_t> components(num_components);
     index_t *cb = components.data();
     index_t *ce = cb + num_components;
     const index_t *cb_c = cb;
     const index_t *ce_c = ce;
 
-    auto f = [&, xb_c, gb, cb, ce, cb_c, ce_c]() {
+    auto f = [&, cb, ce, cb_c, ce_c]() {
       std::forward<Sampler>(sampler)(cb, ce);
       fval = std::forward<Loss>(loss)(xb_c, gb, cb_c, ce_c);
+      return std::forward<Encoder>(encoder)(gb_c, ge_c);
     };
-
-    kernel(f);
+    kernel<typename std::decay<Encoder>::type>(f, nullptr);
   }
 
-  template <class Algorithm, class Loss, class Terminator, class Logger,
-            class Sampler>
-  void solve(Algorithm *, Loss &&loss, Terminator &&, Logger &&,
-             utility::sampler::detail::coordinate_sampler_t, Sampler &&sampler,
-             const index_t num_coordinates) {
-    const value_t *xb_c = x.data();
-
+  template <class Algorithm, class Loss, class Encoder, class Terminator,
+            class Logger, class Sampler>
+  void solve(Algorithm *, Loss &&loss, Encoder &&encoder, Terminator &&,
+             Logger &&, utility::sampler::detail::coordinate_sampler_t,
+             Sampler &&sampler, const index_t num_coordinates) {
     std::vector<index_t> coordinates(num_coordinates);
     index_t *cb = coordinates.data();
     index_t *ce = cb + num_coordinates;
     const index_t *cb_c = cb;
     const index_t *ce_c = ce;
 
-    std::vector<value_t> partial(num_coordinates);
-    value_t *pb = partial.data();
-
-    auto f = [&, xb_c, pb, cb, ce, cb_c, ce_c]() {
+    auto f = [&, cb, ce, cb_c, ce_c]() {
+      fval = std::forward<Loss>(loss)(xb_c, gb);
       std::forward<Sampler>(sampler)(cb, ce);
-      std::sort(cb, ce);
-      fval = std::forward<Loss>(loss)(xb_c, pb, cb_c, ce_c);
-      for (std::size_t idx = 0; idx < num_coordinates; idx++)
-        g[coordinates[idx]] = partial[idx];
+      return std::forward<Encoder>(encoder)(gb_c, ge_c, cb_c, ce_c);
     };
-
-    kernel(f, &coordinates);
+    kernel<typename std::decay<Encoder>::type>(f, &coordinates);
   }
 
-  template <class Algorithm, class Loss, class Terminator, class Logger,
-            class Sampler1, class Sampler2>
-  void solve(Algorithm *, Loss &&loss, Terminator &&, Logger &&,
-             utility::sampler::detail::component_sampler_t, Sampler1 &&sampler1,
-             const index_t num_components,
+  template <class Algorithm, class Loss, class Encoder, class Terminator,
+            class Logger, class Sampler1, class Sampler2>
+  void solve(Algorithm *, Loss &&loss, Encoder &&encoder, Terminator &&,
+             Logger &&, utility::sampler::detail::component_sampler_t,
+             Sampler1 &&sampler1, const index_t num_components,
              utility::sampler::detail::coordinate_sampler_t,
              Sampler2 &&sampler2, const index_t num_coordinates) {
-    const value_t *xb_c = x.data();
-
     std::vector<index_t> components(num_components);
     index_t *compb = components.data();
     index_t *compe = compb + components.size();
@@ -457,21 +442,14 @@ protected:
     const index_t *coorb_c = coorb;
     const index_t *coore_c = coore;
 
-    std::vector<value_t> partial(num_coordinates);
-    value_t *pb = partial.data();
-
-    auto f = [&, xb_c, pb, compb, compe, compb_c, compe_c, coorb, coore,
-              coorb_c, coore_c]() {
+    auto f = [&, compb, compe, compb_c, compe_c, coorb, coore, coorb_c,
+              coore_c]() {
       std::forward<Sampler1>(sampler1)(compb, compe);
+      fval = std::forward<Loss>(loss)(xb_c, gb, compb_c, compe_c);
       std::forward<Sampler2>(sampler2)(coorb, coore);
-      std::sort(coorb, coore);
-      fval = std::forward<Loss>(loss)(xb_c, pb, compb_c, compe_c, coorb_c,
-                                      coore_c);
-      for (std::size_t idx = 0; idx < num_coordinates; idx++)
-        g[coordinates[idx]] = partial[idx];
+      return std::forward<Encoder>(encoder)(gb_c, ge_c, coorb_c, coore_c);
     };
-
-    kernel(f, &coordinates);
+    kernel<typename std::decay<Encoder>::type>(f, &coordinates);
   }
 
   value_t getf() const { return fval; }
@@ -482,7 +460,7 @@ protected:
   ~worker() = default;
 
 private:
-  void askfor(const char tag, const std::vector<index_t> *indices = nullptr) {
+  void askfor(const char tag, const std::vector<index_t> *indices) {
     std::vector<index_t> range(2);
     range[0] = indices == nullptr ? 0 : indices->front();
     range[1] = indices == nullptr ? x.size() - 1 : indices->back();
@@ -558,116 +536,51 @@ private:
       future.get();
   }
 
-  void send_g(const std::vector<index_t> *indices = nullptr) {
+  template <class Encoder> void send(const Encoder &encoder) {
     index_t indstart{0}, indend;
     std::vector<std::future<void>> futures;
 
-    auto wdata = detail::serialize(wid);
-    auto kdata = detail::serialize(k);
-    auto fdata = detail::serialize(fval);
+    const auto wdata = detail::serialize(wid);
+    const auto kdata = detail::serialize(k);
+    const auto fdata = detail::serialize(fval);
 
-    auto gstart = std::begin(g);
+    for (std::size_t pid = 1; pid < msg.numparts(); pid += 2) {
+      detail::deserialize(msg, pid, indend);
 
-    if (indices == nullptr) {
-      for (std::size_t pid = 1; pid < msg.numparts(); pid += 2) {
-        detail::deserialize(msg, pid, indend);
-        const index_t ndata = indend - indstart;
+      auto edata = detail::serialize(encoder.slice(indstart, indend));
 
-        auto gdata =
-            detail::serialize(std::vector<value_t>(gstart, gstart + ndata));
+      std::promise<void> promise;
+      futures.push_back(promise.get_future());
 
-        std::promise<void> promise;
-        futures.push_back(promise.get_future());
+      std::thread(
+          [=](const std::string address, const std::string edata,
+              std::promise<void> promise) {
+            communicator::zmq::message msg;
+            msg.addpart('g');
+            msg.addpart(std::begin(wdata), std::end(wdata));
+            msg.addpart(std::begin(kdata), std::end(kdata));
+            msg.addpart(std::begin(fdata), std::end(fdata));
+            msg.addpart(std::begin(edata), std::end(edata));
 
-        std::thread(
-            [=](const std::string address, const std::string wdata,
-                const std::string kdata, const std::string fdata,
-                const std::string gdata, std::promise<void> promise) {
-              communicator::zmq::message msg;
-              msg.addpart('g');
-              msg.addpart(std::begin(wdata), std::end(wdata));
-              msg.addpart(std::begin(kdata), std::end(kdata));
-              msg.addpart(std::begin(fdata), std::end(fdata));
-              msg.addpart();
-              msg.addpart(std::begin(gdata), std::end(gdata));
+            communicator::zmq::socket req(ctx,
+                                          communicator::zmq::socket_type::req);
+            req.set(communicator::zmq::socket_opt::linger, linger);
+            req.connect(address.c_str());
 
-              communicator::zmq::socket req(
-                  ctx, communicator::zmq::socket_type::req);
-              req.set(communicator::zmq::socket_opt::linger, linger);
-              req.connect(address.c_str());
+            msg.send(req);
 
-              msg.send(req);
-
-              communicator::zmq::poller poll;
-              poll.additem(req, communicator::zmq::poll_event::pollin);
-              if (poll.poll(timeout) > 0) {
-                msg.receive(req);
-                if (msg.numparts() == 2 && msg.size(1) == 0)
-                  promise.set_value_at_thread_exit();
-              } else
-                promise.set_exception_at_thread_exit(std::make_exception_ptr(
-                    std::runtime_error("Could not send data")));
-            },
-            msg.read(pid + 1), wdata, kdata, fdata, std::move(gdata),
-            std::move(promise))
-            .detach();
-
-        gstart += ndata;
-      }
-    } else {
-      auto startit = std::begin(*indices);
-      for (std::size_t pid = 1; pid < msg.numparts(); pid += 2) {
-        detail::deserialize(msg, pid, indend);
-        auto found =
-            std::find_if(startit, std::end(*indices),
-                         [=](const index_t val) { return val >= indend; });
-        if (startit == found)
-          continue;
-
-        auto grange = detail::serialize(std::vector<index_t>(startit, found));
-
-        std::vector<value_t> glocal;
-        std::transform(startit, found, std::back_inserter(glocal),
-                       [&](const index_t idx) { return g[idx]; });
-        auto gdata = detail::serialize(glocal);
-
-        std::promise<void> promise;
-        futures.push_back(promise.get_future());
-
-        std::thread(
-            [=](const std::string address, const std::string wdata,
-                const std::string kdata, const std::string fdata,
-                const std::string grange, const std::string gdata,
-                std::promise<void> promise) {
-              communicator::zmq::message msg;
-              msg.addpart('g');
-              msg.addpart(std::begin(wdata), std::end(wdata));
-              msg.addpart(std::begin(kdata), std::end(kdata));
-              msg.addpart(std::begin(fdata), std::end(fdata));
-              msg.addpart(std::begin(grange), std::end(grange));
-              msg.addpart(std::begin(gdata), std::end(gdata));
-
-              communicator::zmq::socket req(
-                  ctx, communicator::zmq::socket_type::req);
-              req.set(communicator::zmq::socket_opt::linger, linger);
-              req.connect(address.c_str());
-
-              msg.send(req);
-
-              communicator::zmq::poller poll;
-              poll.additem(req, communicator::zmq::poll_event::pollin);
-              if (poll.poll(timeout) > 0) {
-                msg.receive(req);
-                if (msg.numparts() == 2 && msg.size(1) == 0)
-                  promise.set_value_at_thread_exit();
-              } else
-                promise.set_exception_at_thread_exit(std::make_exception_ptr(
-                    std::runtime_error("Could not send data")));
-            },
-            msg.read(pid + 1), wdata, kdata, fdata, std::move(grange),
-            std::move(gdata), std::move(promise))
-            .detach();
-      }
+            communicator::zmq::poller poll;
+            poll.additem(req, communicator::zmq::poll_event::pollin);
+            if (poll.poll(timeout) > 0) {
+              msg.receive(req);
+              if (msg.numparts() == 2 && msg.size(1) == 0)
+                promise.set_value_at_thread_exit();
+            } else
+              promise.set_exception_at_thread_exit(std::make_exception_ptr(
+                  std::runtime_error("Could not send data")));
+          },
+          msg.read(pid + 1), std::move(edata), std::move(promise))
+          .detach();
     }
 
     for (const auto &future : futures)
@@ -677,9 +590,11 @@ private:
       future.get();
   }
 
-  template <class Function>
-  void kernel(Function &&f, const std::vector<index_t> *indices = nullptr) {
-    askfor('x');
+  template <class Encoder, class Function>
+  void kernel(Function &&f, const std::vector<index_t> *indices) {
+    typename Encoder::result_type enc;
+
+    askfor('x', nullptr);
 
     while (poll.poll(timeout) > 0) {
       if (poll[0].isready()) {
@@ -690,24 +605,27 @@ private:
 
       if (poll[1].isready()) {
         msg.receive(request);
-        const char tag = msg.read<char>(0);
-
-        if (msg.size() == 0 || tag == 'u') {
-          askfor('x');
-        } else if (tag == 'x') {
-          try {
-            receive_x();
-            std::forward<Function>(f)();
-            askfor('g', indices);
-          } catch (...) {
-            ping();
-          }
-        } else if (tag == 'g') {
-          try {
-            send_g(indices);
-            ack();
-          } catch (...) {
-            ping();
+        if (msg.size() == 0) {
+          askfor('x', nullptr);
+        } else {
+          const char tag = msg.read<char>(0);
+          if (tag == 'u')
+            askfor('x', nullptr);
+          else if (tag == 'x') {
+            try {
+              receive_x();
+              enc = std::forward<Function>(f)();
+              askfor('g', indices);
+            } catch (...) {
+              ping();
+            }
+          } else if (tag == 'g') {
+            try {
+              send(enc);
+              ack();
+            } catch (...) {
+              ping();
+            }
           }
         }
       }
@@ -720,6 +638,8 @@ private:
   std::uint16_t spub, sworker;
   index_t wid, k;
   value_t fval;
+  value_t *xb, *gb;
+  const value_t *xb_c, *gb_c, *ge_c;
   std::vector<value_t> x, g;
   communicator::zmq::context ctx;
   communicator::zmq::socket request{ctx, communicator::zmq::socket_type::req},
@@ -814,8 +734,9 @@ protected:
     return x;
   }
 
-  template <class Algorithm, class Loss, class Terminator, class Logger>
-  void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
+  template <class Algorithm, class Loss, class Encoder, class Terminator,
+            class Logger>
+  void solve(Algorithm *alg, Loss &&loss, Encoder &&, Terminator &&terminate,
              Logger &&logger) {
     std::string data;
     std::vector<index_t> indices;
@@ -888,21 +809,24 @@ protected:
                                std::to_string(timeout) + " ms.");
   }
 
-  template <class Algorithm, class Loss, class Terminator, class Logger,
-            class Space, class Sampler>
-  void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
-             Logger &&logger, Space, Sampler &&, const index_t) {
-    solve(alg, std::forward<Loss>(loss), std::forward<Terminator>(terminate),
-          std::forward<Logger>(logger));
+  template <class Algorithm, class Loss, class Encoder, class Terminator,
+            class Logger, class Space, class Sampler>
+  void solve(Algorithm *alg, Loss &&loss, Encoder &&encoder,
+             Terminator &&terminate, Logger &&logger, Space, Sampler &&,
+             const index_t) {
+    solve(alg, std::forward<Loss>(loss), std::forward<Encoder>(encoder),
+          std::forward<Terminator>(terminate), std::forward<Logger>(logger));
   }
 
-  template <class Algorithm, class Loss, class Terminator, class Logger,
-            class Space1, class Sampler1, class Space2, class Sampler2>
-  void solve(Algorithm *alg, Loss &&loss, Terminator &&terminate,
-             Logger &&logger, Space1, Sampler1 &&, const index_t, Space2,
+  template <class Algorithm, class Loss, class Encoder, class Terminator,
+            class Logger, class Sampler1, class Sampler2>
+  void solve(Algorithm *alg, Loss &&loss, Encoder &&encoder,
+             Terminator &&terminate, Logger &&logger,
+             utility::sampler::detail::component_sampler_t, Sampler1 &&,
+             const index_t, utility::sampler::detail::coordinate_sampler_t,
              Sampler2 &&, const index_t) {
-    solve(alg, std::forward<Loss>(loss), std::forward<Terminator>(terminate),
-          std::forward<Logger>(logger));
+    solve(alg, std::forward<Loss>(loss), std::forward<Encoder>(encoder),
+          std::forward<Terminator>(terminate), std::forward<Logger>(logger));
   }
 
   value_t getf() const { return 0; }
