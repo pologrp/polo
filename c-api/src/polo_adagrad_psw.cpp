@@ -2,6 +2,7 @@
 #include "polo_aux.hpp"
 
 #include "polo/algorithm/proxgradient.hpp"
+#include "polo/encoder/identity.hpp"
 #include "polo/execution/paramserver.hpp"
 #include "polo/smoothing/adagrad.hpp"
 
@@ -24,7 +25,7 @@ polo_error_t polo_adagrad_psw(const polo_value_t *xbegin,
         [=](const polo_value_t *xbegin, polo_value_t *gbegin) {
           return loss_f(xbegin, gbegin, loss_d);
         },
-        nullptr,
+        encoder::identity<polo_value_t, polo_index_t>{}, nullptr,
         [=](const polo_index_t k, const polo_value_t fval,
             const polo_value_t *xbegin, const polo_value_t *xend,
             const polo_value_t *gbegin) {

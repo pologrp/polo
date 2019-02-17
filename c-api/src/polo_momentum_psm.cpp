@@ -3,6 +3,7 @@
 
 #include "polo/algorithm/proxgradient.hpp"
 #include "polo/boosting/momentum.hpp"
+#include "polo/encoder/identity.hpp"
 #include "polo/execution/paramserver.hpp"
 
 extern "C" {
@@ -22,7 +23,7 @@ polo_error_t polo_momentum_psm(polo_terminator_t term_f, void *term_d,
     alg.boosting_parameters(mu, epsilon);
     alg.execution_parameters(parse_ps_opts(opts));
     alg.initialize(nullptr, nullptr);
-    alg.solve(nullptr,
+    alg.solve(nullptr, encoder::identity<polo_value_t, polo_index_t>{},
               [=](const polo_index_t k, const polo_value_t fval,
                   const polo_value_t *xbegin, const polo_value_t *xend,
                   const polo_value_t *gbegin) {

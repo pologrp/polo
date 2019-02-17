@@ -2,6 +2,7 @@
 #include "polo_aux.hpp"
 
 #include "polo/algorithm/proxgradient.hpp"
+#include "polo/encoder/identity.hpp"
 #include "polo/execution/paramserver.hpp"
 #include "polo/smoothing/adadelta.hpp"
 
@@ -22,7 +23,7 @@ polo_error_t polo_adadelta_psm(polo_terminator_t term_f, void *term_d,
     alg.smoothing_parameters(rho, epsilon);
     alg.execution_parameters(parse_ps_opts(opts));
     alg.initialize(nullptr, nullptr);
-    alg.solve(nullptr,
+    alg.solve(nullptr, encoder::identity<polo_value_t, polo_index_t>{},
               [=](const polo_index_t k, const polo_value_t fval,
                   const polo_value_t *xbegin, const polo_value_t *xend,
                   const polo_value_t *gbegin) {

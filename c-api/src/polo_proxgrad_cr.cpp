@@ -3,6 +3,7 @@
 
 #include "polo/algorithm/proxgradient.hpp"
 #include "polo/boosting/custom.hpp"
+#include "polo/encoder/identity.hpp"
 #include "polo/execution/multithread.hpp"
 #include "polo/prox/custom.hpp"
 #include "polo/smoothing/custom.hpp"
@@ -31,6 +32,7 @@ polo_error_t polo_proxgrad_cr(
     alg.initialize(xbegin, xend);
     alg.solve([=](const polo_value_t *x,
                   polo_value_t *g) { return loss_f(x, g, loss_d); },
+              encoder::identity<polo_value_t, polo_index_t>{},
               [=](const polo_index_t k, const polo_value_t fval,
                   const polo_value_t *xbegin, const polo_value_t *xend,
                   const polo_value_t *gbegin) {
