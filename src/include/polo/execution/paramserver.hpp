@@ -184,9 +184,8 @@ protected:
     g = std::vector<value_t>(x.size());
 
     xb = x.data();
-    xe = xb + x.size();
     xb_c = xb;
-    xe_c = xe;
+    xe_c = xb_c + x.data();
     gb = g.data();
     ge = gb + g.size();
     gb_c = gb;
@@ -293,7 +292,7 @@ private:
   std::string maddress, saddress;
   std::uint16_t spub, smaster, mworker;
   index_t startind, k{1};
-  value_t *xb, *xe, *gb, *ge;
+  value_t *xb, *gb, *ge;
   const value_t *xb_c, *xe_c, *gb_c, *ge_c;
   std::vector<value_t> x, g;
   communicator::zmq::context ctx;
