@@ -185,7 +185,7 @@ protected:
 
     xb = x.data();
     xb_c = xb;
-    xe_c = xb_c + x.data();
+    xe_c = xb_c + x.size();
     gb = g.data();
     ge = gb + g.size();
     gb_c = gb;
