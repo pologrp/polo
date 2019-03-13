@@ -1,5 +1,0 @@
-Problem Generators
-==================
-
-Quadratic Programming
----------------------
