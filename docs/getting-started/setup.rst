@@ -127,6 +127,11 @@ Note that, this time, we use ``Release`` mode for `CMAKE_BUILD_TYPE
 <https://cmake.org/cmake/help/v3.9/variable/CMAKE_BUILD_TYPE.html>`_ to install
 the optimized binaries of the optional dependencies.
 
+.. note::
+
+  The superbuild feature requires a Fortran compiler to build BLAS and LAPACK
+  from source.
+
 .. _CMake: https://cmake.org/
 .. _BLAS: https://www.netlib.org/blas/
 .. _LAPACK: https://www.netlib.org/lapack/
@@ -156,7 +161,7 @@ interactively with ``bash``.
 .. note::
 
   The rest of the documentation can be followed easily after either installing
-  ``polo`` from source using the superbuild feature or using the prebuilt
+  ``polo`` from source by using the superbuild feature or using the prebuilt
   Docker images.
 
 .. rubric:: Footnotes

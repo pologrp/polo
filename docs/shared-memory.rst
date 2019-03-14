@@ -8,7 +8,6 @@ CPUs in a shared-memory architecture.
 
 .. toctree::
   :hidden:
-  :glob:
 
   shared-memory/shared-data
   shared-memory/examples

@@ -8,9 +8,8 @@ computing nodes in a distributed-memory architecture.
 
 .. toctree::
   :hidden:
-  :glob:
 
-  distributed-memory/parameter-server
-  distributed-memory/setting-up
+  distributed-memory/paramserver
+  distributed-memory/setup
   distributed-memory/piag
   distributed-memory/communication

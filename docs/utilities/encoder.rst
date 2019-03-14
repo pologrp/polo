@@ -1,0 +1,4 @@
+.. _utilities-encoder:
+
+Encoders
+========

@@ -8,8 +8,7 @@ single CPU.
 
 .. toctree::
   :hidden:
-  :glob:
 
-  serial/proximal-gradient
-  serial/custom-policies
-  serial/custom-algorithms
+  serial/proxgradient
+  serial/policies
+  serial/algorithms
