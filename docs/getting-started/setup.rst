@@ -34,7 +34,7 @@ directory and check out a different snapshot by issuing the following command
 
 Here, we are checking out the ``v1.0.0`` snapshot.
 
-The second way is to `download <https://github.com/pologrp/polo/archive/master.zip>`_
+The second way is to :download:`download <https://github.com/pologrp/polo/archive/master.zip>`
 the ``master`` branch as a zip file (named, e.g., ``polo-master.zip`` under
 ``$HOME/Downloads`` directory), and unzip its contents under ``$HOME`` by
 issuing the following command
@@ -56,6 +56,8 @@ procedure to unzip their contents.
   Currently, there are no tagged versions/snapshots in the library. Hence,
   throughout the documentation, we assume that the latest snapshot (i.e., the
   ``master`` branch) is checked out under ``$HOME/polo`` directory.
+
+.. _install:
 
 Installing the Library
 ----------------------
