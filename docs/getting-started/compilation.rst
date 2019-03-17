@@ -59,9 +59,9 @@ end up with the following directory structure
 
 .. code-block:: shell
 
-  cd $HOME/examples
-  mkdir build
-  tree .
+  cd $HOME/examples # change directory to $HOME/examples
+  mkdir build # make a directory named build
+  tree . # check the directory structure
   .
   ├── anatomy.cpp
   ├── build

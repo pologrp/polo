@@ -57,6 +57,10 @@ procedure to unzip their contents.
   throughout the documentation, we assume that the latest snapshot (i.e., the
   ``master`` branch) is checked out under ``$HOME/polo`` directory.
 
+.. todo::
+
+  After tagging the first version, reword the above note.
+
 .. _install:
 
 Installing the Library
@@ -75,6 +79,10 @@ In addition to the C++ feature dependencies, ``polo`` requires CMake_ (at least
 #. Thread support library (usually included in the compilers) for
    :ref:`shared-memory`, and,
 #. cURL_, 0MQ_ and cereal_ for :ref:`distributed-memory`.
+
+.. todo::
+
+  Explicitly mention the versions of the required packages.
 
 Having installed an appropriate compiler chain and CMake, we can now start with
 the installation procedure. First, because CMake only allows for
@@ -133,6 +141,11 @@ the optimized binaries of the optional dependencies.
 
   The superbuild feature requires a Fortran compiler to build BLAS and LAPACK
   from source.
+
+.. todo::
+
+  Later, think of using `Conan <https://conan.io/>`_ to package ``polo`` and
+  its dependencies as prebuilt binaries.
 
 .. _CMake: https://cmake.org/
 .. _BLAS: https://www.netlib.org/blas/

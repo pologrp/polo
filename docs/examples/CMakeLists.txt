@@ -6,4 +6,6 @@ if (NOT TARGET polo::polo)
   find_package(polo CONFIG REQUIRED)
 endif()
 
+enable_testing()
+
 add_subdirectory(getting-started)

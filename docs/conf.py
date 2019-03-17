@@ -8,10 +8,11 @@ release = ''
 
 # General Configuration
 
-extensions = ['sphinx.ext.mathjax']
+extensions = ['sphinx.ext.mathjax', 'sphinx.ext.todo']
 master_doc = 'index'
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 numfig = True
+todo_include_todos = True
 
 # HTML Output
 
