@@ -198,10 +198,10 @@ protected:
     return x;
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger>
-  void solve(Algorithm *alg, Loss &&loss, Encoder &&, Terminator &&terminate,
-             Logger &&logger) {
+  template <class Algorithm, class Loss, class Logger, class Terminator,
+            class Encoder>
+  void solve(Algorithm *alg, Loss &&loss, Logger &&logger,
+             Terminator &&terminate, Encoder &&) {
     value_t fval;
     index_t wid, kworker;
     std::string data;
@@ -259,24 +259,23 @@ protected:
     }
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger, class Space, class Sampler>
-  void solve(Algorithm *alg, Loss &&loss, Encoder &&encoder,
-             Terminator &&terminate, Logger &&logger, Space, Sampler &&,
-             const index_t) {
-    solve(alg, std::forward<Loss>(loss), std::forward<Encoder>(encoder),
-          std::forward<Terminator>(terminate), std::forward<Logger>(logger));
+  template <class Algorithm, class Loss, class Space, class Sampler,
+            class Logger, class Terminator, class Encoder>
+  void solve(Algorithm *alg, Loss &&loss, Space, Sampler &&, const index_t,
+             Logger &&logger, Terminator &&terminate, Encoder &&encoder) {
+    solve(alg, std::forward<Loss>(loss), std::forward<Logger>(logger),
+          std::forward<Terminator>(terminate), std::forward<Encoder>(encoder));
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger, class Sampler1, class Sampler2>
-  void solve(Algorithm *alg, Loss &&loss, Encoder &&encoder,
-             Terminator &&terminate, Logger &&logger,
+  template <class Algorithm, class Loss, class Sampler1, class Sampler2,
+            class Logger, class Terminator, class Encoder>
+  void solve(Algorithm *alg, Loss &&loss,
              utility::sampler::detail::component_sampler_t, Sampler1 &&,
              const index_t, utility::sampler::detail::coordinate_sampler_t,
-             Sampler2 &&, const index_t) {
-    solve(alg, std::forward<Loss>(loss), std::forward<Encoder>(encoder),
-          std::forward<Terminator>(terminate), std::forward<Logger>(logger));
+             Sampler2 &&, const index_t, Logger &&logger,
+             Terminator &&terminate, Encoder &&encoder) {
+    solve(alg, std::forward<Loss>(loss), std::forward<Logger>(logger),
+          std::forward<Terminator>(terminate), std::forward<Encoder>(encoder));
   }
 
   ~master() = default;
@@ -373,10 +372,10 @@ protected:
     return x;
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger>
-  void solve(Algorithm *, Loss &&loss, Encoder &&encoder, Terminator &&,
-             Logger &&) {
+  template <class Algorithm, class Loss, class Logger, class Terminator,
+            class Encoder>
+  void solve(Algorithm *, Loss &&loss, Logger &&, Terminator &&,
+             Encoder &&encoder) {
     auto f = [&]() {
       fval = std::forward<Loss>(loss)(xb_c, gb);
       return std::forward<Encoder>(encoder)(gb_c, ge_c);
@@ -384,11 +383,12 @@ protected:
     kernel<typename std::decay<Encoder>::type>(f, nullptr);
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger, class Sampler>
-  void solve(Algorithm *, Loss &&loss, Encoder &&encoder, Terminator &&,
-             Logger &&, utility::sampler::detail::component_sampler_t,
-             Sampler &&sampler, const index_t num_components) {
+  template <class Algorithm, class Loss, class Sampler, class Logger,
+            class Terminator, class Encoder>
+  void solve(Algorithm *, Loss &&loss,
+             utility::sampler::detail::component_sampler_t, Sampler &&sampler,
+             const index_t num_components, Logger &&, Terminator &&,
+             Encoder &&encoder) {
     std::vector<index_t> components(num_components);
     index_t *cb = components.data();
     index_t *ce = cb + num_components;
@@ -403,11 +403,12 @@ protected:
     kernel<typename std::decay<Encoder>::type>(f, nullptr);
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger, class Sampler>
-  void solve(Algorithm *, Loss &&loss, Encoder &&encoder, Terminator &&,
-             Logger &&, utility::sampler::detail::coordinate_sampler_t,
-             Sampler &&sampler, const index_t num_coordinates) {
+  template <class Algorithm, class Loss, class Sampler, class Logger,
+            class Terminator, class Encoder>
+  void solve(Algorithm *, Loss &&loss,
+             utility::sampler::detail::coordinate_sampler_t, Sampler &&sampler,
+             const index_t num_coordinates, Logger &&, Terminator &&,
+             Encoder &&encoder) {
     std::vector<index_t> coordinates(num_coordinates);
     index_t *cb = coordinates.data();
     index_t *ce = cb + num_coordinates;
@@ -422,13 +423,14 @@ protected:
     kernel<typename std::decay<Encoder>::type>(f, &coordinates);
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger, class Sampler1, class Sampler2>
-  void solve(Algorithm *, Loss &&loss, Encoder &&encoder, Terminator &&,
-             Logger &&, utility::sampler::detail::component_sampler_t,
-             Sampler1 &&sampler1, const index_t num_components,
+  template <class Algorithm, class Loss, class Sampler1, class Sampler2,
+            class Logger, class Terminator, class Encoder>
+  void solve(Algorithm *, Loss &&loss,
+             utility::sampler::detail::component_sampler_t, Sampler1 &&sampler1,
+             const index_t num_components,
              utility::sampler::detail::coordinate_sampler_t,
-             Sampler2 &&sampler2, const index_t num_coordinates) {
+             Sampler2 &&sampler2, const index_t num_coordinates, Logger &&,
+             Terminator &&, Encoder &&encoder) {
     std::vector<index_t> components(num_components);
     index_t *compb = components.data();
     index_t *compe = compb + components.size();
@@ -733,10 +735,10 @@ protected:
     return x;
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger>
-  void solve(Algorithm *alg, Loss &&loss, Encoder &&, Terminator &&terminate,
-             Logger &&logger) {
+  template <class Algorithm, class Loss, class Logger, class Terminator,
+            class Encoder>
+  void solve(Algorithm *alg, Loss &&loss, Logger &&logger,
+             Terminator &&terminate, Encoder &&) {
     std::string data;
     std::vector<index_t> indices;
     communicator::zmq::message msg;
@@ -808,24 +810,23 @@ protected:
                                std::to_string(timeout) + " ms.");
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger, class Space, class Sampler>
-  void solve(Algorithm *alg, Loss &&loss, Encoder &&encoder,
-             Terminator &&terminate, Logger &&logger, Space, Sampler &&,
-             const index_t) {
-    solve(alg, std::forward<Loss>(loss), std::forward<Encoder>(encoder),
-          std::forward<Terminator>(terminate), std::forward<Logger>(logger));
+  template <class Algorithm, class Loss, class Space, class Sampler,
+            class Logger, class Terminator, class Encoder>
+  void solve(Algorithm *alg, Loss &&loss, Space, Sampler &&, const index_t,
+             Logger &&logger, Terminator &&terminate, Encoder &&encoder) {
+    solve(alg, std::forward<Loss>(loss), std::forward<Logger>(logger),
+          std::forward<Terminator>(terminate), std::forward<Encoder>(encoder));
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger, class Sampler1, class Sampler2>
-  void solve(Algorithm *alg, Loss &&loss, Encoder &&encoder,
-             Terminator &&terminate, Logger &&logger,
+  template <class Algorithm, class Loss, class Sampler1, class Sampler2,
+            class Logger, class Terminator, class Encoder>
+  void solve(Algorithm *alg, Loss &&loss,
              utility::sampler::detail::component_sampler_t, Sampler1 &&,
              const index_t, utility::sampler::detail::coordinate_sampler_t,
-             Sampler2 &&, const index_t) {
-    solve(alg, std::forward<Loss>(loss), std::forward<Encoder>(encoder),
-          std::forward<Terminator>(terminate), std::forward<Logger>(logger));
+             Sampler2 &&, const index_t, Logger &&logger,
+             Terminator &&terminate, Encoder &&encoder) {
+    solve(alg, std::forward<Loss>(loss), std::forward<Logger>(logger),
+          std::forward<Terminator>(terminate), std::forward<Encoder>(encoder));
   }
 
   value_t getf() const { return 0; }

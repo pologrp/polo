@@ -21,3 +21,10 @@ add_test(NAME polo.examples.getting.svmdata COMMAND svmdata)
 set_tests_properties(polo.examples.getting.svmdata PROPERTIES
   PASS_REGULAR_EXPRESSION "Optimum: 229.22*"
 )
+
+add_executable(logger logger.cpp)
+target_link_libraries(logger polo::polo)
+add_test(NAME polo.examples.getting.logger COMMAND logger)
+set_tests_properties(polo.examples.getting.logger PROPERTIES
+  PASS_REGULAR_EXPRESSION "Optimum: 229.22*"
+)

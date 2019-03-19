@@ -50,43 +50,43 @@ protected:
     return std::vector<value_t>(std::begin(x), std::end(x));
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger>
-  void solve(Algorithm *alg, Loss &&loss, Encoder &&encoder,
-             Terminator &&terminate, Logger &&logger) {
+  template <class Algorithm, class Loss, class Logger, class Terminator,
+            class Encoder>
+  void solve(Algorithm *alg, Loss &&loss, Logger &&logger,
+             Terminator &&terminate, Encoder &&encoder) {
     auto task = [&, alg, encoder](const index_t wid) {
-      kernel(alg, wid, std::forward<Loss>(loss), encoder,
-             std::forward<Terminator>(terminate), std::forward<Logger>(logger));
+      kernel(alg, wid, std::forward<Loss>(loss), std::forward<Logger>(logger),
+             std::forward<Terminator>(terminate), encoder);
     };
     run_in_parallel(task);
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger, class Space, class Sampler>
-  void solve(Algorithm *alg, Loss &&loss, Encoder &&encoder,
-             Terminator &&terminate, Logger &&logger, Space s,
-             Sampler &&sampler, const index_t num) {
-    auto task = [&, alg, encoder, s, sampler, num](const index_t wid) {
-      kernel(alg, wid, std::forward<Loss>(loss), encoder,
-             std::forward<Terminator>(terminate), std::forward<Logger>(logger),
-             s, sampler, num);
+  template <class Algorithm, class Loss, class Space, class Sampler,
+            class Logger, class Terminator, class Encoder>
+  void solve(Algorithm *alg, Loss &&loss, Space s, Sampler &&sampler,
+             const index_t num, Logger &&logger, Terminator &&terminate,
+             Encoder &&encoder) {
+    auto task = [&, alg, s, sampler, num, encoder](const index_t wid) {
+      kernel(alg, wid, std::forward<Loss>(loss), s, sampler, num,
+             std::forward<Logger>(logger), std::forward<Terminator>(terminate),
+             encoder);
     };
     run_in_parallel(task);
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger, class Sampler1, class Sampler2>
-  void solve(Algorithm *alg, Loss &&loss, Encoder &&encoder,
-             Terminator &&terminate, Logger &&logger,
+  template <class Algorithm, class Loss, class Sampler1, class Sampler2,
+            class Logger, class Terminator, class Encoder>
+  void solve(Algorithm *alg, Loss &&loss,
              utility::sampler::detail::component_sampler_t s1,
              Sampler1 &&sampler1, const index_t num_components,
              utility::sampler::detail::coordinate_sampler_t s2,
-             Sampler2 &&sampler2, const index_t num_coordinates) {
-    auto task = [&, alg, encoder, s1, sampler1, num_components, s2, sampler2,
-                 num_coordinates](const index_t wid) {
-      kernel(alg, wid, std::forward<Loss>(loss), encoder,
-             std::forward<Terminator>(terminate), std::forward<Logger>(logger),
-             s1, sampler1, num_components, s2, sampler2, num_coordinates);
+             Sampler2 &&sampler2, const index_t num_coordinates,
+             Logger &&logger, Terminator &&terminate, Encoder &&encoder) {
+    auto task = [&, alg, s1, sampler1, num_components, s2, sampler2,
+                 num_coordinates, encoder](const index_t wid) {
+      kernel(alg, wid, std::forward<Loss>(loss), s1, sampler1, num_components,
+             s2, sampler2, num_coordinates, std::forward<Logger>(logger),
+             std::forward<Terminator>(terminate), encoder);
     };
     run_in_parallel(task);
   }
@@ -108,10 +108,10 @@ private:
       worker.join();
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger>
-  void kernel(Algorithm *alg, const index_t wid, Loss &&loss, Encoder encoder,
-              Terminator &&terminate, Logger &&logger) {
+  template <class Algorithm, class Loss, class Logger, class Terminator,
+            class Encoder>
+  void kernel(Algorithm *alg, const index_t wid, Loss &&loss, Logger &&logger,
+              Terminator &&terminate, Encoder encoder) {
     value_t flocal;
     const std::size_t dim = x.size();
 
@@ -138,12 +138,12 @@ private:
     }
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger, class Sampler>
-  void kernel(Algorithm *alg, const index_t wid, Loss &&loss, Encoder encoder,
-              Terminator &&terminate, Logger &&logger,
+  template <class Algorithm, class Loss, class Sampler, class Logger,
+            class Terminator, class Encoder>
+  void kernel(Algorithm *alg, const index_t wid, Loss &&loss,
               utility::sampler::detail::component_sampler_t, Sampler sampler,
-              const index_t num_components) {
+              const index_t num_components, Logger &&logger,
+              Terminator &&terminate, Encoder encoder) {
     value_t flocal;
     const std::size_t dim = x.size();
 
@@ -177,12 +177,12 @@ private:
     }
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger, class Sampler>
-  void kernel(Algorithm *alg, const index_t wid, Loss &&loss, Encoder encoder,
-              Terminator &&terminate, Logger &&logger,
+  template <class Algorithm, class Loss, class Sampler, class Logger,
+            class Terminator, class Encoder>
+  void kernel(Algorithm *alg, const index_t wid, Loss &&loss,
               utility::sampler::detail::coordinate_sampler_t, Sampler sampler,
-              const index_t num_coordinates) {
+              const index_t num_coordinates, Logger &&logger,
+              Terminator &&terminate, Encoder encoder) {
     value_t flocal;
     const std::size_t dim = x.size();
 
@@ -216,14 +216,14 @@ private:
     }
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger, class Sampler1, class Sampler2>
-  void kernel(Algorithm *alg, const index_t wid, Loss &&loss, Encoder encoder,
-              Terminator &&terminate, Logger &&logger,
+  template <class Algorithm, class Loss, class Sampler1, class Sampler2,
+            class Logger, class Terminator, class Encoder>
+  void kernel(Algorithm *alg, const index_t wid, Loss &&loss,
               utility::sampler::detail::component_sampler_t, Sampler1 sampler1,
               const index_t num_components,
               utility::sampler::detail::coordinate_sampler_t, Sampler2 sampler2,
-              const index_t num_coordinates) {
+              const index_t num_coordinates, Logger &&logger,
+              Terminator &&terminate, Encoder encoder) {
     value_t flocal;
     const std::size_t dim = x.size();
 

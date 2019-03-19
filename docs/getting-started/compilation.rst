@@ -29,7 +29,6 @@ sample code in :numref:`code-anatomy` in a file, ``anatomy.cpp``. In the same
 directory, we create a ``CMakeLists.txt`` file that has the following lines
 
 .. code-block:: cmake
-  :linenos:
 
   cmake_minimum_required(VERSION 3.9.0)
   project(polo-examples)

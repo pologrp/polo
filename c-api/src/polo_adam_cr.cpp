@@ -6,15 +6,14 @@
 
 #include "polo/algorithm/proxgradient.hpp"
 #include "polo/boosting/momentum.hpp"
-#include "polo/encoder/identity.hpp"
 #include "polo/execution/multithread.hpp"
 #include "polo/smoothing/rmsprop.hpp"
 
 extern "C" {
 polo_error_t polo_adam_cr(polo_value_t *fval, polo_value_t *xbegin,
                           polo_value_t *xend, polo_loss_t loss_f, void *loss_d,
-                          polo_terminator_t term_f, void *term_d,
                           polo_logger_t log_f, void *log_d,
+                          polo_terminator_t term_f, void *term_d,
                           const polo_value_t gamma, const polo_value_t beta1,
                           const polo_value_t beta2, const polo_value_t epsilon,
                           const unsigned int nthreads) {
@@ -33,16 +32,15 @@ polo_error_t polo_adam_cr(polo_value_t *fval, polo_value_t *xbegin,
     alg.initialize(xbegin, xend);
     alg.solve([=](const polo_value_t *x,
                   polo_value_t *g) { return loss_f(x, g, loss_d); },
-              encoder::identity<polo_value_t, polo_index_t>{},
-              [=](const polo_index_t k, const polo_value_t fval,
-                  const polo_value_t *xbegin, const polo_value_t *xend,
-                  const polo_value_t *gbegin) {
-                return bool(term_f(k, fval, xbegin, xend, gbegin, term_d));
-              },
               [=](const polo_index_t k, const polo_value_t fval,
                   const polo_value_t *xbegin, const polo_value_t *xend,
                   const polo_value_t *gbegin) {
                 log_f(k, fval, xbegin, xend, gbegin, log_d);
+              },
+              [=](const polo_index_t k, const polo_value_t fval,
+                  const polo_value_t *xbegin, const polo_value_t *xend,
+                  const polo_value_t *gbegin) {
+                return bool(term_f(k, fval, xbegin, xend, gbegin, term_d));
               });
     const auto xopt = alg.getx();
     const auto fopt = alg.getf();

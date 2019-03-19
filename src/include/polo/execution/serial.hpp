@@ -33,10 +33,10 @@ protected:
     return x;
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger>
-  void solve(Algorithm *alg, Loss &&loss, Encoder &&encoder,
-             Terminator &&terminate, Logger &&logger) {
+  template <class Algorithm, class Loss, class Logger, class Terminator,
+            class Encoder>
+  void solve(Algorithm *alg, Loss &&loss, Logger &&logger,
+             Terminator &&terminate, Encoder &&encoder) {
     fval = std::forward<Loss>(loss)(xb_c, gb);
     auto enc = std::forward<Encoder>(encoder)(gb_c, ge_c);
     enc(gb, ge);
@@ -48,12 +48,12 @@ protected:
     }
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger, class Sampler>
-  void solve(Algorithm *alg, Loss &&loss, Encoder &&encoder,
-             Terminator &&terminate, Logger &&logger,
+  template <class Algorithm, class Loss, class Sampler, class Logger,
+            class Terminator, class Encoder>
+  void solve(Algorithm *alg, Loss &&loss,
              utility::sampler::detail::component_sampler_t, Sampler &&sampler,
-             const index_t num_components) {
+             const index_t num_components, Logger &&logger,
+             Terminator &&terminate, Encoder &&encoder) {
     std::vector<index_t> components(num_components);
     index_t *cb = components.data();
     index_t *ce = cb + components.size();
@@ -73,12 +73,12 @@ protected:
     }
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger, class Sampler>
-  void solve(Algorithm *alg, Loss &&loss, Encoder &&encoder,
-             Terminator &&terminate, Logger &&logger,
+  template <class Algorithm, class Loss, class Sampler, class Logger,
+            class Terminator, class Encoder>
+  void solve(Algorithm *alg, Loss &&loss,
              utility::sampler::detail::coordinate_sampler_t, Sampler &&sampler,
-             const index_t num_coordinates) {
+             const index_t num_coordinates, Logger &&logger,
+             Terminator &&terminate, Encoder &&encoder) {
     std::vector<index_t> coordinates(num_coordinates);
     index_t *cb = coordinates.data();
     index_t *ce = cb + coordinates.size();
@@ -98,14 +98,14 @@ protected:
     }
   }
 
-  template <class Algorithm, class Loss, class Encoder, class Terminator,
-            class Logger, class Sampler1, class Sampler2>
-  void solve(Algorithm *alg, Loss &&loss, Encoder &&encoder,
-             Terminator &&terminate, Logger &&logger,
+  template <class Algorithm, class Loss, class Sampler1, class Sampler2,
+            class Logger, class Terminator, class Encoder>
+  void solve(Algorithm *alg, Loss &&loss,
              utility::sampler::detail::component_sampler_t, Sampler1 &&sampler1,
              const index_t num_components,
              utility::sampler::detail::coordinate_sampler_t,
-             Sampler2 &&sampler2, const index_t num_coordinates) {
+             Sampler2 &&sampler2, const index_t num_coordinates,
+             Logger &&logger, Terminator &&terminate, Encoder &&encoder) {
     std::vector<index_t> components(num_components);
     index_t *compb = components.data();
     index_t *compe = compb + components.size();

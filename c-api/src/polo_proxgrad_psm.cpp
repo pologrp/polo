@@ -3,15 +3,14 @@
 
 #include "polo/algorithm/proxgradient.hpp"
 #include "polo/boosting/custom.hpp"
-#include "polo/encoder/identity.hpp"
 #include "polo/execution/paramserver.hpp"
 #include "polo/prox/custom.hpp"
 #include "polo/smoothing/custom.hpp"
 #include "polo/step/custom.hpp"
 
 extern "C" {
-polo_error_t polo_proxgrad_psm(polo_terminator_t term_f, void *term_d,
-                               polo_logger_t log_f, void *log_d,
+polo_error_t polo_proxgrad_psm(polo_logger_t log_f, void *log_d,
+                               polo_terminator_t term_f, void *term_d,
                                const polo_ps_options_t opts, polo_init_t init_f,
                                polo_boost_t boost_f, void *boost_d,
                                polo_step_t step_f, void *step_d,
@@ -31,16 +30,16 @@ polo_error_t polo_proxgrad_psm(polo_terminator_t term_f, void *term_d,
     alg.prox_parameters(init_f, prox_f, prox_d);
     alg.execution_parameters(parse_ps_opts(opts));
     alg.initialize(nullptr, nullptr);
-    alg.solve(nullptr, encoder::identity<polo_value_t, polo_index_t>{},
-              [=](const polo_index_t k, const polo_value_t fval,
-                  const polo_value_t *xbegin, const polo_value_t *xend,
-                  const polo_value_t *gbegin) {
-                return bool(term_f(k, fval, xbegin, xend, gbegin, term_d));
-              },
+    alg.solve(nullptr,
               [=](const polo_index_t k, const polo_value_t fval,
                   const polo_value_t *xbegin, const polo_value_t *xend,
                   const polo_value_t *gbegin) {
                 log_f(k, fval, xbegin, xend, gbegin, log_d);
+              },
+              [=](const polo_index_t k, const polo_value_t fval,
+                  const polo_value_t *xbegin, const polo_value_t *xend,
+                  const polo_value_t *gbegin) {
+                return bool(term_f(k, fval, xbegin, xend, gbegin, term_d));
               });
   } catch (const std::exception &ex) {
     parse_ex(ex, err);

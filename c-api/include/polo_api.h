@@ -73,8 +73,8 @@ typedef int (*polo_terminator_t)(const polo_index_t k, const polo_value_t fval,
 
 polo_error_t polo_proxgrad_s(const polo_value_t *xbegin,
                              const polo_value_t *xend, polo_loss_t loss_f,
-                             void *loss_d, polo_terminator_t term_f,
-                             void *term_d, polo_logger_t log_f, void *log_d,
+                             void *loss_d, polo_logger_t log_f, void *log_d,
+                             polo_terminator_t term_f, void *term_d,
                              polo_init_t init_f, polo_boost_t boost_f,
                              void *boost_d, polo_step_t step_f, void *step_d,
                              polo_smooth_t smooth_f, void *smooth_d,
@@ -82,13 +82,13 @@ polo_error_t polo_proxgrad_s(const polo_value_t *xbegin,
 
 polo_error_t polo_proxgrad_cr(
     const polo_value_t *xbegin, const polo_value_t *xend, polo_loss_t loss_f,
-    void *loss_d, polo_terminator_t term_f, void *term_d, polo_logger_t log_f,
-    void *log_d, const unsigned int nthreads, polo_init_t init_f,
+    void *loss_d, polo_logger_t log_f, void *log_d, polo_terminator_t term_f,
+    void *term_d, const unsigned int nthreads, polo_init_t init_f,
     polo_boost_t boost_f, void *boost_d, polo_step_t step_f, void *step_d,
     polo_smooth_t smooth_f, void *smooth_d, polo_prox_t prox_f, void *prox_d);
 
-polo_error_t polo_proxgrad_psm(polo_terminator_t term_f, void *term_d,
-                               polo_logger_t log_f, void *log_d,
+polo_error_t polo_proxgrad_psm(polo_logger_t log_f, void *log_d,
+                               polo_terminator_t term_f, void *term_d,
                                const polo_ps_options_t opts, polo_init_t init_f,
                                polo_boost_t boost_f, void *boost_d,
                                polo_step_t step_f, void *step_d,
@@ -96,10 +96,9 @@ polo_error_t polo_proxgrad_psm(polo_terminator_t term_f, void *term_d,
                                polo_prox_t prox_f, void *prox_d);
 
 polo_error_t polo_proxgrad_pss(const polo_value_t *xbegin,
-                               const polo_value_t *xend,
-                               polo_terminator_t term_f, void *term_d,
-                               polo_logger_t log_f, void *log_d,
-                               const polo_ps_options_t opts);
+                               const polo_value_t *xend, polo_logger_t log_f,
+                               void *log_d, polo_terminator_t term_f,
+                               void *term_d, const polo_ps_options_t opts);
 
 polo_error_t polo_proxgrad_psw(const polo_value_t *xbegin,
                                const polo_value_t *xend, polo_loss_t loss_f,
@@ -110,27 +109,26 @@ polo_error_t polo_proxgrad_psw(const polo_value_t *xbegin,
 
 polo_error_t polo_gradient_s(polo_value_t *fval, polo_value_t *xbegin,
                              polo_value_t *xend, polo_loss_t loss_f,
-                             void *loss_d, polo_terminator_t term_f,
-                             void *term_d, polo_logger_t log_f, void *log_d,
+                             void *loss_d, polo_logger_t log_f, void *log_d,
+                             polo_terminator_t term_f, void *term_d,
                              const polo_value_t gamma);
 
 polo_error_t polo_gradient_cr(polo_value_t *fval, polo_value_t *xbegin,
                               polo_value_t *xend, polo_loss_t loss_f,
-                              void *loss_d, polo_terminator_t term_f,
-                              void *term_d, polo_logger_t log_f, void *log_d,
+                              void *loss_d, polo_logger_t log_f, void *log_d,
+                              polo_terminator_t term_f, void *term_d,
                               const polo_value_t gamma,
                               const unsigned int nthreads);
 
-polo_error_t polo_gradient_psm(polo_terminator_t term_f, void *term_d,
-                               polo_logger_t log_f, void *log_d,
+polo_error_t polo_gradient_psm(polo_logger_t log_f, void *log_d,
+                               polo_terminator_t term_f, void *term_d,
                                const polo_value_t gamma,
                                const polo_ps_options_t opts);
 
 polo_error_t polo_gradient_pss(const polo_value_t *xbegin,
-                               const polo_value_t *xend,
-                               polo_terminator_t term_f, void *term_d,
-                               polo_logger_t log_f, void *log_d,
-                               const polo_ps_options_t opts);
+                               const polo_value_t *xend, polo_logger_t log_f,
+                               void *log_d, polo_terminator_t term_f,
+                               void *term_d, const polo_ps_options_t opts);
 
 polo_error_t polo_gradient_psw(const polo_value_t *xbegin,
                                const polo_value_t *xend, polo_loss_t loss_f,
@@ -139,28 +137,27 @@ polo_error_t polo_gradient_psw(const polo_value_t *xbegin,
 
 polo_error_t polo_momentum_s(polo_value_t *fval, polo_value_t *xbegin,
                              polo_value_t *xend, polo_loss_t loss_f,
-                             void *loss_d, polo_terminator_t term_f,
-                             void *term_d, polo_logger_t log_f, void *log_d,
+                             void *loss_d, polo_logger_t log_f, void *log_d,
+                             polo_terminator_t term_f, void *term_d,
                              const polo_value_t mu, const polo_value_t epsilon);
 
 polo_error_t polo_momentum_cr(polo_value_t *fval, polo_value_t *xbegin,
                               polo_value_t *xend, polo_loss_t loss_f,
-                              void *loss_d, polo_terminator_t term_f,
-                              void *term_d, polo_logger_t log_f, void *log_d,
+                              void *loss_d, polo_logger_t log_f, void *log_d,
+                              polo_terminator_t term_f, void *term_d,
                               const polo_value_t mu, const polo_value_t epsilon,
                               const unsigned int nthreads);
 
-polo_error_t polo_momentum_psm(polo_terminator_t term_f, void *term_d,
-                               polo_logger_t log_f, void *log_d,
+polo_error_t polo_momentum_psm(polo_logger_t log_f, void *log_d,
+                               polo_terminator_t term_f, void *term_d,
                                const polo_value_t mu,
                                const polo_value_t epsilon,
                                const polo_ps_options_t opts);
 
 polo_error_t polo_momentum_pss(const polo_value_t *xbegin,
-                               const polo_value_t *xend,
-                               polo_terminator_t term_f, void *term_d,
-                               polo_logger_t log_f, void *log_d,
-                               const polo_ps_options_t opts);
+                               const polo_value_t *xend, polo_logger_t log_f,
+                               void *log_d, polo_terminator_t term_f,
+                               void *term_d, const polo_ps_options_t opts);
 
 polo_error_t polo_momentum_psw(const polo_value_t *xbegin,
                                const polo_value_t *xend, polo_loss_t loss_f,
@@ -169,28 +166,27 @@ polo_error_t polo_momentum_psw(const polo_value_t *xbegin,
 
 polo_error_t polo_nesterov_s(polo_value_t *fval, polo_value_t *xbegin,
                              polo_value_t *xend, polo_loss_t loss_f,
-                             void *loss_d, polo_terminator_t term_f,
-                             void *term_d, polo_logger_t log_f, void *log_d,
+                             void *loss_d, polo_logger_t log_f, void *log_d,
+                             polo_terminator_t term_f, void *term_d,
                              const polo_value_t mu, const polo_value_t epsilon);
 
 polo_error_t polo_nesterov_cr(polo_value_t *fval, polo_value_t *xbegin,
                               polo_value_t *xend, polo_loss_t loss_f,
-                              void *loss_d, polo_terminator_t term_f,
-                              void *term_d, polo_logger_t log_f, void *log_d,
+                              void *loss_d, polo_logger_t log_f, void *log_d,
+                              polo_terminator_t term_f, void *term_d,
                               const polo_value_t mu, const polo_value_t epsilon,
                               const unsigned int nthreads);
 
-polo_error_t polo_nesterov_psm(polo_terminator_t term_f, void *term_d,
-                               polo_logger_t log_f, void *log_d,
+polo_error_t polo_nesterov_psm(polo_logger_t log_f, void *log_d,
+                               polo_terminator_t term_f, void *term_d,
                                const polo_value_t mu,
                                const polo_value_t epsilon,
                                const polo_ps_options_t opts);
 
 polo_error_t polo_nesterov_pss(const polo_value_t *xbegin,
-                               const polo_value_t *xend,
-                               polo_terminator_t term_f, void *term_d,
-                               polo_logger_t log_f, void *log_d,
-                               const polo_ps_options_t opts);
+                               const polo_value_t *xend, polo_logger_t log_f,
+                               void *log_d, polo_terminator_t term_f,
+                               void *term_d, const polo_ps_options_t opts);
 
 polo_error_t polo_nesterov_psw(const polo_value_t *xbegin,
                                const polo_value_t *xend, polo_loss_t loss_f,
@@ -199,30 +195,29 @@ polo_error_t polo_nesterov_psw(const polo_value_t *xbegin,
 
 polo_error_t polo_adagrad_s(polo_value_t *fval, polo_value_t *xbegin,
                             polo_value_t *xend, polo_loss_t loss_f,
-                            void *loss_d, polo_terminator_t term_f,
-                            void *term_d, polo_logger_t log_f, void *log_d,
+                            void *loss_d, polo_logger_t log_f, void *log_d,
+                            polo_terminator_t term_f, void *term_d,
                             const polo_value_t gamma,
                             const polo_value_t epsilon);
 
 polo_error_t polo_adagrad_cr(polo_value_t *fval, polo_value_t *xbegin,
                              polo_value_t *xend, polo_loss_t loss_f,
-                             void *loss_d, polo_terminator_t term_f,
-                             void *term_d, polo_logger_t log_f, void *log_d,
+                             void *loss_d, polo_logger_t log_f, void *log_d,
+                             polo_terminator_t term_f, void *term_d,
                              const polo_value_t gamma,
                              const polo_value_t epsilon,
                              const unsigned int nthreads);
 
-polo_error_t polo_adagrad_psm(polo_terminator_t term_f, void *term_d,
-                              polo_logger_t log_f, void *log_d,
+polo_error_t polo_adagrad_psm(polo_logger_t log_f, void *log_d,
+                              polo_terminator_t term_f, void *term_d,
                               const polo_value_t gamma,
                               const polo_value_t epsilon,
                               const polo_ps_options_t opts);
 
 polo_error_t polo_adagrad_pss(const polo_value_t *xbegin,
-                              const polo_value_t *xend,
-                              polo_terminator_t term_f, void *term_d,
-                              polo_logger_t log_f, void *log_d,
-                              const polo_ps_options_t opts);
+                              const polo_value_t *xend, polo_logger_t log_f,
+                              void *log_d, polo_terminator_t term_f,
+                              void *term_d, const polo_ps_options_t opts);
 
 polo_error_t polo_adagrad_psw(const polo_value_t *xbegin,
                               const polo_value_t *xend, polo_loss_t loss_f,
@@ -231,30 +226,29 @@ polo_error_t polo_adagrad_psw(const polo_value_t *xbegin,
 
 polo_error_t polo_adadelta_s(polo_value_t *fval, polo_value_t *xbegin,
                              polo_value_t *xend, polo_loss_t loss_f,
-                             void *loss_d, polo_terminator_t term_f,
-                             void *term_d, polo_logger_t log_f, void *log_d,
+                             void *loss_d, polo_logger_t log_f, void *log_d,
+                             polo_terminator_t term_f, void *term_d,
                              const polo_value_t rho,
                              const polo_value_t epsilon);
 
 polo_error_t polo_adadelta_cr(polo_value_t *fval, polo_value_t *xbegin,
                               polo_value_t *xend, polo_loss_t loss_f,
-                              void *loss_d, polo_terminator_t term_f,
-                              void *term_d, polo_logger_t log_f, void *log_d,
+                              void *loss_d, polo_logger_t log_f, void *log_d,
+                              polo_terminator_t term_f, void *term_d,
                               const polo_value_t rho,
                               const polo_value_t epsilon,
                               const unsigned int nthreads);
 
-polo_error_t polo_adadelta_psm(polo_terminator_t term_f, void *term_d,
-                               polo_logger_t log_f, void *log_d,
+polo_error_t polo_adadelta_psm(polo_logger_t log_f, void *log_d,
+                               polo_terminator_t term_f, void *term_d,
                                const polo_value_t rho,
                                const polo_value_t epsilon,
                                const polo_ps_options_t opts);
 
 polo_error_t polo_adadelta_pss(const polo_value_t *xbegin,
-                               const polo_value_t *xend,
-                               polo_terminator_t term_f, void *term_d,
-                               polo_logger_t log_f, void *log_d,
-                               const polo_ps_options_t opts);
+                               const polo_value_t *xend, polo_logger_t log_f,
+                               void *log_d, polo_terminator_t term_f,
+                               void *term_d, const polo_ps_options_t opts);
 
 polo_error_t polo_adadelta_psw(const polo_value_t *xbegin,
                                const polo_value_t *xend, polo_loss_t loss_f,
@@ -263,28 +257,28 @@ polo_error_t polo_adadelta_psw(const polo_value_t *xbegin,
 
 polo_error_t polo_adam_s(polo_value_t *fval, polo_value_t *xbegin,
                          polo_value_t *xend, polo_loss_t loss_f, void *loss_d,
-                         polo_terminator_t term_f, void *term_d,
                          polo_logger_t log_f, void *log_d,
+                         polo_terminator_t term_f, void *term_d,
                          const polo_value_t gamma, const polo_value_t beta1,
                          const polo_value_t beta2, const polo_value_t epsilon);
 
 polo_error_t polo_adam_cr(polo_value_t *fval, polo_value_t *xbegin,
                           polo_value_t *xend, polo_loss_t loss_f, void *loss_d,
-                          polo_terminator_t term_f, void *term_d,
                           polo_logger_t log_f, void *log_d,
+                          polo_terminator_t term_f, void *term_d,
                           const polo_value_t gamma, const polo_value_t beta1,
                           const polo_value_t beta2, const polo_value_t epsilon,
                           const unsigned int nthreads);
 
-polo_error_t polo_adam_psm(polo_terminator_t term_f, void *term_d,
-                           polo_logger_t log_f, void *log_d,
+polo_error_t polo_adam_psm(polo_logger_t log_f, void *log_d,
+                           polo_terminator_t term_f, void *term_d,
                            const polo_value_t gamma, const polo_value_t beta1,
                            const polo_value_t beta2, const polo_value_t epsilon,
                            const polo_ps_options_t opts);
 
 polo_error_t polo_adam_pss(const polo_value_t *xbegin, const polo_value_t *xend,
-                           polo_terminator_t term_f, void *term_d,
                            polo_logger_t log_f, void *log_d,
+                           polo_terminator_t term_f, void *term_d,
                            const polo_ps_options_t opts);
 
 polo_error_t polo_adam_psw(const polo_value_t *xbegin, const polo_value_t *xend,
@@ -294,29 +288,29 @@ polo_error_t polo_adam_psw(const polo_value_t *xbegin, const polo_value_t *xend,
 
 polo_error_t polo_nadam_s(polo_value_t *fval, polo_value_t *xbegin,
                           polo_value_t *xend, polo_loss_t loss_f, void *loss_d,
-                          polo_terminator_t term_f, void *term_d,
                           polo_logger_t log_f, void *log_d,
+                          polo_terminator_t term_f, void *term_d,
                           const polo_value_t gamma, const polo_value_t beta1,
                           const polo_value_t beta2, const polo_value_t epsilon);
 
 polo_error_t polo_nadam_cr(polo_value_t *fval, polo_value_t *xbegin,
                            polo_value_t *xend, polo_loss_t loss_f, void *loss_d,
-                           polo_terminator_t term_f, void *term_d,
                            polo_logger_t log_f, void *log_d,
+                           polo_terminator_t term_f, void *term_d,
                            const polo_value_t gamma, const polo_value_t beta1,
                            const polo_value_t beta2, const polo_value_t epsilon,
                            const unsigned int nthreads);
 
-polo_error_t polo_nadam_psm(polo_terminator_t term_f, void *term_d,
-                            polo_logger_t log_f, void *log_d,
+polo_error_t polo_nadam_psm(polo_logger_t log_f, void *log_d,
+                            polo_terminator_t term_f, void *term_d,
                             const polo_value_t gamma, const polo_value_t beta1,
                             const polo_value_t beta2,
                             const polo_value_t epsilon,
                             const polo_ps_options_t opts);
 
 polo_error_t polo_nadam_pss(const polo_value_t *xbegin,
-                            const polo_value_t *xend, polo_terminator_t term_f,
-                            void *term_d, polo_logger_t log_f, void *log_d,
+                            const polo_value_t *xend, polo_logger_t log_f,
+                            void *log_d, polo_terminator_t term_f, void *term_d,
                             const polo_ps_options_t opts);
 
 polo_error_t polo_nadam_psw(const polo_value_t *xbegin,

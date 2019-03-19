@@ -2,7 +2,6 @@
 #include "polo_aux.hpp"
 
 #include "polo/algorithm/proxgradient.hpp"
-#include "polo/encoder/identity.hpp"
 #include "polo/execution/paramserver.hpp"
 
 extern "C" {
@@ -24,12 +23,12 @@ polo_error_t polo_gradient_psw(const polo_value_t *xbegin,
         [=](const polo_value_t *xbegin, polo_value_t *gbegin) {
           return loss_f(xbegin, gbegin, loss_d);
         },
-        encoder::identity<polo_value_t, polo_index_t>{}, nullptr,
         [=](const polo_index_t k, const polo_value_t fval,
             const polo_value_t *xbegin, const polo_value_t *xend,
             const polo_value_t *gbegin) {
           log_f(k, fval, xbegin, xend, gbegin, log_d);
-        });
+        },
+        nullptr);
   } catch (const std::exception &ex) {
     parse_ex(ex, err);
   }

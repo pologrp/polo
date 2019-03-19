@@ -57,10 +57,9 @@ zero-vector of appropriate dimension, and run the algorithm. To compile
 :numref:`code-svmdata`, we add the following lines to our previous
 ``CMakeLists.txt``:
 
-.. code-block:: cmake
-
-  add_executable(svmdata svmdata.cpp)
-  target_link_libraries(svmdata polo::polo)
+.. literalinclude:: /examples/getting-started/CMakeLists.txt
+  :language: cmake
+  :lines: 8-9
 
 Building the executable using CMake and running the resulting program give::
 
