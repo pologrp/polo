@@ -10,13 +10,12 @@ Programs that use ``polo`` are written in a single C++ file, as shown in
 
   All the code samples presented in this documentation are provided under
   ``docs/examples`` directory in the source tree. Listing captions give the
-  relative path to the sample file (without the ``.cpp`` extension). For
-  example, ``getting-started/anatomy`` refers to ``anatomy.cpp`` file under
-  ``docs/examples/getting-started``.
+  relative path to the sample file. For example, ``getting-started/anatomy.cpp``
+  refers to ``anatomy.cpp`` file under ``docs/examples/getting-started``.
 
 .. literalinclude:: /examples/getting-started/anatomy.cpp
   :language: cpp
-  :caption: getting-started/anatomy
+  :caption: getting-started/anatomy.cpp
   :name: code-anatomy
   :linenos:
 

@@ -22,7 +22,7 @@ highlighted).
 
 .. literalinclude:: /examples/getting-started/svmdata.cpp
   :language: cpp
-  :caption: getting-started/svmdata
+  :caption: getting-started/svmdata.cpp
   :name: code-svmdata
   :linenos:
   :emphasize-lines: 12-13,18-27,31,34

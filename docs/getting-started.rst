@@ -13,5 +13,5 @@ In this chapter, we focus on how to get started with ``polo``.
   getting-started/compilation
   getting-started/data
   getting-started/logging
-  getting-started/loss
   getting-started/terminator
+  getting-started/loss

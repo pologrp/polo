@@ -11,7 +11,7 @@
 #include "polo/prox/none.hpp"
 #include "polo/smoothing/none.hpp"
 #include "polo/step/constant.hpp"
-#include "polo/utility/maxiter.hpp"
+#include "polo/terminator/iteration.hpp"
 #include "polo/utility/null.hpp"
 #include "polo/utility/sampler.hpp"
 
@@ -81,12 +81,12 @@ struct proxgradient : public boosting<value_t, index_t>,
   }
   template <class Loss, class Logger> void solve(Loss &&loss, Logger &&logger) {
     solve(std::forward<Loss>(loss), std::forward<Logger>(logger),
-          utility::terminator::maxiter<value_t, index_t>{100},
+          terminator::iteration<value_t, index_t>{100},
           encoder::identity<value_t, index_t>{});
   }
   template <class Loss> void solve(Loss &&loss) {
     solve(std::forward<Loss>(loss), utility::detail::null{},
-          utility::terminator::maxiter<value_t, index_t>{100},
+          terminator::iteration<value_t, index_t>{100},
           encoder::identity<value_t, index_t>{});
   }
 
@@ -114,7 +114,7 @@ struct proxgradient : public boosting<value_t, index_t>,
              Sampler &&sampler, const index_t num_components, Logger &&logger) {
     solve(std::forward<Loss>(loss), s, std::forward<Sampler>(sampler),
           num_components, std::forward<Logger>(logger),
-          utility::terminator::maxiter<value_t, index_t>{100},
+          terminator::iteration<value_t, index_t>{100},
           encoder::identity<value_t, index_t>{});
   }
   template <class Loss, class Sampler>
@@ -122,7 +122,7 @@ struct proxgradient : public boosting<value_t, index_t>,
              Sampler &&sampler, const index_t num_components) {
     solve(std::forward<Loss>(loss), s, std::forward<Sampler>(sampler),
           num_components, utility::detail::null{},
-          utility::terminator::maxiter<value_t, index_t>{100},
+          terminator::iteration<value_t, index_t>{100},
           encoder::identity<value_t, index_t>{});
   }
 
@@ -151,7 +151,7 @@ struct proxgradient : public boosting<value_t, index_t>,
              Logger &&logger) {
     solve(std::forward<Loss>(loss), s, std::forward<Sampler>(sampler),
           num_coordinates, std::forward<Logger>(logger),
-          utility::terminator::maxiter<value_t, index_t>{100},
+          terminator::iteration<value_t, index_t>{100},
           encoder::identity<value_t, index_t>{});
   }
   template <class Loss, class Sampler>
@@ -159,7 +159,7 @@ struct proxgradient : public boosting<value_t, index_t>,
              Sampler &&sampler, const index_t num_coordinates) {
     solve(std::forward<Loss>(loss), s, std::forward<Sampler>(sampler),
           num_coordinates, utility::detail::null{},
-          utility::terminator::maxiter<value_t, index_t>{100},
+          terminator::iteration<value_t, index_t>{100},
           encoder::identity<value_t, index_t>{});
   }
 
@@ -197,7 +197,7 @@ struct proxgradient : public boosting<value_t, index_t>,
     solve(std::forward<Loss>(loss), s1, std::forward<Sampler1>(sampler1),
           num_components, s2, std::forward<Sampler2>(sampler2), num_coordinates,
           std::forward<Logger>(logger),
-          utility::terminator::maxiter<value_t, index_t>{100},
+          terminator::iteration<value_t, index_t>{100},
           encoder::identity<value_t, index_t>{});
   }
   template <class Loss, class Sampler1, class Sampler2>
@@ -207,8 +207,7 @@ struct proxgradient : public boosting<value_t, index_t>,
              Sampler2 &&sampler2, const index_t num_coordinates) {
     solve(std::forward<Loss>(loss), s1, std::forward<Sampler1>(sampler1),
           num_components, s2, std::forward<Sampler2>(sampler2), num_coordinates,
-          utility::detail::null{},
-          utility::terminator::maxiter<value_t, index_t>{100},
+          utility::detail::null{}, terminator::iteration<value_t, index_t>{100},
           encoder::identity<value_t, index_t>{});
   }
 

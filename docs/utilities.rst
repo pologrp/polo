@@ -9,6 +9,7 @@ In this chapter, we cover the ``utilities`` layer of ``polo``.
   :hidden:
 
   utilities/logging
+  utilities/terminator
   utilities/matrix
   utilities/data
   utilities/loss

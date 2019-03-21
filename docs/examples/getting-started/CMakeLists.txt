@@ -19,12 +19,19 @@ if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/data/australian_scale)
 endif()
 add_test(NAME polo.examples.getting.svmdata COMMAND svmdata)
 set_tests_properties(polo.examples.getting.svmdata PROPERTIES
-  PASS_REGULAR_EXPRESSION "Optimum: 229.22*"
+  PASS_REGULAR_EXPRESSION "Optimum: 229.222"
 )
 
 add_executable(logger logger.cpp)
 target_link_libraries(logger polo::polo)
 add_test(NAME polo.examples.getting.logger COMMAND logger)
 set_tests_properties(polo.examples.getting.logger PROPERTIES
-  PASS_REGULAR_EXPRESSION "Optimum: 229.22*"
+  PASS_REGULAR_EXPRESSION "Optimum: 229.222"
+)
+
+add_executable(terminator terminator.cpp)
+target_link_libraries(terminator polo::polo)
+add_test(NAME polo.examples.getting.terminator COMMAND terminator)
+set_tests_properties(polo.examples.getting.terminator PROPERTIES
+  PASS_REGULAR_EXPRESSION "Optimum: 222.288758"
 )

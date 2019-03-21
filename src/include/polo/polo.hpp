@@ -11,6 +11,7 @@
 #include "polo/prox.hpp"
 #include "polo/smoothing.hpp"
 #include "polo/step.hpp"
+#include "polo/terminator.hpp"
 #include "polo/utility.hpp"
 
 #endif
