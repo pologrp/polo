@@ -17,7 +17,8 @@ struct decision {
                   InputIt1 x_end, InputIt2 g_begin) {
     const size_t d = std::distance(x_begin, x_end);
     if (xprev.size() != d) {
-      xprev = std::vector<value_t>(d);
+      xprev = std::vector<value_t>(x_begin, x_end);
+      return false;
     }
     return terminate(x_begin, x_end, std::begin(xprev),
                      std::integral_constant<int, p>{});
@@ -29,7 +30,7 @@ private:
                  std::integral_constant<int, _p>) const {
     value_t norm{0};
     while (x_begin != x_end) {
-      const value_t val = x_begin++;
+      const value_t val = *x_begin++;
       const value_t diff = std::abs(*xprev_begin - val);
       norm += std::pow(diff, value_t(_p));
       *xprev_begin++ = val;
@@ -42,7 +43,7 @@ private:
                  std::integral_constant<int, -1>) const {
     value_t max{0};
     while (x_begin != x_end) {
-      const value_t val = x_begin++;
+      const value_t val = *x_begin++;
       const value_t diff = std::abs(*xprev_begin - val);
       if (diff > max)
         max = diff;
@@ -55,7 +56,7 @@ private:
                  std::integral_constant<int, 1>) const {
     value_t norm{0};
     while (x_begin != x_end) {
-      const value_t val = x_begin++;
+      const value_t val = *x_begin++;
       norm += std::abs(*xprev_begin - val);
       *xprev_begin++ = val;
     }
@@ -66,7 +67,7 @@ private:
                  std::integral_constant<int, 2>) const {
     value_t norm{0};
     while (x_begin != x_end) {
-      const value_t val = x_begin++;
+      const value_t val = *x_begin++;
       const value_t diff = *xprev_begin - val;
       norm += diff * diff;
       *xprev_begin++ = val;
@@ -78,7 +79,7 @@ private:
                  std::integral_constant<int, 3>) const {
     value_t norm{0};
     while (x_begin != x_end) {
-      const value_t val = x_begin++;
+      const value_t val = *x_begin++;
       const value_t diff = std::abs(*xprev_begin - val);
       norm += diff * diff * diff;
       *xprev_begin++ = val;

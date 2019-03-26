@@ -35,3 +35,10 @@ add_test(NAME polo.examples.getting.terminator COMMAND terminator)
 set_tests_properties(polo.examples.getting.terminator PROPERTIES
   PASS_REGULAR_EXPRESSION "Optimum: 222.288758"
 )
+
+add_executable(loss loss.cpp)
+target_link_libraries(loss polo::polo)
+add_test(NAME polo.examples.getting.loss COMMAND loss)
+set_tests_properties(polo.examples.getting.loss PROPERTIES
+  PASS_REGULAR_EXPRESSION "Optimum: 0.000000"
+)
