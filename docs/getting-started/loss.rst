@@ -113,7 +113,7 @@ algorithm when the following condition holds:
 
 .. math::
 
-  {\left\lVert x_{k-1} - x_{k} \right\rVert}^{2}_{2} < \epsilon_{\text{abs}}
+  {\left\lVert x_{k-1} - x_{k} \right\rVert}_{2} < \epsilon_{\text{abs}}
     = 10^{-8} \,.
 
 Rebuilding the project and rerunning the executable should give the following::
