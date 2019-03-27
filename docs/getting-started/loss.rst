@@ -13,9 +13,9 @@ following simple loss function:
 
   \operatorname{f}(x) = \sum_{n=1}^{N} \frac{1}{n} {\left(x^{(n)} - n\right)}^{2}
 
-for some :math:`N \geq 1`. As can be observed, the loss is a quadratic function
-of the :math:`N`-dimensional decision vector, and the optimizer of Problem
-:eq:`composite` with this loss is
+for some :math:`N \geq 1`. As can be observed, the loss is a convex quadratic
+function of the :math:`N`-dimensional decision vector, and the optimizer of
+Problem :eq:`composite` with this loss is
 
 .. math::
 
