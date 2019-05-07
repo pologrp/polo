@@ -1,2 +1,4 @@
+.. _proxgrad-step:
+
 Step
 ====

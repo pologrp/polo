@@ -66,7 +66,7 @@ Building the executable using CMake and running the resulting program give::
   Optimum: 229.222
   Optimizer: [0.0110083,0.162899,0.0832372,0.627515,0.968077,0.328978,0.257715,1.69923,0.556535,0.157199,-0.143509,0.328954,-0.358702,0.179352,].
 
-.. [2004-Nesterov] Yurii Nesterov. *Introductory Lectures on Convex
+.. [2004-Nesterov] Yurii E. Nesterov. *Introductory Lectures on Convex
   Optimization*. Springer US, 2004. DOI: `10.1007/978-1-4419-8853-9
   <https://doi.org/10.1007/978-1-4419-8853-9>`_.
 .. [2011-Chang] Chih-Chung Chang and Chih-Jen Lin. "LIBSVM." *ACM Transactions

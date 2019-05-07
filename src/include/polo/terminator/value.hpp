@@ -7,7 +7,7 @@
 namespace polo {
 namespace terminator {
 template <class value_t = double, class index_t = int> struct value {
-  value(const value_t abs, const value_t rel = 1E-8,
+  value(const value_t abs, const value_t rel = 0,
         const value_t eps = std::numeric_limits<value_t>::epsilon())
       : abs{abs}, rel{rel}, eps{eps} {}
 

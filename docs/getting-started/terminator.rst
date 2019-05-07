@@ -46,7 +46,7 @@ We append the following lines to ``CMakeLists.txt``
 
 .. literalinclude:: /examples/getting-started/CMakeLists.txt
   :language: cmake
-  :lines: 32-33
+  :lines: 22-23
 
 and build the project. Running the executable should give the output::
 
@@ -73,7 +73,7 @@ figure similar to :numref:`fig-terminator`.
   :language: python
   :caption: getting-started/terminator.py
   :name: code-terminator-plot
-  :emphasize-lines: 6, 25-26
+  :emphasize-lines: 8,31-32
 
 .. figure:: /examples/getting-started/terminator.*
   :name: fig-terminator

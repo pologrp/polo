@@ -11,7 +11,7 @@ using namespace polo;
 int main(int argc, char *argv[]) {
   /* define the problem data */
   auto data =
-      utility::reader<double, int>::svm({"data/australian_scale"}, 690, 14);
+      utility::reader<double, int>::svm({"../data/australian_scale"}, 690, 14);
 
   /* define the smooth loss */
   loss::logistic<double, int> loss(data);
