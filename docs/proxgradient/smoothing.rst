@@ -1,2 +1,4 @@
+.. _proxgrad-smoothing:
+
 Smoothing
 =========

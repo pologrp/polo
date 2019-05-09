@@ -43,7 +43,7 @@ We append the following lines to ``CMakeLists.txt``
 
 .. literalinclude:: /examples/getting-started/CMakeLists.txt
   :language: cmake
-  :lines: 25-26
+  :lines: 15-16
 
 and build the project. Running the executable should give the same output as
 before::

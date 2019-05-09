@@ -52,12 +52,12 @@ int main(int argc, char *argv[]) {
   if (file) { /* if successfully opened for writing */
     file << "k,t,f\n";
     for (const auto &log : logger)
-      file << std::fixed << log.getk() << ',' << log.gett() << ',' << log.getf()
+      file << fixed << log.getk() << ',' << log.gett() << ',' << log.getf()
            << '\n';
   }
 
   /* print the result */
-  cout << "Optimum: " << std::fixed << alg.getf() << '\n';
+  cout << "Optimum: " << fixed << alg.getf() << '\n';
   cout << "Optimizer: [";
   for (const auto val : alg.getx())
     cout << val << ',';

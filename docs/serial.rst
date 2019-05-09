@@ -10,5 +10,5 @@ single CPU.
   :hidden:
 
   serial/proxgradient
-  serial/policies
-  serial/algorithms
+  serial/logistic
+  serial/leastsquares

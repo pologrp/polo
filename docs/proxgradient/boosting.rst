@@ -1,2 +1,4 @@
+.. _proxgrad-boosting:
+
 Boosting
 ========
