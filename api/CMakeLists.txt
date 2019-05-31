@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.9.0)
 
 project(polo-api)
 
+include(GNUInstallDirs)
+
 if (NOT TARGET polo::polo)
   find_package(polo CONFIG REQUIRED)
 endif()
@@ -50,13 +52,23 @@ add_library(poloapi
   src/polo_proxgrad_pss.cpp
   src/polo_proxgrad_psw.cpp
 )
-target_include_directories(poloapi PUBLIC include)
+target_include_directories(poloapi
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
 target_link_libraries(poloapi PRIVATE polo::polo)
-set_target_properties(poloapi PROPERTIES PUBLIC_HEADER include/polo_api.h)
+set_target_properties(poloapi
+  PROPERTIES
+    PUBLIC_HEADER include/polo_api.h
+    DEBUG_POSTFIX "-d"
+)
 
 install(TARGETS poloapi
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-  PUBLIC_HEADER DESTINATION include
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+
+include(CPack)

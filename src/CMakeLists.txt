@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.9.0)
 
 project(polo VERSION 1.0.0 LANGUAGES C CXX)
 
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
+
 find_package(Threads REQUIRED)
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
@@ -16,8 +19,8 @@ target_compile_features(polo INTERFACE cxx_std_11)
 
 target_include_directories(polo
   INTERFACE
-    $<BUILD_INTERFACE:${polo_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_link_libraries(polo
@@ -47,12 +50,15 @@ install(TARGETS polo EXPORT polo)
 install(EXPORT polo
   FILE polo-targets.cmake
   NAMESPACE polo::
-  DESTINATION lib/cmake/polo
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/polo
 )
 
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file("polo-config-version.cmake"
-  VERSION ${polo_VERSION}
+configure_package_config_file(polo-config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/polo-config.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/polo
+)
+
+write_basic_package_version_file(polo-config-version.cmake
   COMPATIBILITY SameMajorVersion
 )
 
@@ -60,15 +66,15 @@ install(
   DIRECTORY
     include/polo/
   DESTINATION
-    include/polo
+    ${CMAKE_INSTALL_INCLUDEDIR}/polo
 )
-
-configure_file(polo-config.cmake.in polo-config.cmake @ONLY)
 
 install(
   FILES
-    "${polo_BINARY_DIR}/polo-config.cmake"
-    "${polo_BINARY_DIR}/polo-config-version.cmake"
+    ${CMAKE_CURRENT_BINARY_DIR}/polo-config.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/polo-config-version.cmake
   DESTINATION
-    lib/cmake/polo
+    ${CMAKE_INSTALL_LIBDIR}/cmake/polo
 )
+
+include(CPack)
