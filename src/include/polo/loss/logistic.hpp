@@ -15,8 +15,7 @@ struct logistic : public aloss<value_t, index_t> {
   logistic(data<value_t, index_t> data)
       : aloss<value_t, index_t>(std::move(data)) {}
 
-  value_t operator()(const value_t *x, value_t *g) const
-      noexcept override final {
+  value_t operator()(const value_t *x, value_t *g) const noexcept override {
     value_t loss{0};
     std::vector<value_t> ax(aloss<value_t, index_t>::nsamples());
     auto A = aloss<value_t, index_t>::matrix();
@@ -39,7 +38,7 @@ struct logistic : public aloss<value_t, index_t> {
     return loss;
   }
   value_t operator()(const value_t *x, value_t *g, const index_t *ib,
-                     const index_t *ie) const noexcept override final {
+                     const index_t *ie) const noexcept override {
     value_t loss{0};
     std::vector<value_t> ax(std::distance(ib, ie));
     auto A = aloss<value_t, index_t>::matrix();
