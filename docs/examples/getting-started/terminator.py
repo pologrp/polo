@@ -18,13 +18,13 @@ fig, axes = plt.subplots(1, 2, sharey=True, figsize=(h, w))
 
 # f vs k
 axes[0].plot(k, f)
-axes[0].set_xlabel(r"$k$")
-axes[0].set_ylabel(r"$f(\cdot)$")
+axes[0].set_xlabel(r"Iteration ($k$)")
+axes[0].set_ylabel(r"Total Loss")
 axes[0].grid()
 
 # f vs t
 axes[1].plot(t, f)
-axes[1].set_xlabel(r"$t$ [ms]")
+axes[1].set_xlabel(r"Time ($t$) [ms]")
 axes[1].grid()
 
 plt.tight_layout()

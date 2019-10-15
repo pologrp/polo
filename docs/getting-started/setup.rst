@@ -1,9 +1,9 @@
 Setting Up
 ==========
 
-In this section, we will cover how to download, and install ``polo`` from
+In this section, we will cover how to download and install ``polo`` from
 source, or use the prebuilt multi-architecture Docker_ images. The commands
-given in this section are valid ``bash`` commands, and they should work on
+given in this section are valid ``bash`` commands and they should work on
 Unix-like systems as well as Windows [#f1]_.
 
 .. _Docker: https://www.docker.com/
@@ -14,8 +14,8 @@ Obtaining the Library
 ``polo`` is hosted_ at GitHub under the permissive MIT license. There are two
 different ways to obtain the library.
 
-The first, and the suggested, way is to use git_ to clone the repository, and
-check out a specific version (i.e., a snapshot). For instance, the following
+The first, and the suggested, way is to use git_ to clone the repository and
+check out a specific version (i.e., a *snapshot*). For instance, the following
 code will clone the latest snapshot (i.e., the ``master`` branch) of the
 library
 
@@ -24,7 +24,7 @@ library
   git clone https://github.com/pologrp/polo $HOME/polo
 
 to ``polo`` directory under ``$HOME``, which serves as the default repository
-for a user's personal files on Unix-like systems. Later, we can change
+for a user's personal files on most Unix-like systems. Later, we can change
 directory and check out a different snapshot by issuing the following command
 
 .. code-block:: shell
@@ -91,9 +91,8 @@ under ``$HOME/polo`` so that CMake can create its artifacts:
 
 .. code-block:: shell
 
-  cd $HOME/polo
-  mkdir build
-  cd build
+  mkdir $HOME/polo/build
+  cd $HOME/polo/build
 
 From this point, there are two options to install ``polo``. The first is to
 check the system for the installed libraries, configure ``polo`` to enable

@@ -39,8 +39,8 @@ used to prevent dividing by zero [#f1]_. Then, we provide ``terminator`` to the
 In the code, we use `std::fixed <https://en.cppreference.com/w/cpp/io/manip/fixed>`_
 to print floating-point numbers in a fixed, 6-digit precision (default)
 format, and ``getk``, ``gett`` and ``getf`` member functions of ``log`` [#f2]_
-to get the iteration count, wall-clock time and the loss value of each logged
-iteration of the algorithm.
+to get, respectively, the iteration count, wall-clock time and the loss value
+at each logged iteration of the algorithm.
 
 We append the following lines to ``CMakeLists.txt``
 

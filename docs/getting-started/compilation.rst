@@ -18,8 +18,8 @@ process much more easily.
 
 To build code that requires ``polo``, we simply create a *CMake project*. A
 CMake project is a directory that has a ``CMakeLists.txt`` file, which lists
-the executable files, and their dependencies in the directory. Most modern
-integrated development environments (IDEs) natively support CMake projects, and
+the executable files and their dependencies in the directory. Most modern
+integrated development environments (IDEs) natively support CMake projects and
 help users create the ``CMakeLists.txt`` file interactively [#f1]_. However, we
 briefly mention here how to create and use CMake projects, manually, in the
 most basic form.
@@ -36,16 +36,16 @@ directory, we create a ``CMakeLists.txt`` file that has the following lines
   find_package(polo CONFIG REQUIRED)
 
   add_executable(anatomy anatomy.cpp)
-  target_link_libraries(anatomy polo::polo)
+  target_link_libraries(anatomy PRIVATE polo::polo)
 
 Here, we first choose a minimum version of CMake that is required for our
-project, and name our project ``polo-examples``. Then, we tell CMake to find
+project and name our project ``polo-examples``. Then, we tell CMake to find
 the configuration files for ``polo``, which is required for our project. If
 CMake cannot find the configuration files, the build process will stop.
-Otherwise, CMake will source the configuration files, and create a target
-library called ``polo::polo``, which knows how to handle its own dependencies.
+Otherwise, CMake will source the configuration files and create a target
+library called ``polo::polo``, which knows how to handle its dependencies.
 Finally, for each executable we might have in the directory, we create a target
-executable (``add_executable``), and we link it against ``polo::polo``
+executable (``add_executable``) and link it against ``polo::polo``
 (``target_link_libraries``). In the example, we have only one target
 executable, which is named ``anatomy``, and it consists of only one source
 file, ``anatomy.cpp``. Note that we do not need to define any compile-time
@@ -89,7 +89,7 @@ source the configuration files.
   If ``-D CMAKE_INSTALL_PREFIX=$HOME/local`` is not used in :ref:`install`, we
   can drop ``-D CMAKE_PREFIX_PATH=$HOME/local`` when building targets that
   require ``polo``. This is the case when ``polo`` is installed in system
-  directories, or when Docker images are used.
+  directories or when Docker images are used.
 
 In the end, the executable should give the following output::
 

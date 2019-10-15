@@ -1,8 +1,8 @@
 Proximal Gradient Methods
 =========================
 
-One approach for solving instances of Problem :eq:`composite` is to use
-proximal gradient methods. The basic form of the proximal gradient iteration is
+One approach to solving instances of Problem :eq:`composite` is to use proximal
+gradient methods. The basic form of the proximal gradient iteration is
 
 .. math::
   :label: proxgrad
@@ -16,7 +16,7 @@ where :math:`\gamma_{k}` is the step size. Thus, the next iterate,
 :math:`x_{k+1}`, is selected to be the minimizer of the sum of the first-order
 approximation of the smooth loss function around the current iterate,
 :math:`x_{k}`, the nonsmooth loss function, and a quadratic penalty on the
-deviation from the the current iterate [2017-Beck]_. After some algebraic
+deviation from the current iterate [2017-Beck]_. After some algebraic
 manipulations, one can rewrite Equation :eq:`proxgrad` in terms of the proximal
 operator [2017-Beck]_
 

@@ -73,32 +73,100 @@ to :numref:`fig-serial-logistic`.
 In :numref:`fig-serial-logistic`, we observe that all four algorithms converge
 roughly to the same loss value when a value terminator with an absolute value
 tolerance of ``5E-2`` is used. Both ``momentum`` and ``nesterov`` require the
-knowledge of the Lipschitz parameter (:math:`L`) of the logistic loss, and they
-have similar convergence profiles. ``adagrad`` and ``adam``, on the other hand,
-are configured *without* using the knowledge of :math:`L` (cf.
-:numref:`code-serial-logistic`), and they can *adapt* their learning rates to
-the loss function at hand. For instance, in ``adagrad``, there is an increase
-in the loss value initially resulting from a too big initial step size, which
-is later accounted for as the algorithm proceeds. It is also worth noting that,
-in ``polo``, the default initial step size for ``adagrad`` is 1, and the
+knowledge of the Lipschitz parameter (:math:`L`) of the logistic loss and have
+similar convergence profiles. ``adagrad`` and ``adam``, on the other hand, are
+configured *without* using the knowledge of :math:`L` (cf.
+:numref:`code-serial-logistic`) and can *adapt* their learning rates to the
+loss function at hand. For instance, in ``adagrad``, there is an increase
+in the loss value initially resulting from a too large step size, which is
+later accounted for as the algorithm proceeds. It is also worth noting that, in
+``polo``, the default initial step size for ``adagrad`` is 1, and the
 configuration in :numref:`code-serial-logistic` for ``adam`` is the one
 suggested in [2014-Kingma]_. Both algorithms can be tuned to have better
 performances than the ones obtained in this example.
 
-Now, we add different regularizers to the problem, and repeat the same
-procedure to solve the corresponding regularized problems.
+Now, we add different regularizers to the problem and repeat the same procedure
+to solve the corresponding regularized problems.
 
 :math:`\ell_{1}` Regularization
 -------------------------------
 
+[1996-Tibshirani]_
+
+.. math::
+
+  \begin{aligned}
+    & \operatorname*{minimize}_{x \in \mathbb{R}^{d}}
+    & & \operatorname{\phi}(x) = \sum_{n = 1}^{N} \log \left( 1 + \exp \left(
+        -b_{n} \left \langle a_{n}, x \right \rangle \right) \right) +
+        \lambda_{1} {\lVert x \rVert}_{1}
+  \end{aligned}
+
+.. literalinclude:: /examples/serial/logistic-l1.cpp
+  :language: cpp
+  :caption: serial/logistic-l1.cpp
+  :name: code-serial-logistic-l1
+  :linenos:
+  :emphasize-lines: 2,34,36,38,40,42-43,45,49,52-53,56,59,70-77
+
+.. literalinclude:: /examples/serial/CMakeLists.txt
+  :language: cmake
+  :lines: 33-35,40-43,48-51,56-59
+
+.. literalinclude:: /examples/serial/logistic-l1.py
+  :language: python
+  :caption: serial/logistic-l1.py
+  :name: code-serial-logistic-l1-plot
+  :emphasize-lines: 13,27-28
+
+.. figure:: /examples/serial/logistic-l1.*
+  :name: fig-serial-logistic-l1
+  :align: center
+
 Elastic Net Regularization
 --------------------------
+
+.. math::
+
+  \begin{aligned}
+    & \operatorname*{minimize}_{x \in \mathbb{R}^{d}}
+    & & \operatorname{\phi}(x) = \underbrace{\sum_{n = 1}^{N} \log \left( 1 +
+        \exp \left(-b_{n} \left \langle a_{n}, x \right \rangle \right) \right)
+        + \frac{\lambda_{2}}{2} {\lVert x \rVert}_{2}^{2}}_{\text{smooth loss}}
+        + \lambda_{1} {\lVert x \rVert}_{1}
+  \end{aligned}
+
+.. literalinclude:: /examples/serial/logistic-l1-l2.cpp
+  :language: cpp
+  :caption: serial/logistic-l1-l2.cpp
+  :name: code-serial-logistic-l1-l2
+  :linenos:
+  :emphasize-lines: 32,37-38,41-42,45,51,66-76
+
+.. literalinclude:: /examples/serial/CMakeLists.txt
+  :language: cmake
+  :lines: 65-67,72-75,80-83,88-91
+
+.. literalinclude:: /examples/serial/logistic-l1-l2.py
+  :language: python
+  :caption: serial/logistic-l1-l2.py
+  :name: code-serial-logistic-l1-l2-plot
+  :emphasize-lines: 13,27-28
+
+.. figure:: /examples/serial/logistic-l1-l2.*
+  :name: fig-serial-logistic-l1-l2
+  :align: center
 
 .. [2016-Ruder] Sebastian Ruder. "An overview of gradient descent optimization
   algorithms." (Sep. 2016). arXiv: `1609.04747
   <https://arxiv.org/abs/1609.04747>`_.
 
+.. [1996-Tibshirani] Robert Tibshirani. "Regression Shrinkage and Selection via
+  the Lasso." *Journal of the Royal Statistical Society: Series B
+  (Methodological)* 58.1 (1996), pp. 267-288. ISSN: 0035-9246. URL:
+  http://www.jstor.org/stable/2346178
+
 .. rubric:: Footnotes
 
-.. [#f1] The configuration of the algorithms and the terminology will become
-  more evident in :ref:`proxgradient`.
+.. [#f1] The terminology and configuration of the algorithms will become more
+  evident in :ref:`proxgradient`.

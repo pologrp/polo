@@ -5,7 +5,7 @@ Defining Custom Loss Functions
 
 In our examples, we have thus far used the ``logistic`` loss on ``data`` that
 is either defined manually or read from a dataset. However, we can also define
-our custom loss functions, and pass them as the first argument to the ``solve``
+our custom loss functions and pass them as the first argument to the ``solve``
 member function of the algorithms. To demonstrate this, we focus on the
 following simple loss function:
 
@@ -25,7 +25,7 @@ Problem :eq:`composite` with this loss is
   \operatorname{f}\left(x^{\star}\right) = 0 \,.
 
 Furthermore, it can easily be verified that the gradient and the Hessian of the
-loss are
+loss at :math:`x` are
 
 .. math::
 

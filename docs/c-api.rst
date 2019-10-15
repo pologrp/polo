@@ -1,7 +1,7 @@
-.. _c-api:
+.. _c api:
 
-C-API
+C API
 =====
 
-In this chapter, we cover the C-API of ``polo`` for high-level language
+In this chapter, we cover the C API of ``polo`` for high-level language
 integrations.

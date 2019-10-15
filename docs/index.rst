@@ -15,8 +15,8 @@ practitioners solve optimization problems of the form
 
 on different computing platforms. Here, the total loss consists of two parts.
 The first part, :math:`\operatorname{f}(\cdot)`, is a *smooth* function of the
-:math:`d`-dimensional decision vector, :math:`x`, and it consists of
-:math:`N` *component* functions:
+:math:`d`-dimensional decision vector, :math:`x`, and it consists of :math:`N`
+*component* functions:
 
 .. math::
 
@@ -47,8 +47,8 @@ mostly related to the internals of the library. These topics would serve as a
 starting point for users and contributors to extend the functionalities of the
 library. In :ref:`proxgradient`, we cover the abstraction for the proximal
 gradient algorithms, and provide detailed information on their *policies*.
-Then, in :ref:`utilities`, we cover the functionalities provided by the
-``utilities`` layer of the library. Finally, in :ref:`c-api`, we provide the C
+Then, in :ref:`utilities`, we cover the functionalities provided with the
+``utilities`` layer of the library. Finally, in :ref:`c api`, we provide the C
 API of the library, which implements many algorithms from the proximal gradient
 family and can be used from high-level languages to solve Problem
 :eq:`composite`.

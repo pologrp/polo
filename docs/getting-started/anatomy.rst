@@ -55,10 +55,10 @@ where :math:`a_{n}` and :math:`b_{n}` are the :math:`n^{\text{th}}` row of
 common smooth loss functions (see :ref:`utilities-loss`). In addition, we can
 define custom loss functions in just a few lines of code. We will discuss this
 in more detail in :ref:`custom-loss`. After defining the smooth loss, we select
-a vanilla gradient descent (``gd``) algorithm, and set its constant step size.
+a vanilla gradient descent (``gd``) algorithm and set its constant step size.
 In fact, ``gd`` is just an alias for a specific algorithm among a number of
 well-known optimization algorithms that ``polo`` supports from the proximal
-gradient family. ``polo`` not only allows users to configure, modify, and
+gradient family. ``polo`` not only allows users to configure, modify and
 extend these algorithms in different ways but also supports the creation of
 completely new algorithms. We will describe this functionality in detail later
 in :ref:`proxgradient`. After configuring the solver, we ``initialize`` it with

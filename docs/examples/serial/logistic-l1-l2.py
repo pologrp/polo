@@ -10,7 +10,7 @@ for (algorithm, axis) in zip(algorithms, axes.reshape(-1)):
     k = []
     f = []
 
-    with open(f"logistic-{algorithm}.csv") as csvfile:
+    with open(f"logistic-l1-l2-{algorithm}.csv") as csvfile:
         csvReader = csv.reader(csvfile, delimiter=",")
         next(csvReader)  # skip the header
         for row in csvReader:
@@ -24,5 +24,5 @@ for (algorithm, axis) in zip(algorithms, axes.reshape(-1)):
     axis.grid()
 
 plt.tight_layout()
-plt.savefig("logistic.svg")
-plt.savefig("logistic.pdf")
+plt.savefig("logistic-l1-l2.svg")
+plt.savefig("logistic-l1-l2.pdf")
